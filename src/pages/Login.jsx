@@ -17,7 +17,7 @@ const Login = () => {
     if (success) {
       navigate('/admin');
     } else {
-      setError('Invalid username or password');
+      setError('Tên đăng nhập hoặc mật khẩu không đúng');
     }
   };
 
@@ -36,7 +36,7 @@ const Login = () => {
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                 >
-                  <BiShield size={60} style={{ color: '#fbbf24' }} />
+                  <BiShield size={60} style={{ color: '#d97706' }} />
                 </motion.div>
                 <h2 className="mt-3" style={{ 
                   background: 'linear-gradient(135deg, #dc2626 0%, #fbbf24 100%)',

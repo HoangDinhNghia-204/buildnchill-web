@@ -648,7 +648,7 @@ body {
 .news-content h4,
 .news-content h5,
 .news-content h6 {
-  color: #fbbf24;
+  color: #d97706;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
   font-weight: 700;
@@ -676,13 +676,14 @@ body {
 }
 
 .news-content a {
-  color: #fbbf24;
+  color: #d97706;
   text-decoration: underline;
   transition: color 0.3s;
+  font-weight: 600;
 }
 
 .news-content a:hover {
-  color: #fcd34d;
+  color: #ea580c;
 }
 
 .news-content ul,
@@ -697,7 +698,7 @@ body {
 }
 
 .news-content blockquote {
-  border-left: 4px solid var(--tet-gold);
+  border-left: 4px solid #d97706;
   padding-left: 1.5rem;
   margin: 1.5rem 0;
   color: var(--text-secondary);
@@ -705,14 +706,16 @@ body {
   background: rgba(217, 119, 6, 0.1);
   padding: 1rem 1.5rem;
   border-radius: 4px;
+  font-weight: 500;
 }
 
 .news-content code {
   background: rgba(220, 38, 38, 0.2);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  color: #fbbf24;
+  color: #d97706;
   font-family: 'Courier New', monospace;
+  font-weight: 600;
 }
 
 .news-content pre {
@@ -727,7 +730,8 @@ body {
 .news-content pre code {
   background: transparent;
   padding: 0;
-  color: #fbbf24;
+  color: #d97706;
+  font-weight: 600;
 }
 
 .news-content table {

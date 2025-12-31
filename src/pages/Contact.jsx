@@ -120,9 +120,9 @@ const Contact = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.7 }}
             >
-              <label htmlFor="message" className="form-label">
-                <BiMessageSquare className="me-2" style={{ color: '#fbbf24' }} />
-                Message
+              <label htmlFor="message" className="form-label" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                <BiMessageSquare className="me-2" style={{ color: '#d97706' }} />
+                Tin Nhắn
               </label>
               <textarea
                 className="form-control"
@@ -130,7 +130,7 @@ const Contact = () => {
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
-                placeholder="Enter your message here..."
+                placeholder="Nhập tin nhắn của bạn..."
                 rows="5"
                 required
                 style={{ minHeight: '150px', resize: 'vertical' }}

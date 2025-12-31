@@ -296,7 +296,7 @@ const Admin = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 style={{ color: '#fbbf24' }}>Quản Lý Tin Tức</h1>
+                <h1 style={{ color: '#d97706', fontWeight: 800 }}>Quản Lý Tin Tức</h1>
                 <motion.button
                   className="tet-button"
                   onClick={handleAddNew}

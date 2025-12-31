@@ -58,11 +58,11 @@ const About = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h3 className="mb-3" style={{ color: '#fbbf24' }}>Welcome to Our Community</h3>
-              <p style={{ color: '#b0b0b0', fontSize: '1.1rem', lineHeight: '1.8' }}>
-                BuildnChill is a friendly and welcoming Minecraft server where players of all skill levels 
-                can come together to build, explore, and have fun. Our mission is to create a positive 
-                gaming environment where creativity thrives and friendships are formed.
+              <h3 className="mb-3" style={{ color: '#d97706', fontWeight: 700 }}>Chào Mừng Đến Cộng Đồng Của Chúng Tôi</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8', fontWeight: 500 }}>
+                BuildnChill là một server Minecraft thân thiện và chào đón, nơi người chơi ở mọi cấp độ kỹ năng 
+                có thể cùng nhau xây dựng, khám phá và vui chơi. Sứ mệnh của chúng tôi là tạo ra một môi trường 
+                game tích cực nơi sự sáng tạo phát triển và tình bạn được hình thành.
               </p>
             </motion.div>
 
@@ -72,8 +72,8 @@ const About = () => {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              <h3 className="mb-4 text-center" style={{ color: '#fbbf24', fontSize: '2rem', fontWeight: 700 }}>
-                What We Offer
+              <h3 className="mb-4 text-center" style={{ color: '#d97706', fontSize: '2rem', fontWeight: 700 }}>
+                Những Gì Chúng Tôi Cung Cấp
               </h3>
               <div className="row g-4">
                 {features.map((feature, index) => {

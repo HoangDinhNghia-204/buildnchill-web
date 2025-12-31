@@ -172,7 +172,8 @@ const News = () => {
                   <h5 
                     className="card-title" 
                     style={{ 
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
+                      fontWeight: 700,
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
                       WebkitBoxOrient: 'vertical',
@@ -182,14 +183,15 @@ const News = () => {
                   >
                     {post.title}
                   </h5>
-                  <p className="text-muted small mb-2">
+                  <p className="text-muted small mb-2" style={{ color: 'var(--text-secondary)' }}>
                     <BiCalendar className="me-1" />
-                    {new Date(post.date).toLocaleDateString()}
+                    {new Date(post.date).toLocaleDateString('vi-VN')}
                   </p>
                   <p 
                     className="card-text" 
                     style={{ 
-                      color: '#b0b0b0',
+                      color: 'var(--text-secondary)',
+                      fontWeight: 500,
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',
@@ -202,7 +204,7 @@ const News = () => {
                   </p>
                   <div className="mt-auto">
                   <Link to={`/news/${post.id}`} className="tet-button w-100 text-center">
-                    Read More
+                    Đọc Thêm
                   </Link>
                   </div>
                 </div>
