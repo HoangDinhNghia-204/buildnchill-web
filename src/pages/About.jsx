@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { BiServer, BiCube, BiGroup, BiTrophy, BiShield, BiHeart } from 'react-icons/bi';
+import { useData } from '../context/DataContext';
 
 const About = () => {
+  const { siteSettings } = useData();
   const features = [
     { icon: BiServer, title: 'Hoạt Động 24/7', description: 'Server của chúng tôi luôn online và sẵn sàng cho bạn chơi.' },
     { icon: BiCube, title: 'Xây Dựng Sáng Tạo', description: 'Thể hiện kỹ năng xây dựng của bạn trong thế giới sáng tạo của chúng tôi.' },
@@ -48,9 +50,9 @@ const About = () => {
                 fontSize: '3rem', 
                 fontWeight: 900 
               }}
-            >
-              About BuildnChill
-            </motion.h1>
+              >
+                Giới Thiệu {siteSettings?.site_title || 'BuildnChill'}
+              </motion.h1>
             
             <motion.div 
               className="glass p-4 mb-5"
@@ -60,7 +62,7 @@ const About = () => {
             >
               <h3 className="mb-3" style={{ color: '#d97706', fontWeight: 700 }}>Chào Mừng Đến Cộng Đồng Của Chúng Tôi</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8', fontWeight: 500 }}>
-                BuildnChill là một server Minecraft thân thiện và chào đón, nơi người chơi ở mọi cấp độ kỹ năng 
+                {siteSettings?.site_title || 'BuildnChill'} là một server Minecraft thân thiện và chào đón, nơi người chơi ở mọi cấp độ kỹ năng 
                 có thể cùng nhau xây dựng, khám phá và vui chơi. Sứ mệnh của chúng tôi là tạo ra một môi trường 
                 game tích cực nơi sự sáng tạo phát triển và tình bạn được hình thành.
               </p>
@@ -110,7 +112,7 @@ const About = () => {
             >
               <h3 className="mb-3" style={{ color: '#d97706', fontWeight: 700 }}>Giá Trị Của Chúng Tôi</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8', fontWeight: 500 }}>
-                Tại BuildnChill, chúng tôi tin vào sự tôn trọng, sáng tạo và niềm vui. Chúng tôi có chính sách 
+                Tại {siteSettings?.site_title || 'BuildnChill'}, chúng tôi tin vào sự tôn trọng, sáng tạo và niềm vui. Chúng tôi có chính sách 
                 không khoan nhượng với hành vi phá hoại, gian lận và độc hại. Đội ngũ nhân viên tận tâm của chúng tôi 
                 làm việc 24/7 để đảm bảo mọi người có trải nghiệm tuyệt vời.
               </p>
@@ -125,8 +127,8 @@ const About = () => {
             >
               <h3 className="mb-3" style={{ color: '#d97706', fontWeight: 700 }}>Tham Gia Ngay Hôm Nay</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8', fontWeight: 500 }}>
-                Dù bạn là một người chơi Minecraft dày dạn kinh nghiệm hay chỉ mới bắt đầu hành trình, BuildnChill 
-                chào đón bạn. Kết nối với server của chúng tôi tại <strong style={{ color: '#d97706' }}>play.buildnchill.com</strong> và bắt đầu 
+                Dù bạn là một người chơi Minecraft dày dạn kinh nghiệm hay chỉ mới bắt đầu hành trình, {siteSettings?.site_title || 'BuildnChill'} 
+                chào đón bạn. Kết nối với server của chúng tôi tại <strong style={{ color: '#d97706' }}>{siteSettings?.server_ip || 'play.buildnchill.com'}</strong> và bắt đầu 
                 cuộc phiêu lưu của bạn ngay hôm nay!
               </p>
             </motion.div>

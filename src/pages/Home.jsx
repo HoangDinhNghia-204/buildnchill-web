@@ -6,7 +6,7 @@ import { BiServer, BiUser, BiCalendar, BiTime, BiChevronLeft, BiChevronRight } f
 import '../styles/carousel.css';
 
 const Home = () => {
-  const { news, serverStatus } = useData();
+  const { news, serverStatus, siteSettings } = useData();
   const [currentSlide, setCurrentSlide] = useState(0);
   
   // Get top 3 latest news
@@ -93,16 +93,6 @@ const Home = () => {
           >
             <BiChevronRight size={30} />
           </button>
-
-          <div className="carousel-indicators">
-            {carouselImages.map((_, index) => (
-              <button
-                key={index}
-                className={`carousel-indicator ${index === currentSlide ? 'active' : ''}`}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
-          </div>
         </div>
       </section>
 
@@ -246,7 +236,7 @@ const Home = () => {
                 </div>
                 <div className="col-md-3 col-sm-6 server-status-item">
                   <strong style={{ color: '#1a1a1a' }}>Phiên Bản</strong>
-                  <div style={{ fontSize: '1.2rem', color: '#1a1a1a', fontWeight: 600 }}>{serverStatus.version}</div>
+                  <div style={{ fontSize: '1.2rem', color: '#1a1a1a', fontWeight: 600 }}>{siteSettings?.server_version || serverStatus.version || '1.20.4'}</div>
                 </div>
                 <div className="col-md-3 col-sm-6 server-status-item">
                   <strong style={{ color: '#1a1a1a' }}>Thời Gian Hoạt Động</strong>

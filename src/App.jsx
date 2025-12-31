@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { DataProvider, useData } from './context/DataContext';
 import TopBar from './components/TopBar';
 import Navbar from './components/Navbar';
@@ -16,7 +17,14 @@ import './styles/custom.css'
 import './styles/carousel.css';
 
 const AppContent = () => {
-  const { isAuthenticated } = useData();
+  const { isAuthenticated, siteSettings } = useData();
+  
+  // Update document title when site title changes
+  useEffect(() => {
+    if (siteSettings?.site_title) {
+      document.title = siteSettings.site_title;
+    }
+  }, [siteSettings?.site_title]);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },

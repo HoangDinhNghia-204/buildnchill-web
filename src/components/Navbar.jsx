@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BiHomeAlt, BiInfoCircle, BiNews, BiEnvelope, BiShield } from 'react-icons/bi';
+import { useData } from '../context/DataContext';
 
 const Navbar = () => {
   const location = useLocation();
+  const { siteSettings } = useData();
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -26,7 +28,7 @@ const Navbar = () => {
     >
       <div className="container">
         <Link className="navbar-brand" to="/">
-          BuildnChill
+          {siteSettings?.site_title || 'BuildnChill'}
         </Link>
         <button
           className="navbar-toggler"

@@ -188,63 +188,106 @@ const Admin = () => {
   }
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: BiBarChart },
-    { id: 'news', label: 'News', icon: BiNews },
-    { id: 'contacts', label: 'Contacts', icon: BiEnvelope },
-    { id: 'server', label: 'Server Status', icon: BiServer }
+    { id: 'dashboard', label: 'Bảng Điều Khiển', icon: BiBarChart },
+    { id: 'news', label: 'Tin Tức', icon: BiNews },
+    { id: 'contacts', label: 'Liên Hệ', icon: BiEnvelope },
+    { id: 'server', label: 'Trạng Thái Server', icon: BiServer },
+    { id: 'settings', label: 'Cài Đặt', icon: BiCog }
   ];
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
-      {/* Sidebar */}
-      <motion.div 
-        className="admin-sidebar"
-        style={{ width: '250px' }}
-        initial={{ x: -250 }}
-        animate={{ x: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="p-3 mb-4">
+    <div style={{ minHeight: '100vh' }}>
+      {/* Top Navigation Bar (for screens < 992px) */}
+      <div className="admin-top-nav d-lg-none">
+        <div className="admin-top-nav-header">
           <h4 style={{ 
-            background: 'linear-gradient(135deg, #dc2626 0%, #fbbf24 100%)',
+            background: 'linear-gradient(135deg, #dc2626 0%, #d97706 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            fontWeight: 800 
-          }}>Admin Panel</h4>
+            fontWeight: 800,
+            margin: 0
+          }}>{siteSettings?.site_title || 'BuildnChill'} Admin</h4>
         </div>
-        <nav className="nav flex-column">
+        <nav className="admin-top-nav-menu">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <motion.button
                 key={tab.id}
-                className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
+                className={`admin-top-nav-item ${activeTab === tab.id ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Icon size={20} />
-                {tab.label}
+                <Icon size={18} />
+                <span className="admin-top-nav-label">{tab.label}</span>
               </motion.button>
             );
           })}
         </nav>
-        <div className="p-3 mt-auto">
+        <div className="admin-top-nav-footer">
           <motion.button
             className="tet-button w-100"
             onClick={handleLogout}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            style={{ fontSize: '0.85rem', padding: '8px 16px' }}
           >
             <BiLogOutCircle className="me-2" />
             Đăng Xuất
           </motion.button>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Content */}
-      <div className="admin-content flex-grow-1">
-        <AnimatePresence mode="wait">
+      {/* Desktop Layout */}
+      <div className="d-flex d-lg-flex" style={{ minHeight: '100vh' }}>
+        {/* Sidebar (Desktop only - >= 992px) */}
+        <motion.div 
+          className="admin-sidebar d-none d-lg-block"
+          style={{ width: '250px' }}
+        >
+          <div className="p-3 mb-4">
+            <h4 style={{ 
+              background: 'linear-gradient(135deg, #dc2626 0%, #d97706 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 800,
+              margin: 0
+            }}>{siteSettings?.site_title || 'BuildnChill'} Admin</h4>
+          </div>
+          <nav className="nav flex-column">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <motion.button
+                  key={tab.id}
+                  className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Icon size={20} />
+                  {tab.label}
+                </motion.button>
+              );
+            })}
+          </nav>
+          <div className="p-3 mt-auto">
+            <motion.button
+              className="tet-button w-100"
+              onClick={handleLogout}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <BiLogOutCircle className="me-2" />
+              Đăng Xuất
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Content */}
+        <div className="admin-content flex-grow-1">
+          <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div
               key="dashboard"
@@ -253,30 +296,30 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="mb-4" style={{ color: '#fbbf24' }}>Bảng Điều Khiển</h1>
-              <div className="row g-4">
-                <div className="col-md-4">
+              <h1 className="mb-4" style={{ color: '#fbbf24', wordWrap: 'break-word' }}>Bảng Điều Khiển</h1>
+              <div className="row g-3 g-md-4">
+                <div className="col-12 col-sm-6 col-md-4">
                   <div className="admin-card glass">
-                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
                       {news.length}
                     </h3>
-                    <p style={{ color: '#d1d5db' }}>Tổng Số Bài Viết</p>
+                    <p style={{ color: '#d1d5db', wordWrap: 'break-word' }}>Tổng Số Bài Viết</p>
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-12 col-sm-6 col-md-4">
                   <div className="admin-card glass">
-                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
                       {serverStatus?.players || 0}
                     </h3>
-                    <p style={{ color: '#d1d5db' }}>Người Chơi Hiện Tại</p>
+                    <p style={{ color: '#d1d5db', wordWrap: 'break-word' }}>Người Chơi Hiện Tại</p>
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-12 col-sm-6 col-md-4">
                   <div className="admin-card glass">
-                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
                       {serverStatus?.uptime || '99.9%'}
                     </h3>
-                    <p style={{ color: '#d1d5db' }}>Thời Gian Hoạt Động</p>
+                    <p style={{ color: '#d1d5db', wordWrap: 'break-word' }}>Thời Gian Hoạt Động</p>
                   </div>
                 </div>
               </div>
@@ -295,13 +338,14 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 style={{ color: '#d97706', fontWeight: 800 }}>Quản Lý Tin Tức</h1>
+              <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                <h1 style={{ color: '#d97706', fontWeight: 800, wordWrap: 'break-word', margin: 0 }}>Quản Lý Tin Tức</h1>
                 <motion.button
                   className="tet-button"
                   onClick={handleAddNew}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
                 >
                   <BiPlus className="me-2" />
                   Thêm Bài Viết Mới
@@ -332,9 +376,9 @@ const Admin = () => {
                           animate={{ opacity: 1 }}
                           whileHover={{ backgroundColor: 'rgba(220, 38, 38, 0.05)' }}
                         >
-                          <td>{post.title}</td>
-                          <td>{new Date(post.date).toLocaleDateString('vi-VN')}</td>
-                          <td>
+                          <td style={{ wordWrap: 'break-word', maxWidth: '300px' }}>{post.title}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>{new Date(post.date).toLocaleDateString('vi-VN')}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
                             <motion.button
                               className="tet-button-outline me-2"
                               style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
@@ -378,10 +422,10 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 style={{ color: '#fbbf24' }}>Tin Nhắn Liên Hệ</h1>
-                <div>
-                  <span style={{ color: '#d1d5db', marginRight: '1rem' }}>
+              <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                <h1 style={{ color: '#fbbf24', wordWrap: 'break-word', margin: 0 }}>Tin Nhắn Liên Hệ</h1>
+                <div style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}>
+                  <span style={{ color: '#d1d5db' }}>
                     Tổng: {contacts.length} | 
                     Chưa đọc: {contacts.filter(c => !c.read).length}
                   </span>
@@ -420,17 +464,17 @@ const Admin = () => {
                             borderLeft: contact.read ? 'none' : '3px solid #fbbf24'
                           }}
                         >
-                          <td style={{ fontWeight: contact.read ? 'normal' : '600' }}>
+                          <td style={{ fontWeight: contact.read ? 'normal' : '600', wordWrap: 'break-word', maxWidth: '150px' }}>
                             {contact.ign}
                           </td>
-                          <td>
-                            <a href={`mailto:${contact.email}`} style={{ color: '#fbbf24' }}>
+                          <td style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
+                            <a href={`mailto:${contact.email}`} style={{ color: '#fbbf24', wordBreak: 'break-all' }}>
                               {contact.email}
                             </a>
                           </td>
-                          <td>{contact.phone || '-'}</td>
-                          <td>{contact.subject}</td>
-                          <td>
+                          <td style={{ wordWrap: 'break-word', maxWidth: '150px' }}>{contact.phone || '-'}</td>
+                          <td style={{ wordWrap: 'break-word', maxWidth: '150px' }}>{contact.subject}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
                             {new Date(contact.created_at).toLocaleDateString('vi-VN', {
                               year: 'numeric',
                               month: 'short',
@@ -439,17 +483,17 @@ const Admin = () => {
                               minute: '2-digit'
                             })}
                           </td>
-                          <td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
                             {contact.read ? (
                               <span style={{ color: '#d1d5db' }}>Đã đọc</span>
                             ) : (
                               <span style={{ color: '#fbbf24', fontWeight: '600' }}>Mới</span>
                             )}
                           </td>
-                          <td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
                             <motion.button
-                              className="tet-button-outline me-2"
-                              style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+                              className="tet-button-outline me-2 mb-2 mb-md-0"
+                              style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
                               onClick={() => {
                                 const message = `Tên Game: ${contact.ign}\nEmail: ${contact.email}\nSố Điện Thoại: ${contact.phone || 'N/A'}\nChủ Đề: ${contact.subject}\n\nNội Dung:\n${contact.message}`;
                                 alert(message);
@@ -469,7 +513,8 @@ const Admin = () => {
                                 padding: '0.25rem 0.75rem', 
                                 fontSize: '0.875rem',
                                 borderColor: '#f97316',
-                                color: '#f97316'
+                                color: '#f97316',
+                                whiteSpace: 'nowrap'
                               }}
                               onClick={() => {
                                 if (window.confirm('Bạn có chắc muốn xóa liên hệ này?')) {
@@ -500,7 +545,7 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="mb-4" style={{ color: '#fbbf24' }}>Trạng Thái Server</h1>
+              <h1 className="mb-4" style={{ color: '#fbbf24', wordWrap: 'break-word' }}>Trạng Thái Server</h1>
               <div className="admin-card glass">
                 <div className="mb-4">
                   <label className="form-label">Trạng Thái Server</label>
@@ -581,7 +626,7 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="mb-4" style={{ color: '#fbbf24' }}>Cài Đặt Website</h1>
+              <h1 className="mb-4" style={{ color: '#d97706', fontWeight: 800, wordWrap: 'break-word' }}>Cài Đặt Website</h1>
               <div className="admin-card glass">
                 <div className="mb-4">
                   <label className="form-label">Tiêu Đề Website</label>
@@ -651,6 +696,7 @@ const Admin = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
 
       {/* Modal for Add/Edit News */}

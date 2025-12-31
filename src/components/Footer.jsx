@@ -6,9 +6,9 @@ import { useData } from '../context/DataContext';
 const Footer = () => {
   const { siteSettings, serverStatus } = useData();
   
-  // Chỉ giữ lại Discord như yêu cầu
+  // Chỉ giữ lại Discord như yêu cầu - lấy từ settings
   const socialLinks = [
-    { icon: FaDiscord, href: 'https://discord.gg/buildnchill', label: 'Discord' }
+    { icon: FaDiscord, href: siteSettings?.discord_url || 'https://discord.gg/buildnchill', label: 'Discord' }
   ];
 
   return (
@@ -22,7 +22,7 @@ const Footer = () => {
       <div className="container">
         <div className="row g-4">
           <div className="col-lg-4 col-md-6 mb-4">
-            <h5>BuildnChill</h5>
+            <h5>{siteSettings?.site_title || 'BuildnChill'}</h5>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', marginBottom: '1.5rem' }}>
               Server Minecraft cộng đồng thân thiện của chúng tôi. Xây dựng, khám phá và thư giãn cùng chúng tôi! 
               Tham gia cộng đồng sôi động và trải nghiệm gameplay Minecraft tuyệt vời nhất.
@@ -106,7 +106,7 @@ const Footer = () => {
         <div className="text-center">
           {/* Phần Copyright chỉnh đậm màu và in đậm hơn */}
           <p className="mb-2" style={{ color: '#1f2937', fontSize: '1rem', fontWeight: '600' }}>
-            &copy; {new Date().getFullYear()} BuildnChill. All rights reserved. 
+            &copy; {new Date().getFullYear()} {siteSettings?.site_title || 'BuildnChill'}. All rights reserved. 
             <span style={{ color: '#d97706', marginLeft: '0.5rem' }}>🎊 Chúc Mừng Năm Mới! 🎊</span>
           </p>
 

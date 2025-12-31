@@ -17,17 +17,17 @@ export const DataProvider = ({ children }) => {
   const [serverStatus, setServerStatus] = useState({
     status: 'Online',
     players: '0',
-    maxPlayers: '500',
-    version: '1.20.4',
+    maxPlayers: '20',
+    version: '1.21.4',
     uptime: '99.9%'
   });
   const [contacts, setContacts] = useState([]);
   const [siteSettings, setSiteSettings] = useState({
-    server_ip: 'play.buildnchill.com',
-    server_version: '1.20.4',
-    contact_email: 'contact@buildnchill.com',
-    contact_phone: '+1 (234) 567-890',
-    discord_url: 'https://discord.gg/buildnchill',
+    server_ip: 'buildnchill.ddns.net:25604',
+    server_version: '> 1.21.4',
+    contact_email: 'apphoang2004@gmail.com',
+    contact_phone: '+84 373 796 601',
+    discord_url: 'https://discord.gg/Kum6Wvz23P',
     site_title: 'BuildnChill',
     maintenance_mode: false
   });
@@ -48,7 +48,7 @@ export const DataProvider = ({ children }) => {
     }
     
     // Subscribe to real-time changes
-    let newsSubscription, statusSubscription, contactsSubscription;
+    let newsSubscription, statusSubscription, contactsSubscription, settingsSubscription;
     
     try {
       newsSubscription = supabase
@@ -80,6 +80,16 @@ export const DataProvider = ({ children }) => {
           }
         )
         .subscribe();
+
+      settingsSubscription = supabase
+        .channel('settings_changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'site_settings' },
+          () => {
+            loadSiteSettings();
+          }
+        )
+        .subscribe();
     } catch (error) {
       console.error('Error setting up real-time subscriptions:', error);
     }
@@ -96,6 +106,7 @@ export const DataProvider = ({ children }) => {
       if (newsSubscription) newsSubscription.unsubscribe();
       if (statusSubscription) statusSubscription.unsubscribe();
       if (contactsSubscription) contactsSubscription.unsubscribe();
+      if (settingsSubscription) settingsSubscription.unsubscribe();
     };
   }, []);
 
@@ -113,7 +124,8 @@ export const DataProvider = ({ children }) => {
     try {
       await Promise.all([
         loadNews(),
-        loadServerStatus()
+        loadServerStatus(),
+        loadSiteSettings()
       ]);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -530,6 +542,7 @@ export const DataProvider = ({ children }) => {
     news,
     serverStatus,
     contacts,
+    siteSettings,
     loading,
     
     // News operations
@@ -539,6 +552,9 @@ export const DataProvider = ({ children }) => {
     
     // Server status operations
     updateServerStatus,
+    
+    // Site settings operations
+    updateSiteSettings,
     
     // Contact operations
     submitContact,

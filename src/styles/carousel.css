@@ -1,11 +1,10 @@
-/* Carousel Styles */
+/* Carousel - Hiện đại, Full màn hình, không overlay */
 .hero-carousel {
   position: relative;
   width: 100%;
-  height: 70vh;
-  min-height: 500px;
+  height: 100vh;
   overflow: hidden;
-  background: var(--bg-primary);
+  background: #000;
 }
 
 .carousel-container {
@@ -26,16 +25,18 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
+/* Nút điều hướng - Tối giản, hiện đại */
 .carousel-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid var(--tet-red);
-  color: var(--tet-red);
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -44,15 +45,14 @@
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  transition: all 0.3s;
-  font-weight: bold;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .carousel-btn:hover {
-  background: var(--tet-red);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
   transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
 }
 
 .carousel-btn-prev {
@@ -63,42 +63,10 @@
   right: 20px;
 }
 
-.carousel-indicators {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-  z-index: 10;
-}
-
-.carousel-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.carousel-indicator.active {
-  background: var(--tet-red);
-  border-color: var(--tet-red);
-  transform: scale(1.2);
-}
-
-.carousel-indicator:hover {
-  background: var(--tet-gold);
-  border-color: var(--tet-gold);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .hero-carousel {
-    height: 50vh;
-    min-height: 300px;
+    height: 60vh;
   }
   
   .carousel-btn {
@@ -114,4 +82,3 @@
     right: 10px;
   }
 }
-
