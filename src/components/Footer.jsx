@@ -1,15 +1,14 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaDiscord, FaTwitter, FaYoutube, FaTwitch } from 'react-icons/fa';
+import { FaDiscord } from 'react-icons/fa'; // Đã bỏ các icon không dùng
 import { useData } from '../context/DataContext';
 
 const Footer = () => {
   const { siteSettings, serverStatus } = useData();
+  
+  // Chỉ giữ lại Discord như yêu cầu
   const socialLinks = [
-    { icon: FaDiscord, href: 'https://discord.gg/buildnchill', label: 'Discord' },
-    { icon: FaTwitter, href: 'https://twitter.com/buildnchill', label: 'Twitter' },
-    { icon: FaYoutube, href: 'https://youtube.com/buildnchill', label: 'YouTube' },
-    { icon: FaTwitch, href: 'https://twitch.tv/buildnchill', label: 'Twitch' }
+    { icon: FaDiscord, href: 'https://discord.gg/buildnchill', label: 'Discord' }
   ];
 
   return (
@@ -43,6 +42,7 @@ const Footer = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
+                    style={{ backgroundColor: '#5865F2', color: 'white', padding: '10px', borderRadius: '50%', display: 'inline-flex' }} // Style riêng cho Discord nổi bật
                   >
                     <Icon size={20} />
                   </motion.a>
@@ -77,7 +77,7 @@ const Footer = () => {
                 <strong style={{ color: '#d97706' }}>Phiên Bản:</strong> {siteSettings?.server_version || serverStatus?.version || '1.20.4'}
               </li>
               <li className="mb-2" style={{ color: 'var(--text-secondary)' }}>
-                <strong style={{ color: '#d97706' }}>Trạng Thái:</strong> {serverStatus?.status === 'Online' ? 'Đang Hoạt Động' : 'Đang Tắt'}
+                <strong style={{ color: '#d97706' }}>Trạng Thái:</strong> {serverStatus?.status === 'Online' ? <span className="text-success fw-bold">Đang Hoạt Động</span> : <span className="text-danger">Bảo Trì</span>}
               </li>
             </ul>
           </div>
@@ -99,12 +99,26 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <hr style={{ borderColor: 'rgba(220, 38, 38, 0.3)', margin: '2rem 0', borderWidth: '1px' }} />
+        
+        {/* Đường kẻ ngang màu cam nhạt cho hợp tông */}
+        <hr style={{ borderColor: '#d97706', margin: '2rem 0', borderWidth: '1px', opacity: 0.3 }} />
+        
         <div className="text-center">
-          <p className="mb-0" style={{ color: '#d1d5db', fontSize: '0.9rem' }}>
+          {/* Phần Copyright chỉnh đậm màu và in đậm hơn */}
+          <p className="mb-2" style={{ color: '#1f2937', fontSize: '1rem', fontWeight: '600' }}>
             &copy; {new Date().getFullYear()} BuildnChill. All rights reserved. 
-            <span style={{ color: '#fbbf24', marginLeft: '0.5rem' }}>🎊 Chúc Mừng Năm Mới! 🎊</span>
+            <span style={{ color: '#d97706', marginLeft: '0.5rem' }}>🎊 Chúc Mừng Năm Mới! 🎊</span>
           </p>
+
+          {/* Phần Credit T-Dev29 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            style={{ fontSize: '0.9rem', color: '#4b5563' }}
+          >
+            Website được thiết kế và quản lý bởi <span style={{ color: '#d97706', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>T-Dev29</span>
+          </motion.div>
         </div>
       </div>
     </motion.footer>
