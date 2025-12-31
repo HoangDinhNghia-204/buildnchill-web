@@ -1,0 +1,262 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useData } from '../context/DataContext';
+import { BiSearch, BiCalendar } from 'react-icons/bi';
+
+const News = () => {
+  const { news } = useData();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+
+  // Filter news based on search query
+  const filteredNews = news.filter(post =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Get featured post (newest)
+  const featuredPost = filteredNews[0];
+  
+  // Get older posts (excluding featured)
+  const olderPosts = filteredNews.slice(1);
+  
+  // Pagination
+  const totalPages = Math.ceil(olderPosts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPosts = olderPosts.slice(startIndex, endIndex);
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
+
+  return (
+    <div className="container my-5">
+      <motion.h1 
+        className="mb-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{ 
+          background: 'linear-gradient(135deg, #dc2626 0%, #fbbf24 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          fontSize: '3rem', 
+          fontWeight: 900 
+        }}
+      >
+        News
+      </motion.h1>
+
+      {/* Search Bar */}
+      <motion.div 
+        className="search-bar glass mb-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="d-flex align-items-center">
+          <BiSearch size={24} style={{ color: '#fbbf24', marginRight: '1rem' }} />
+          <input
+            type="text"
+            placeholder="Search news..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Featured Post */}
+      {featuredPost && (
+        <motion.div 
+          className="mb-5"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="card glass">
+            <div className="row g-0">
+              <div className="col-md-4">
+                <motion.img 
+                  src={featuredPost.image} 
+                  className="img-fluid rounded-start" 
+                  alt={featuredPost.title}
+                  style={{ height: '100%', objectFit: 'cover', minHeight: '300px' }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <div className="col-md-8">
+                <div className="card-body p-4">
+                  <h2 className="card-title" style={{ color: '#fbbf24', marginBottom: '1rem' }}>
+                    {featuredPost.title}
+                  </h2>
+                  <p className="text-muted mb-3">
+                    <BiCalendar className="me-1" />
+                    {new Date(featuredPost.date).toLocaleDateString()}
+                  </p>
+                  <p className="card-text" style={{ color: '#b0b0b0', fontSize: '1.1rem' }}>
+                    {featuredPost.description}
+                  </p>
+                  <Link to={`/news/${featuredPost.id}`} className="tet-button mt-3">
+                    Read More
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Older Posts Grid */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <h3 className="mb-4" style={{ color: '#fbbf24', fontSize: '2rem', fontWeight: 700 }}>
+          All Posts
+        </h3>
+        <div className="row g-4">
+          {paginatedPosts.map((post) => (
+            <motion.div 
+              key={post.id}
+              className="col-md-4"
+              variants={itemVariants}
+              whileHover={{ y: -10 }}
+            >
+              <div className="card glass h-100">
+                <motion.img 
+                  src={post.image} 
+                  className="card-img-top" 
+                  alt={post.title}
+                  style={{ height: '200px', objectFit: 'cover' }}
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <div className="card-body d-flex flex-column">
+                  <h5 
+                    className="card-title" 
+                    style={{ 
+                      color: '#ffffff',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      minHeight: '3rem'
+                    }}
+                  >
+                    {post.title}
+                  </h5>
+                  <p className="text-muted small mb-2">
+                    <BiCalendar className="me-1" />
+                    {new Date(post.date).toLocaleDateString()}
+                  </p>
+                  <p 
+                    className="card-text" 
+                    style={{ 
+                      color: '#b0b0b0',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      flex: 1,
+                      minHeight: '4.5rem'
+                    }}
+                  >
+                    {post.description}
+                  </p>
+                  <div className="mt-auto">
+                  <Link to={`/news/${post.id}`} className="tet-button w-100 text-center">
+                    Read More
+                  </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <motion.div 
+          className="pagination-controls mt-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <motion.button 
+            className="tet-button-outline me-3"
+            onClick={handlePrevious}
+            disabled={currentPage === 1}
+            whileHover={{ scale: currentPage === 1 ? 1 : 1.05 }}
+            whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
+            style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+          >
+            Previous
+          </motion.button>
+          <span className="align-self-center mx-3" style={{ color: '#d1d5db' }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <motion.button 
+            className="tet-button-outline"
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            whileHover={{ scale: currentPage === totalPages ? 1 : 1.05 }}
+            whileTap={{ scale: currentPage === totalPages ? 1 : 0.95 }}
+            style={{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+          >
+            Next
+          </motion.button>
+        </motion.div>
+      )}
+
+      {filteredNews.length === 0 && (
+        <motion.div 
+          className="text-center py-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <p style={{ color: '#b0b0b0', fontSize: '1.2rem' }}>No news found matching your search.</p>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+export default News;
