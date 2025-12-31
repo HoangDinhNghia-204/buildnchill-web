@@ -14,9 +14,16 @@ const Home = () => {
 
   // Carousel images
   const carouselImages = [
-    'https://images.unsplash.com/photo-1605812860427-4024433a70fd?w=1920&q=80',
-    'https://images.unsplash.com/photo-1605812860427-4024433a70fd?w=1920&q=80',
-    'https://images.unsplash.com/photo-1605812860427-4024433a70fd?w=1920&q=80'
+    'https://foodtek.vn/sites/default/files/2025-12/1766978938677.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/462570011_607189315167864_5786208777291669050_n.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/467459402_525799813831572_2048064753693338637_n.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/467457844_1958845277932349_4464426894527163495_n.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/2025-02-17_21.42.55.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/6-3_01.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/2025-09-20_20.49.28.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/2025-12-19_23.28.20.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/2025-12-19_23.25.58.webp',
+    'https://foodtek.vn/sites/default/files/2025-12/17-915.webp'
   ];
 
   useEffect(() => {
