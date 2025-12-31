@@ -91,11 +91,6 @@ const NewsDetail = () => {
           </motion.p>
           <motion.div
             className="news-content"
-            style={{ 
-              fontSize: '1.1rem', 
-              lineHeight: '1.8',
-              color: '#ffffff'
-            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}

@@ -170,12 +170,12 @@ const Home = () => {
                     transition={{ duration: 0.3 }}
                   />
                   <div className="card-body d-flex flex-column">
-                    <h5 className="card-title" style={{ color: '#1a1a1a', fontWeight: 700 }}>{post.title}</h5>
+                    <h5 className="card-title news-title-truncate" style={{ color: '#1a1a1a', fontWeight: 700 }}>{post.title}</h5>
                     <p className="text-muted small mb-2">
                       <BiCalendar className="me-1" />
                       {new Date(post.date).toLocaleDateString('vi-VN')}
                     </p>
-                    <p className="card-text" style={{ color: '#4a4a4a', flex: 1 }}>
+                    <p className="card-text news-description-truncate" style={{ color: '#4a4a4a', flex: 1 }}>
                       {post.description}
                     </p>
                     <div className="mt-auto">

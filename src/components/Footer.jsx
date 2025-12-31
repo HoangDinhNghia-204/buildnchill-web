@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaDiscord } from 'react-icons/fa'; // Đã bỏ các icon không dùng
+import { FaDiscord } from 'react-icons/fa';
 import { useData } from '../context/DataContext';
 
 const Footer = () => {

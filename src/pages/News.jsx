@@ -122,14 +122,14 @@ const News = () => {
               </div>
               <div className="col-md-8">
                 <div className="card-body p-4">
-                  <h2 className="card-title" style={{ color: '#d97706', marginBottom: '1rem', fontWeight: 700 }}>
+                  <h2 className="card-title news-title-truncate" style={{ color: '#d97706', marginBottom: '1rem', fontWeight: 700 }}>
                     {featuredPost.title}
                   </h2>
                   <p className="text-muted mb-3" style={{ color: 'var(--text-secondary)' }}>
                     <BiCalendar className="me-1" />
                     {new Date(featuredPost.date).toLocaleDateString('vi-VN')}
                   </p>
-                  <p className="card-text" style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', fontWeight: 500 }}>
+                  <p className="card-text news-description-truncate" style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', fontWeight: 500 }}>
                     {featuredPost.description}
                   </p>
                   <Link to={`/news/${featuredPost.id}`} className="tet-button mt-3">
@@ -169,37 +169,14 @@ const News = () => {
                   transition={{ duration: 0.3 }}
                 />
                 <div className="card-body d-flex flex-column">
-                  <h5 
-                    className="card-title" 
-                    style={{ 
-                      color: 'var(--text-primary)',
-                      fontWeight: 700,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      minHeight: '3rem'
-                    }}
-                  >
+                  <h5 className="card-title news-title-truncate" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
                     {post.title}
                   </h5>
                   <p className="text-muted small mb-2" style={{ color: 'var(--text-secondary)' }}>
                     <BiCalendar className="me-1" />
                     {new Date(post.date).toLocaleDateString('vi-VN')}
                   </p>
-                  <p 
-                    className="card-text" 
-                    style={{ 
-                      color: 'var(--text-secondary)',
-                      fontWeight: 500,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      flex: 1,
-                      minHeight: '4.5rem'
-                    }}
-                  >
+                  <p className="card-text news-description-truncate" style={{ color: 'var(--text-secondary)', fontWeight: 500, flex: 1 }}>
                     {post.description}
                   </p>
                   <div className="mt-auto">
