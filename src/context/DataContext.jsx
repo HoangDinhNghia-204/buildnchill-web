@@ -87,6 +87,8 @@ export const DataProvider = ({ children }) => {
           { event: '*', schema: 'public', table: 'site_settings' },
           () => {
             loadSiteSettings();
+            // Reload server status when settings change (server IP might have changed)
+            setTimeout(() => loadServerStatus(), 1000);
           }
         )
         .subscribe();
@@ -102,11 +104,17 @@ export const DataProvider = ({ children }) => {
       loadContacts();
     }
 
+    // Auto-refresh server status every 30 seconds
+    const serverStatusInterval = setInterval(() => {
+      loadServerStatus();
+    }, 30000); // 30 seconds
+
     return () => {
       if (newsSubscription) newsSubscription.unsubscribe();
       if (statusSubscription) statusSubscription.unsubscribe();
       if (contactsSubscription) contactsSubscription.unsubscribe();
       if (settingsSubscription) settingsSubscription.unsubscribe();
+      clearInterval(serverStatusInterval);
     };
   }, []);
 
@@ -124,9 +132,10 @@ export const DataProvider = ({ children }) => {
     try {
       await Promise.all([
         loadNews(),
-        loadServerStatus(),
         loadSiteSettings()
       ]);
+      // Load server status after site settings (needs server_ip)
+      await loadServerStatus();
     } catch (error) {
       console.error('Error loading data:', error);
       // Fallback to mock data if Supabase fails
@@ -168,18 +177,77 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Load server status from Supabase
+  // Fetch Minecraft server status from API
+  const fetchMinecraftServerStatus = async (serverIp) => {
+    try {
+      // Parse IP and port from serverIp (format: "ip:port" or just "ip")
+      const [ip, port = '25565'] = serverIp.split(':');
+      
+      // Use mcstatus.io API (free, no API key needed)
+      const response = await fetch(`https://api.mcstatus.io/v2/status/java/${ip}:${port}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.online) {
+        return {
+          status: 'Online',
+          players: data.players.online || 0,
+          maxPlayers: data.players.max || 500,
+          version: data.version.name_clean || data.version.name || 'Unknown',
+          uptime: '99.9%'
+        };
+      } else {
+        return {
+          status: 'Offline',
+          players: 0,
+          maxPlayers: 500,
+          version: 'Unknown',
+          uptime: '0%'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching Minecraft server status:', error);
+      // Return offline status if API fails
+      return {
+        status: 'Offline',
+        players: 0,
+        maxPlayers: 500,
+        version: 'Unknown',
+        uptime: '0%'
+      };
+    }
+  };
+
+  // Load server status from Supabase and update with real-time API data
   const loadServerStatus = async () => {
     try {
+      // First, load from Supabase
       const { data, error } = await supabase
         .from('server_status')
         .select('*')
         .eq('id', 1)
         .single();
 
+      let currentStatus = {
+        status: 'Online',
+        players: '0',
+        maxPlayers: '500',
+        version: '1.20.4',
+        uptime: '99.9%'
+      };
+
       if (error) {
-        // If record doesn't exist, create it
         if (error.code === 'PGRST116') {
+          // No row found, insert default
           const { data: newData, error: insertError } = await supabase
             .from('server_status')
             .insert([{
@@ -192,31 +260,56 @@ export const DataProvider = ({ children }) => {
             }])
             .select()
             .single();
-          
           if (insertError) throw insertError;
-          
           if (newData) {
-            setServerStatus({
+            currentStatus = {
               status: newData.status,
               players: newData.players,
               maxPlayers: newData.max_players,
               version: newData.version,
               uptime: newData.uptime
-            });
+            };
           }
-          return;
+        } else {
+          throw error;
         }
-        throw error;
-      }
-      
-      if (data) {
-        setServerStatus({
+      } else if (data) {
+        currentStatus = {
           status: data.status,
           players: data.players,
           maxPlayers: data.max_players,
           version: data.version,
           uptime: data.uptime
-        });
+        };
+      }
+
+      // Then, fetch real-time data from Minecraft API if server IP is available
+      if (siteSettings?.server_ip) {
+        const realTimeStatus = await fetchMinecraftServerStatus(siteSettings.server_ip);
+        
+        // Update with real-time player count and status
+        const updatedStatus = {
+          ...currentStatus,
+          status: realTimeStatus.status,
+          players: realTimeStatus.players.toString(),
+          maxPlayers: realTimeStatus.maxPlayers.toString(),
+          version: realTimeStatus.version !== 'Unknown' ? realTimeStatus.version : currentStatus.version
+        };
+
+        setServerStatus(updatedStatus);
+
+        // Optionally update Supabase with real-time data (uncomment if needed)
+        // await supabase
+        //   .from('server_status')
+        //   .update({
+        //     status: updatedStatus.status,
+        //     players: updatedStatus.players,
+        //     max_players: updatedStatus.maxPlayers
+        //   })
+        //   .eq('id', 1);
+      } else {
+        // No server IP, just use Supabase data
+        setServerStatus(currentStatus);
       }
     } catch (error) {
       console.error('Error loading server status:', error);

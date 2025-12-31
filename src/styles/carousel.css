@@ -69,6 +69,13 @@
     height: 60vh;
   }
   
+  /* Trên mobile: full ảnh, không cắt 2 bên */
+  .carousel-image {
+    object-fit: contain !important;
+    object-position: center;
+    background: #000;
+  }
+  
   .carousel-btn {
     width: 40px;
     height: 40px;
