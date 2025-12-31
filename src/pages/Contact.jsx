@@ -45,10 +45,10 @@ const Contact = () => {
   };
 
   const formFields = [
-    { name: 'ign', label: 'In-game Name (IGN)', icon: BiUser, type: 'text', required: true },
+    { name: 'ign', label: 'Tên Trong Game (IGN)', icon: BiUser, type: 'text', required: true },
     { name: 'email', label: 'Email', icon: BiEnvelope, type: 'email', required: true },
-    { name: 'phone', label: 'Phone', icon: BiPhone, type: 'tel', required: false },
-    { name: 'subject', label: 'Subject', icon: BiMessageSquare, type: 'text', required: true }
+    { name: 'phone', label: 'Số Điện Thoại', icon: BiPhone, type: 'tel', required: false },
+    { name: 'subject', label: 'Chủ Đề', icon: BiMessageSquare, type: 'text', required: true }
   ];
 
   return (
@@ -70,7 +70,7 @@ const Contact = () => {
               fontWeight: 900 
             }}
           >
-            Contact Us
+            Liên Hệ Chúng Tôi
           </motion.h1>
           <motion.p 
             className="mb-5 text-center"
@@ -97,7 +97,7 @@ const Contact = () => {
                   transition={{ delay: 0.3 + index * 0.1 }}
                 >
                   <label htmlFor={field.name} className="form-label">
-                    <Icon className="me-2" style={{ color: '#fbbf24' }} />
+                    <Icon className="me-2" style={{ color: '#d97706' }} />
                     {field.label}
                   </label>
                   <input
@@ -146,7 +146,7 @@ const Contact = () => {
               style={{ opacity: submitting ? 0.7 : 1 }}
             >
               <BiSend className="me-2" />
-              {submitting ? 'Đang gửi...' : 'Send Message'}
+              {submitting ? 'Đang Gửi...' : 'Gửi Tin Nhắn'}
             </motion.button>
           </motion.form>
         </div>

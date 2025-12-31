@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BiPhone, BiEnvelope, BiServer, BiCopyAlt } from 'react-icons/bi';
 import { FaDiscord } from 'react-icons/fa';
+import { useData } from '../context/DataContext';
 
 const TopBar = () => {
+  const { siteSettings } = useData();
   const [copied, setCopied] = useState('');
 
   const copyToClipboard = (text, type) => {
@@ -28,45 +30,49 @@ const TopBar = () => {
               whileTap={{ scale: 0.95 }}
             >
               <BiPhone className="me-2" />
-              <a href="tel:+1234567890">+1 (234) 567-890</a>
+              <a href={`tel:${siteSettings?.contact_phone?.replace(/\s/g, '') || '+1234567890'}`}>
+                {siteSettings?.contact_phone || '+1 (234) 567-890'}
+              </a>
             </motion.span>
             <motion.span
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <BiEnvelope className="me-2" />
-              <a href="mailto:contact@buildnchill.com">contact@buildnchill.com</a>
+              <a href={`mailto:${siteSettings?.contact_email || 'contact@buildnchill.com'}`}>
+                {siteSettings?.contact_email || 'contact@buildnchill.com'}
+              </a>
             </motion.span>
           </div>
           <div className="d-flex gap-4 flex-wrap">
             <motion.span
               className="copy-btn"
-              onClick={() => copyToClipboard('play.buildnchill.com', 'ip')}
+              onClick={() => copyToClipboard(siteSettings?.server_ip || 'play.buildnchill.com', 'ip')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <BiServer className="me-2" />
-              play.buildnchill.com
+              {siteSettings?.server_ip || 'play.buildnchill.com'}
               {copied === 'ip' && (
                 <motion.span 
                   className="ms-2"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  style={{ color: '#00ff88' }}
+                  style={{ color: '#dc2626' }}
                 >
-                  ✓ Copied!
+                  ✓ Đã Sao Chép!
                 </motion.span>
               )}
             </motion.span>
             <motion.a
-              href="https://discord.gg/buildnchill"
+              href={siteSettings?.discord_url || 'https://discord.gg/buildnchill'}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <FaDiscord className="me-2" />
-              Join Discord
+              Tham Gia Discord
             </motion.a>
           </div>
         </div>

@@ -76,7 +76,7 @@ const News = () => {
           fontWeight: 900 
         }}
       >
-        News
+        Tin Tức
       </motion.h1>
 
       {/* Search Bar */}
@@ -87,10 +87,10 @@ const News = () => {
         transition={{ delay: 0.2 }}
       >
         <div className="d-flex align-items-center">
-          <BiSearch size={24} style={{ color: '#fbbf24', marginRight: '1rem' }} />
+          <BiSearch size={24} style={{ color: '#d97706', marginRight: '1rem' }} />
           <input
             type="text"
-            placeholder="Search news..."
+            placeholder="Tìm kiếm tin tức..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -122,18 +122,18 @@ const News = () => {
               </div>
               <div className="col-md-8">
                 <div className="card-body p-4">
-                  <h2 className="card-title" style={{ color: '#fbbf24', marginBottom: '1rem' }}>
+                  <h2 className="card-title" style={{ color: '#d97706', marginBottom: '1rem', fontWeight: 700 }}>
                     {featuredPost.title}
                   </h2>
-                  <p className="text-muted mb-3">
+                  <p className="text-muted mb-3" style={{ color: 'var(--text-secondary)' }}>
                     <BiCalendar className="me-1" />
-                    {new Date(featuredPost.date).toLocaleDateString()}
+                    {new Date(featuredPost.date).toLocaleDateString('vi-VN')}
                   </p>
-                  <p className="card-text" style={{ color: '#b0b0b0', fontSize: '1.1rem' }}>
+                  <p className="card-text" style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', fontWeight: 500 }}>
                     {featuredPost.description}
                   </p>
                   <Link to={`/news/${featuredPost.id}`} className="tet-button mt-3">
-                    Read More
+                    Đọc Thêm
                   </Link>
                 </div>
               </div>
@@ -148,8 +148,8 @@ const News = () => {
         initial="hidden"
         animate="visible"
       >
-        <h3 className="mb-4" style={{ color: '#fbbf24', fontSize: '2rem', fontWeight: 700 }}>
-          All Posts
+        <h3 className="mb-4" style={{ color: '#d97706', fontSize: '2rem', fontWeight: 700 }}>
+          Tất Cả Bài Viết
         </h3>
         <div className="row g-4">
           {paginatedPosts.map((post) => (
@@ -228,10 +228,10 @@ const News = () => {
             whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
             style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
           >
-            Previous
+            Trước
           </motion.button>
-          <span className="align-self-center mx-3" style={{ color: '#d1d5db' }}>
-            Page {currentPage} of {totalPages}
+          <span className="align-self-center mx-3" style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
+            Trang {currentPage} / {totalPages}
           </span>
           <motion.button 
             className="tet-button-outline"
@@ -241,7 +241,7 @@ const News = () => {
             whileTap={{ scale: currentPage === totalPages ? 1 : 0.95 }}
             style={{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
           >
-            Next
+            Sau
           </motion.button>
         </motion.div>
       )}
@@ -252,7 +252,7 @@ const News = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <p style={{ color: '#b0b0b0', fontSize: '1.2rem' }}>No news found matching your search.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', fontWeight: 600 }}>Không tìm thấy tin tức nào phù hợp với tìm kiếm của bạn.</p>
         </motion.div>
       )}
     </div>

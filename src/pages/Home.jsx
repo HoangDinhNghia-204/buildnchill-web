@@ -3,6 +3,7 @@ import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BiServer, BiUser, BiCalendar, BiTime, BiChevronLeft, BiChevronRight } from 'react-icons/bi';
+import '../styles/carousel.css';
 
 const Home = () => {
   const { news, serverStatus } = useData();

@@ -131,6 +131,7 @@ CREATE TABLE site_settings (
   server_version TEXT DEFAULT '1.20.4',
   contact_email TEXT DEFAULT 'contact@buildnchill.com',
   contact_phone TEXT DEFAULT '+1 (234) 567-890',
+  discord_url TEXT DEFAULT 'https://discord.gg/buildnchill',
   site_title TEXT DEFAULT 'BuildnChill',
   maintenance_mode BOOLEAN DEFAULT FALSE,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -138,8 +139,8 @@ CREATE TABLE site_settings (
 );
 
 -- Insert default settings
-INSERT INTO site_settings (id) VALUES (1)
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO site_settings (id, discord_url) VALUES (1, 'https://discord.gg/buildnchill')
+ON CONFLICT (id) DO UPDATE SET discord_url = EXCLUDED.discord_url;
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;

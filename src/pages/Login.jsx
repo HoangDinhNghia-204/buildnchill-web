@@ -44,7 +44,7 @@ const Login = () => {
                   WebkitTextFillColor: 'transparent',
                   fontWeight: 800 
                 }}>
-                  Admin Login
+                  Đăng Nhập Quản Trị
                 </h2>
               </div>
               {error && (
@@ -55,7 +55,8 @@ const Login = () => {
                   style={{ 
                     background: 'rgba(255, 68, 68, 0.2)',
                     border: '1px solid #ff4444',
-                    color: '#ff4444'
+                    color: '#ff4444',
+                    fontWeight: 600
                   }}
                 >
                   {error}
@@ -63,7 +64,7 @@ const Login = () => {
               )}
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label">Username</label>
+                  <label className="form-label" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Tên Đăng Nhập</label>
                   <div className="position-relative">
                     <BiUser 
                       size={20} 
@@ -72,7 +73,7 @@ const Login = () => {
                         left: '12px', 
                         top: '50%', 
                         transform: 'translateY(-50%)',
-                        color: '#fbbf24'
+                        color: '#d97706'
                       }} 
                     />
                     <input
@@ -86,7 +87,7 @@ const Login = () => {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Password</label>
+                  <label className="form-label" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Mật Khẩu</label>
                   <div className="position-relative">
                     <BiLock 
                       size={20} 
@@ -95,7 +96,7 @@ const Login = () => {
                         left: '12px', 
                         top: '50%', 
                         transform: 'translateY(-50%)',
-                        color: '#fbbf24'
+                        color: '#d97706'
                       }} 
                     />
                     <input
@@ -114,7 +115,7 @@ const Login = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Login
+                  Đăng Nhập
                 </motion.button>
               </form>
             </div>

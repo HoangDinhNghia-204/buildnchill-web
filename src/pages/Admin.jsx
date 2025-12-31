@@ -58,6 +58,7 @@ const Admin = () => {
     server_version: '',
     contact_email: '',
     contact_phone: '',
+    discord_url: '',
     site_title: ''
   });
 
@@ -73,6 +74,7 @@ const Admin = () => {
         server_version: siteSettings.server_version || '',
         contact_email: siteSettings.contact_email || '',
         contact_phone: siteSettings.contact_phone || '',
+        discord_url: siteSettings.discord_url || '',
         site_title: siteSettings.site_title || ''
       });
     }

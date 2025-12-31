@@ -27,6 +27,7 @@ export const DataProvider = ({ children }) => {
     server_version: '1.20.4',
     contact_email: 'contact@buildnchill.com',
     contact_phone: '+1 (234) 567-890',
+    discord_url: 'https://discord.gg/buildnchill',
     site_title: 'BuildnChill',
     maintenance_mode: false
   });
@@ -258,6 +259,7 @@ export const DataProvider = ({ children }) => {
               server_version: '1.20.4',
               contact_email: 'contact@buildnchill.com',
               contact_phone: '+1 (234) 567-890',
+              discord_url: 'https://discord.gg/buildnchill',
               site_title: 'BuildnChill',
               maintenance_mode: false
             }])
@@ -272,6 +274,7 @@ export const DataProvider = ({ children }) => {
               server_version: newData.server_version,
               contact_email: newData.contact_email,
               contact_phone: newData.contact_phone,
+              discord_url: newData.discord_url,
               site_title: newData.site_title,
               maintenance_mode: newData.maintenance_mode
             });
@@ -287,6 +290,7 @@ export const DataProvider = ({ children }) => {
           server_version: data.server_version,
           contact_email: data.contact_email,
           contact_phone: data.contact_phone,
+          discord_url: data.discord_url,
           site_title: data.site_title,
           maintenance_mode: data.maintenance_mode
         });

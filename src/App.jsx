@@ -12,7 +12,8 @@ import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import './styles.css';
-import './styles/custom.css';
+import './styles/custom.css'
+import './styles/carousel.css';
 
 const AppContent = () => {
   const { isAuthenticated } = useData();
