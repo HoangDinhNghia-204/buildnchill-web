@@ -24,3 +24,4 @@ ADD CONSTRAINT check_status CHECK (status IN ('pending', 'received', 'resolved')
 -- CREATE POLICY "Anyone can view contact images" ON storage.objects
 -- FOR SELECT USING (bucket_id = 'contact-images');
 
+
