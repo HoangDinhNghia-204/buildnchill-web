@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BiUser, BiEnvelope, BiPhone, BiMessageSquare, BiSend } from 'react-icons/bi';
+import { BiUser, BiEnvelope, BiPhone, BiMessageSquare, BiSend, BiImageAdd, BiX } from 'react-icons/bi';
 import { useData } from '../context/DataContext';
 
 const Contact = () => {
@@ -9,10 +9,22 @@ const Contact = () => {
     ign: '',
     email: '',
     phone: '',
+    category: '',
     subject: '',
-    message: ''
+    message: '',
+    image: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const categories = [
+    { value: 'report', label: 'Báo Cáo (Report)' },
+    { value: 'help', label: 'Trợ Giúp (Help)' },
+    { value: 'bug', label: 'Báo Lỗi (Bug)' },
+    { value: 'suggestion', label: 'Đề Xuất (Suggestion)' },
+    { value: 'other', label: 'Khác (Other)' }
+  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -21,9 +33,44 @@ const Contact = () => {
     });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Vui lòng chọn file ảnh!');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Kích thước ảnh không được vượt quá 5MB!');
+        return;
+      }
+      setFormData({
+        ...formData,
+        image: file
+      });
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData({
+      ...formData,
+      image: null
+    });
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setUploading(true);
     
     try {
       const success = await submitContact(formData);
@@ -33,22 +80,28 @@ const Contact = () => {
           ign: '',
           email: '',
           phone: '',
+          category: '',
           subject: '',
-          message: ''
+          message: '',
+          image: null
         });
+        setImagePreview(null);
+        // Reset file input
+        const fileInput = document.getElementById('image');
+        if (fileInput) fileInput.value = '';
       }
     } catch (error) {
       console.error('Error submitting contact:', error);
     } finally {
       setSubmitting(false);
+      setUploading(false);
     }
   };
 
   const formFields = [
     { name: 'ign', label: 'Tên Trong Game (IGN)', icon: BiUser, type: 'text', required: true },
     { name: 'email', label: 'Email', icon: BiEnvelope, type: 'email', required: true },
-    { name: 'phone', label: 'Số Điện Thoại', icon: BiPhone, type: 'tel', required: false },
-    { name: 'subject', label: 'Chủ Đề', icon: BiMessageSquare, type: 'text', required: true }
+    { name: 'phone', label: 'Số Điện Thoại', icon: BiPhone, type: 'tel', required: false }
   ];
 
   return (
@@ -118,6 +171,53 @@ const Contact = () => {
               className="mb-4"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <label htmlFor="category" className="form-label">
+                <BiMessageSquare className="me-2" style={{ color: '#d97706' }} />
+                Danh Mục
+              </label>
+              <select
+                className="form-control"
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              >
+                <option value="">-- Chọn danh mục --</option>
+                {categories.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
+              </select>
+            </motion.div>
+
+            <motion.div 
+              className="mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label htmlFor="subject" className="form-label">
+                <BiMessageSquare className="me-2" style={{ color: '#d97706' }} />
+                Chủ Đề
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="subject"
+                name="subject"
+                value={formData.subject}
+                onChange={handleChange}
+                placeholder="Nhập chủ đề của bạn..."
+                required
+              />
+            </motion.div>
+
+            <motion.div 
+              className="mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.7 }}
             >
               <label htmlFor="message" className="form-label" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
@@ -137,16 +237,72 @@ const Contact = () => {
               ></textarea>
             </motion.div>
 
+            <motion.div 
+              className="mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <label htmlFor="image" className="form-label">
+                <BiImageAdd className="me-2" style={{ color: '#d97706' }} />
+                Tải Ảnh Lên (Tùy chọn)
+              </label>
+              <input
+                type="file"
+                className="form-control"
+                id="image"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              <small className="form-text" style={{ color: '#9ca3af' }}>
+                Chỉ chấp nhận file ảnh, kích thước tối đa 5MB
+              </small>
+              {imagePreview && (
+                <div className="mt-3 position-relative" style={{ maxWidth: '300px' }}>
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{
+                      width: '100%',
+                      borderRadius: '8px',
+                      border: '2px solid #d97706'
+                    }}
+                  />
+                  <motion.button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="btn btn-danger position-absolute"
+                    style={{
+                      top: '5px',
+                      right: '5px',
+                      borderRadius: '50%',
+                      width: '30px',
+                      height: '30px',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <BiX />
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
+
             <motion.button 
               type="submit" 
               className="tet-button w-100"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              disabled={submitting}
-              style={{ opacity: submitting ? 0.7 : 1 }}
+              disabled={submitting || uploading}
+              style={{ opacity: (submitting || uploading) ? 0.7 : 1 }}
             >
               <BiSend className="me-2" />
-              {submitting ? 'Đang Gửi...' : 'Gửi Tin Nhắn'}
+              {(submitting || uploading) ? 'Đang Gửi...' : 'Gửi Tin Nhắn'}
             </motion.button>
           </motion.form>
         </div>

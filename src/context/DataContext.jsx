@@ -18,8 +18,7 @@ export const DataProvider = ({ children }) => {
     status: 'Online',
     players: '0',
     maxPlayers: '20',
-    version: '1.21.4',
-    uptime: '99.9%'
+    version: '1.21.4'
   });
   const [contacts, setContacts] = useState([]);
   const [siteSettings, setSiteSettings] = useState({
@@ -34,11 +33,9 @@ export const DataProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Load data from Supabase on mount
   useEffect(() => {
     loadData();
     
-    // Check if Supabase is configured before subscribing
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
@@ -47,7 +44,6 @@ export const DataProvider = ({ children }) => {
       return;
     }
     
-    // Subscribe to real-time changes
     let newsSubscription, statusSubscription, contactsSubscription, settingsSubscription;
     
     try {
@@ -87,7 +83,6 @@ export const DataProvider = ({ children }) => {
           { event: '*', schema: 'public', table: 'site_settings' },
           () => {
             loadSiteSettings();
-            // Reload server status when settings change (server IP might have changed)
             setTimeout(() => loadServerStatus(), 1000);
           }
         )
@@ -96,18 +91,14 @@ export const DataProvider = ({ children }) => {
       console.error('Error setting up real-time subscriptions:', error);
     }
 
-    // Check authentication on mount
     const auth = sessionStorage.getItem('adminAuth');
     if (auth === 'true') {
       setIsAuthenticated(true);
-      // Load contacts if admin is authenticated
       loadContacts();
     }
-
-    // Auto-refresh server status every 30 seconds
     const serverStatusInterval = setInterval(() => {
       loadServerStatus();
-    }, 30000); // 30 seconds
+    }, 20000); // Update every 20 seconds for more frequent updates
 
     return () => {
       if (newsSubscription) newsSubscription.unsubscribe();
@@ -118,15 +109,20 @@ export const DataProvider = ({ children }) => {
     };
   }, []);
 
-  // Load contacts when admin logs in
   useEffect(() => {
     if (isAuthenticated) {
       loadContacts();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // Load all data
+  // Reload server status when server IP changes
+  useEffect(() => {
+    if (siteSettings?.server_ip) {
+      console.log('Server IP changed, reloading server status:', siteSettings.server_ip);
+      loadServerStatus();
+    }
+  }, [siteSettings?.server_ip]);
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -134,11 +130,9 @@ export const DataProvider = ({ children }) => {
         loadNews(),
         loadSiteSettings()
       ]);
-      // Load server status after site settings (needs server_ip)
       await loadServerStatus();
     } catch (error) {
       console.error('Error loading data:', error);
-      // Fallback to mock data if Supabase fails
       setNews(mockData.news);
       setServerStatus(mockData.serverStatus);
     } finally {
@@ -146,7 +140,6 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Load news from Supabase
   const loadNews = async () => {
     try {
       const { data, error } = await supabase
@@ -157,7 +150,6 @@ export const DataProvider = ({ children }) => {
       if (error) throw error;
       
       if (data && data.length > 0) {
-        // Convert database format to app format
         const formattedNews = data.map(item => ({
           id: item.id,
           title: item.title,
@@ -168,7 +160,6 @@ export const DataProvider = ({ children }) => {
         }));
         setNews(formattedNews);
       } else {
-        // If no data, use mock data as fallback
         setNews(mockData.news);
       }
     } catch (error) {
@@ -176,155 +167,184 @@ export const DataProvider = ({ children }) => {
       setNews(mockData.news);
     }
   };
-
-  // Fetch Minecraft server status from API
   const fetchMinecraftServerStatus = async (serverIp) => {
     try {
-      // Parse IP and port from serverIp (format: "ip:port" or just "ip")
-      const [ip, port = '25565'] = serverIp.split(':');
+      if (!serverIp || !serverIp.trim()) {
+        console.warn('Server IP is empty, skipping fetch');
+        return null;
+      }
+
+      const trimmedIp = serverIp.trim();
+      const parts = trimmedIp.split(':');
+      const ip = parts[0];
+      const port = parts[1] || '25565';
       
-      // Use mcstatus.io API (free, no API key needed)
-      const response = await fetch(`https://api.mcstatus.io/v2/status/java/${ip}:${port}`, {
+      // Construct URL properly - mcstatus.io format: ip:port
+      const serverAddress = port === '25565' ? ip : `${ip}:${port}`;
+      const url = `https://api.mcstatus.io/v2/status/java/${serverAddress}`;
+      
+      console.log('Fetching server status from:', url);
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        },
+        mode: 'cors'
       });
 
       if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
+        console.error(`API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Server status API response:', data);
       
-      if (data.online) {
-        return {
-          status: 'Online',
-          players: data.players.online || 0,
-          maxPlayers: data.players.max || 500,
-          version: data.version.name_clean || data.version.name || 'Unknown',
-          uptime: '99.9%'
-        };
-      } else {
-        return {
-          status: 'Offline',
-          players: 0,
-          maxPlayers: 500,
-          version: 'Unknown',
-          uptime: '0%'
-        };
+      // Check if response contains error
+      if (data.error) {
+        console.error('API returned error:', data.error);
+        return null; // Return null to fallback to database
       }
+      
+      if (data && data.online === true) {
+        // Try multiple possible field names for players count
+        const players = data.players?.online ?? 
+                       data.players?.now ?? 
+                       data.players?.current ?? 
+                       (typeof data.players === 'number' ? data.players : 0) ?? 
+                       0;
+        
+        // Try multiple possible field names for max players
+        const maxPlayers = data.players?.max ?? 
+                          data.max_players ?? 
+                          (typeof data.maxPlayers === 'number' ? data.maxPlayers : 500) ?? 
+                          500;
+        
+        // Try multiple possible field names for version
+        const version = data.version?.name_clean ?? 
+                       data.version?.name ?? 
+                       data.version?.name_raw ??
+                       (typeof data.version === 'string' ? data.version : null) ??
+                       'Unknown';
+        
+          return {
+            status: 'Online',
+            players: Math.max(0, parseInt(players) || 0), // Ensure non-negative integer
+            maxPlayers: Math.max(1, parseInt(maxPlayers) || 500), // Ensure at least 1
+            version: version
+          };
+        } else {
+          // Server is offline
+          return {
+            status: 'Offline',
+            players: 0,
+            maxPlayers: 500,
+            version: 'Unknown'
+          };
+        }
     } catch (error) {
       console.error('Error fetching Minecraft server status:', error);
-      // Return offline status if API fails
-      return {
-        status: 'Offline',
-        players: 0,
-        maxPlayers: 500,
-        version: 'Unknown',
-        uptime: '0%'
-      };
+      // Return null instead of offline status to allow fallback to database
+      return null;
     }
   };
-
-  // Load server status from Supabase and update with real-time API data
   const loadServerStatus = async () => {
     try {
-      // First, load from Supabase
-      const { data, error } = await supabase
-        .from('server_status')
-        .select('*')
-        .eq('id', 1)
-        .single();
-
       let currentStatus = {
         status: 'Online',
         players: '0',
         maxPlayers: '500',
-        version: '1.20.4',
-        uptime: '99.9%'
+        version: '1.20.4'
       };
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // No row found, insert default
-          const { data: newData, error: insertError } = await supabase
-            .from('server_status')
-            .insert([{
+      // Try to load from database first
+      try {
+        const { data, error } = await supabase
+          .from('server_status')
+          .select('*')
+          .eq('id', 1)
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // Row doesn't exist, create it
+            const { data: newData, error: insertError } = await supabase
+              .from('server_status')
+              .insert([{
               id: 1,
               status: 'Online',
               players: '0',
               max_players: '500',
-              version: '1.20.4',
-              uptime: '99.9%'
-            }])
-            .select()
-            .single();
-          if (insertError) throw insertError;
-          if (newData) {
+              version: '1.20.4'
+              }])
+              .select()
+              .single();
+            if (insertError) {
+              console.warn('Error inserting server_status:', insertError);
+            } else if (newData) {
             currentStatus = {
               status: newData.status,
               players: newData.players,
               maxPlayers: newData.max_players,
-              version: newData.version,
-              uptime: newData.uptime
+              version: newData.version
             };
+            }
+          } else {
+            console.warn('Error loading server_status from database:', error);
           }
-        } else {
-          throw error;
-        }
-      } else if (data) {
+        } else if (data) {
         currentStatus = {
           status: data.status,
           players: data.players,
           maxPlayers: data.max_players,
-          version: data.version,
-          uptime: data.uptime
+          version: data.version
         };
+        }
+      } catch (dbError) {
+        console.warn('Database error (using fallback):', dbError);
       }
 
-      // Then, fetch real-time data from Minecraft API if server IP is available
-      if (siteSettings?.server_ip) {
-        const realTimeStatus = await fetchMinecraftServerStatus(siteSettings.server_ip);
+      // Try to fetch real-time status from Minecraft API
+      const serverIp = siteSettings?.server_ip;
+      if (serverIp && serverIp.trim()) {
+        console.log('Attempting to fetch real-time status for:', serverIp);
+        const realTimeStatus = await fetchMinecraftServerStatus(serverIp);
         
-        // Update with real-time player count and status
-        const updatedStatus = {
-          ...currentStatus,
-          status: realTimeStatus.status,
-          players: realTimeStatus.players.toString(),
-          maxPlayers: realTimeStatus.maxPlayers.toString(),
-          version: realTimeStatus.version !== 'Unknown' ? realTimeStatus.version : currentStatus.version
-        };
-
-        setServerStatus(updatedStatus);
-
-        // Optionally update Supabase with real-time data (uncomment if needed)
-        // await supabase
-        //   .from('server_status')
-        //   .update({
-        //     status: updatedStatus.status,
-        //     players: updatedStatus.players,
-        //     max_players: updatedStatus.maxPlayers
-        //   })
-        //   .eq('id', 1);
+        if (realTimeStatus) {
+          // Successfully fetched real-time status
+          const updatedStatus = {
+            ...currentStatus,
+            status: realTimeStatus.status,
+            players: realTimeStatus.players.toString(),
+            maxPlayers: realTimeStatus.maxPlayers.toString(),
+            version: realTimeStatus.version !== 'Unknown' ? realTimeStatus.version : currentStatus.version
+          };
+          console.log('Updated server status with real-time data:', updatedStatus);
+          setServerStatus(updatedStatus);
+          return;
+        } else {
+          console.warn('Failed to fetch real-time status, using database values');
+        }
       } else {
-        // No server IP, just use Supabase data
-        setServerStatus(currentStatus);
+        console.warn('Server IP not set in siteSettings, using database values');
       }
+
+      // Fallback to database values
+      console.log('Setting server status from database:', currentStatus);
+      setServerStatus(currentStatus);
     } catch (error) {
       console.error('Error loading server status:', error);
-      // Fallback to default values
       setServerStatus({
         status: 'Online',
         players: '0',
         maxPlayers: '500',
-        version: '1.20.4',
-        uptime: '99.9%'
+        version: '1.20.4'
       });
     }
   };
 
-  // Load contacts from Supabase (Admin only)
   const loadContacts = async () => {
     if (!isAuthenticated) return;
     
@@ -344,7 +364,6 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Load site settings from Supabase
   const loadSiteSettings = async () => {
     try {
       const { data, error } = await supabase
@@ -354,17 +373,16 @@ export const DataProvider = ({ children }) => {
         .single();
 
       if (error) {
-        // If record doesn't exist, create it
         if (error.code === 'PGRST116') {
           const { data: newData, error: insertError } = await supabase
             .from('site_settings')
             .insert([{
               id: 1,
-              server_ip: 'play.buildnchill.com',
-              server_version: '1.20.4',
-              contact_email: 'contact@buildnchill.com',
-              contact_phone: '+1 (234) 567-890',
-              discord_url: 'https://discord.gg/buildnchill',
+              server_ip: 'buildnchill.ddns.net:25604',
+              server_version: '> 1.21.4',
+              contact_email: 'apphoang2004@gmail.com',
+              contact_phone: '+84 373 796 601',
+              discord_url: 'https://discord.gg/Kum6Wvz23P',
               site_title: 'BuildnChill',
               maintenance_mode: false
             }])
@@ -405,7 +423,6 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Update site settings
   const updateSiteSettings = async (newSettings) => {
     try {
       const { error } = await supabase
@@ -428,7 +445,6 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // News operations
   const addNews = async (newPost) => {
     try {
       const { data, error } = await supabase
@@ -445,7 +461,6 @@ export const DataProvider = ({ children }) => {
 
       if (error) throw error;
       
-      // Update local state
       const formattedPost = {
         id: data.id,
         title: data.title,
@@ -482,7 +497,6 @@ export const DataProvider = ({ children }) => {
 
       if (error) throw error;
       
-      // Update local state
       setNews(prev => prev.map(post => 
         post.id === postId ? updatedPost : post
       ).sort((a, b) => new Date(b.date) - new Date(a.date)));
@@ -504,7 +518,6 @@ export const DataProvider = ({ children }) => {
 
       if (error) throw error;
       
-      // Update local state
       setNews(prev => prev.filter(post => post.id !== postId));
       
       return true;
@@ -515,7 +528,6 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Server status operations
   const updateServerStatus = async (status) => {
     try {
       const { error } = await supabase
@@ -525,15 +537,23 @@ export const DataProvider = ({ children }) => {
           players: status.players,
           max_players: status.maxPlayers,
           version: status.version,
-          uptime: status.uptime,
           updated_at: new Date().toISOString()
         })
         .eq('id', 1);
 
       if (error) throw error;
       
-      // Update local state
-      setServerStatus(prev => ({ ...prev, ...status }));
+      // Update local state, excluding uptime
+      const { uptime, ...statusWithoutUptime } = status;
+      setServerStatus(prev => ({ ...prev, ...statusWithoutUptime }));
+      
+      // Also update site_settings server_version to match
+      if (status.version) {
+        await supabase
+          .from('site_settings')
+          .update({ server_version: status.version })
+          .eq('id', 1);
+      }
       
       return true;
     } catch (error) {
@@ -543,24 +563,62 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Contact operations
+  const uploadImage = async (file) => {
+    try {
+      if (!file) return null;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `contact-images/${fileName}`;
+
+      const { data, error: uploadError } = await supabase.storage
+        .from('contact-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        // If storage bucket doesn't exist, return null and continue without image
+        return null;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('contact-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error in uploadImage:', error);
+      return null;
+    }
+  };
+
   const submitContact = async (contactData) => {
     try {
+      let imageUrl = null;
+      
+      // Upload image if provided
+      if (contactData.image) {
+        imageUrl = await uploadImage(contactData.image);
+      }
+
       const { data, error } = await supabase
         .from('contacts')
         .insert([{
           ign: contactData.ign,
           email: contactData.email,
           phone: contactData.phone || null,
+          category: contactData.category || 'other',
           subject: contactData.subject,
-          message: contactData.message
+          message: contactData.message,
+          image_url: imageUrl,
+          status: 'pending' // Mặc định là chưa giải quyết
         }])
         .select()
         .single();
 
       if (error) throw error;
       
-      // Reload contacts if admin is viewing
       if (isAuthenticated) {
         loadContacts();
       }
@@ -593,6 +651,27 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const updateContactStatus = async (contactId, status) => {
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .update({ status: status })
+        .eq('id', contactId);
+
+      if (error) throw error;
+      
+      setContacts(prev => prev.map(contact =>
+        contact.id === contactId ? { ...contact, status: status } : contact
+      ));
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating contact status:', error);
+      alert('Lỗi khi cập nhật trạng thái: ' + error.message);
+      return false;
+    }
+  };
+
   const deleteContact = async (contactId) => {
     try {
       const { error } = await supabase
@@ -612,13 +691,10 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Authentication
   const login = async (username, password) => {
-    // Simple authentication (you can enhance this later)
     if (username === 'admin' && password === 'admin') {
       setIsAuthenticated(true);
       sessionStorage.setItem('adminAuth', 'true');
-      // Load contacts when admin logs in
       await loadContacts();
       return true;
     }
@@ -631,30 +707,25 @@ export const DataProvider = ({ children }) => {
   };
 
   const value = {
-    // Data
     news,
     serverStatus,
     contacts,
     siteSettings,
     loading,
     
-    // News operations
     addNews,
     updateNews,
     deleteNews,
     
-    // Server status operations
     updateServerStatus,
     
-    // Site settings operations
     updateSiteSettings,
     
-    // Contact operations
     submitContact,
     markContactAsRead,
+    updateContactStatus,
     deleteContact,
     
-    // Authentication
     isAuthenticated,
     login,
     logout

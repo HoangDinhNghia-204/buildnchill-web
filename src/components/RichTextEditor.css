@@ -1,4 +1,4 @@
-/* Rich Text Editor Custom Styles */
+
 .rich-text-editor-wrapper {
   background: #1a1a1a;
   border-radius: 8px;
@@ -107,7 +107,6 @@
   color: #fcd34d;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .rich-text-editor-wrapper .ql-toolbar {
     padding: 8px;

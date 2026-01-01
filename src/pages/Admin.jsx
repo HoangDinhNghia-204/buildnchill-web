@@ -15,7 +15,8 @@ import {
   BiCheckCircle,
   BiXCircle,
   BiEnvelope,
-  BiCheck
+  BiCheck,
+  BiImage
 } from 'react-icons/bi';
 
 const Admin = () => {
@@ -33,6 +34,7 @@ const Admin = () => {
     updateServerStatus,
     updateSiteSettings,
     markContactAsRead,
+    updateContactStatus,
     deleteContact
   } = useData();
   
@@ -50,8 +52,7 @@ const Admin = () => {
     status: 'Online',
     players: '',
     maxPlayers: '500',
-    version: '1.20.4',
-    uptime: '99.9%'
+    version: '1.20.4'
   });
   const [settingsForm, setSettingsForm] = useState({
     server_ip: '',
@@ -61,13 +62,34 @@ const Admin = () => {
     discord_url: '',
     site_title: ''
   });
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+
+  const statusOptions = [
+    { value: 'pending', label: 'Chưa Giải Quyết', color: '#fbbf24' },
+    { value: 'received', label: 'Đã Nhận', color: '#3b82f6' },
+    { value: 'resolved', label: 'Đã Giải Quyết', color: '#10b981' }
+  ];
+
+  const categoryLabels = {
+    report: 'Báo Cáo',
+    help: 'Trợ Giúp',
+    bug: 'Báo Lỗi',
+    suggestion: 'Đề Xuất',
+    other: 'Khác'
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    setServerForm(serverStatus);
+    setServerForm({
+      status: serverStatus?.status || 'Online',
+      players: serverStatus?.players || '0',
+      maxPlayers: serverStatus?.maxPlayers || '500',
+      version: serverStatus?.version || '1.20.4'
+    });
     if (siteSettings) {
       setSettingsForm({
         server_ip: siteSettings.server_ip || '',
@@ -79,6 +101,10 @@ const Admin = () => {
       });
     }
   }, [isAuthenticated, navigate, serverStatus, siteSettings]);
+
+  // Notification for new contacts
+  const unreadCount = contacts.filter(c => !c.read).length;
+  const pendingCount = contacts.filter(c => c.status === 'pending' || !c.status).length;
 
   const handleInputChange = (e) => {
     setFormData({
@@ -211,6 +237,7 @@ const Admin = () => {
         <nav className="admin-top-nav-menu">
           {tabs.map((tab) => {
             const Icon = tab.icon;
+            const hasNotification = tab.id === 'contacts' && (unreadCount > 0 || pendingCount > 0);
             return (
               <motion.button
                 key={tab.id}
@@ -218,9 +245,29 @@ const Admin = () => {
                 onClick={() => setActiveTab(tab.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                style={{ position: 'relative' }}
               >
                 <Icon size={18} />
                 <span className="admin-top-nav-label">{tab.label}</span>
+                {hasNotification && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    backgroundColor: '#dc2626',
+                    color: '#fff',
+                    borderRadius: '50%',
+                    width: '18px',
+                    height: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.7rem',
+                    fontWeight: 'bold'
+                  }}>
+                    {unreadCount + pendingCount > 9 ? '9+' : unreadCount + pendingCount}
+                  </span>
+                )}
               </motion.button>
             );
           })}
@@ -258,6 +305,7 @@ const Admin = () => {
           <nav className="nav flex-column">
             {tabs.map((tab) => {
               const Icon = tab.icon;
+              const hasNotification = tab.id === 'contacts' && (unreadCount > 0 || pendingCount > 0);
               return (
                 <motion.button
                   key={tab.id}
@@ -265,9 +313,29 @@ const Admin = () => {
                   onClick={() => setActiveTab(tab.id)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  style={{ position: 'relative' }}
                 >
                   <Icon size={20} />
                   {tab.label}
+                  {hasNotification && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      backgroundColor: '#dc2626',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: '20px',
+                      height: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {unreadCount + pendingCount > 9 ? '9+' : unreadCount + pendingCount}
+                    </span>
+                  )}
                 </motion.button>
               );
             })}
@@ -296,36 +364,32 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="mb-4" style={{ color: '#fbbf24', wordWrap: 'break-word' }}>Bảng Điều Khiển</h1>
+              <h1 className="mb-4" style={{ color: '#d97706', fontWeight: 800, wordWrap: 'break-word' }}>Bảng Điều Khiển</h1>
               <div className="row g-3 g-md-4">
                 <div className="col-12 col-sm-6 col-md-4">
                   <div className="admin-card glass">
-                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
+                    <h3 style={{ color: '#d97706', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
                       {news.length}
                     </h3>
-                    <p style={{ color: '#d1d5db', wordWrap: 'break-word' }}>Tổng Số Bài Viết</p>
+                    <p style={{ color: '#1a1a1a', wordWrap: 'break-word', fontWeight: 500 }}>Tổng Số Bài Viết</p>
                   </div>
                 </div>
                 <div className="col-12 col-sm-6 col-md-4">
                   <div className="admin-card glass">
-                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
+                    <h3 style={{ color: '#d97706', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
                       {serverStatus?.players || 0}
                     </h3>
-                    <p style={{ color: '#d1d5db', wordWrap: 'break-word' }}>Người Chơi Hiện Tại</p>
+                    <p style={{ color: '#1a1a1a', wordWrap: 'break-word', fontWeight: 500 }}>Người Chơi Hiện Tại</p>
                   </div>
                 </div>
                 <div className="col-12 col-sm-6 col-md-4">
                   <div className="admin-card glass">
-                    <h3 style={{ color: '#fbbf24', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
-                      {serverStatus?.uptime || '99.9%'}
+                    <h3 style={{ color: '#d97706', fontSize: '2.5rem', marginBottom: '0.5rem', wordWrap: 'break-word' }}>
+                      {contacts.filter(c => !c.read || c.status === 'pending' || !c.status).length}
                     </h3>
-                    <p style={{ color: '#d1d5db', wordWrap: 'break-word' }}>Thời Gian Hoạt Động</p>
+                    <p style={{ color: '#1a1a1a', wordWrap: 'break-word', fontWeight: 500 }}>Liên Hệ Cần Xử Lý</p>
                   </div>
                 </div>
-              </div>
-              <div className="admin-card glass mt-4">
-                <h3 style={{ color: '#fbbf24', marginBottom: '1rem' }}>Hoạt Động Gần Đây</h3>
-                <p style={{ color: '#d1d5db' }}>Tổng quan và thống kê sẽ được hiển thị tại đây.</p>
               </div>
             </motion.div>
           )}
@@ -364,7 +428,7 @@ const Admin = () => {
                   <tbody>
                     {news.length === 0 ? (
                       <tr>
-                        <td colSpan="3" className="text-center" style={{ color: '#d1d5db', padding: '2rem' }}>
+                        <td colSpan="3" className="text-center" style={{ color: '#1a1a1a', padding: '2rem', fontWeight: 500 }}>
                           Chưa có bài viết nào
                         </td>
                       </tr>
@@ -376,8 +440,8 @@ const Admin = () => {
                           animate={{ opacity: 1 }}
                           whileHover={{ backgroundColor: 'rgba(220, 38, 38, 0.05)' }}
                         >
-                          <td style={{ wordWrap: 'break-word', maxWidth: '300px' }}>{post.title}</td>
-                          <td style={{ whiteSpace: 'nowrap' }}>{new Date(post.date).toLocaleDateString('vi-VN')}</td>
+                          <td style={{ wordWrap: 'break-word', maxWidth: '300px', color: '#0a0a0a', fontWeight: 500 }}>{post.title}</td>
+                          <td style={{ whiteSpace: 'nowrap', color: '#1a1a1a', fontWeight: 500 }}>{new Date(post.date).toLocaleDateString('vi-VN')}</td>
                           <td style={{ whiteSpace: 'nowrap' }}>
                             <motion.button
                               className="tet-button-outline me-2"
@@ -423,11 +487,12 @@ const Admin = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-                <h1 style={{ color: '#fbbf24', wordWrap: 'break-word', margin: 0 }}>Tin Nhắn Liên Hệ</h1>
+                <h1 style={{ color: '#d97706', fontWeight: 800, wordWrap: 'break-word', margin: 0 }}>Tin Nhắn Liên Hệ</h1>
                 <div style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}>
-                  <span style={{ color: '#d1d5db' }}>
+                  <span style={{ color: '#0a0a0a', fontWeight: 600 }}>
                     Tổng: {contacts.length} | 
-                    Chưa đọc: {contacts.filter(c => !c.read).length}
+                    Chưa đọc: {contacts.filter(c => !c.read).length} | 
+                    Chưa giải quyết: {contacts.filter(c => c.status === 'pending' || !c.status).length}
                   </span>
                 </div>
               </div>
@@ -438,8 +503,9 @@ const Admin = () => {
                     <tr>
                       <th>Tên Game</th>
                       <th>Email</th>
-                      <th>Số Điện Thoại</th>
+                      <th>Danh Mục</th>
                       <th>Chủ Đề</th>
+                      <th>Ảnh</th>
                       <th>Ngày</th>
                       <th>Trạng Thái</th>
                       <th>Thao Tác</th>
@@ -448,88 +514,137 @@ const Admin = () => {
                   <tbody>
                     {contacts.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center" style={{ color: '#d1d5db', padding: '2rem' }}>
+                        <td colSpan="8" className="text-center" style={{ color: '#1a1a1a', padding: '2rem', fontWeight: 500 }}>
                           Chưa có liên hệ nào
                         </td>
                       </tr>
                     ) : (
-                      contacts.map((contact) => (
-                        <motion.tr
-                          key={contact.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          whileHover={{ backgroundColor: 'rgba(220, 38, 38, 0.05)' }}
-                          style={{ 
-                            backgroundColor: contact.read ? 'transparent' : 'rgba(251, 191, 36, 0.1)',
-                            borderLeft: contact.read ? 'none' : '3px solid #fbbf24'
-                          }}
-                        >
-                          <td style={{ fontWeight: contact.read ? 'normal' : '600', wordWrap: 'break-word', maxWidth: '150px' }}>
-                            {contact.ign}
-                          </td>
-                          <td style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
-                            <a href={`mailto:${contact.email}`} style={{ color: '#fbbf24', wordBreak: 'break-all' }}>
-                              {contact.email}
-                            </a>
-                          </td>
-                          <td style={{ wordWrap: 'break-word', maxWidth: '150px' }}>{contact.phone || '-'}</td>
-                          <td style={{ wordWrap: 'break-word', maxWidth: '150px' }}>{contact.subject}</td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            {new Date(contact.created_at).toLocaleDateString('vi-VN', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            {contact.read ? (
-                              <span style={{ color: '#d1d5db' }}>Đã đọc</span>
-                            ) : (
-                              <span style={{ color: '#fbbf24', fontWeight: '600' }}>Mới</span>
-                            )}
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <motion.button
-                              className="tet-button-outline me-2 mb-2 mb-md-0"
-                              style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
-                              onClick={() => {
-                                const message = `Tên Game: ${contact.ign}\nEmail: ${contact.email}\nSố Điện Thoại: ${contact.phone || 'N/A'}\nChủ Đề: ${contact.subject}\n\nNội Dung:\n${contact.message}`;
-                                alert(message);
-                                if (!contact.read) {
-                                  markContactAsRead(contact.id);
-                                }
-                              }}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <BiCheck className="me-1" />
-                              {contact.read ? 'Xem' : 'Đánh dấu đã đọc'}
-                            </motion.button>
-                            <motion.button
-                              className="tet-button-outline"
-                              style={{ 
-                                padding: '0.25rem 0.75rem', 
+                      contacts.map((contact) => {
+                        const currentStatus = statusOptions.find(s => s.value === (contact.status || 'pending'));
+                        return (
+                          <motion.tr
+                            key={contact.id}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            whileHover={{ backgroundColor: 'rgba(220, 38, 38, 0.05)' }}
+                            style={{ 
+                              backgroundColor: contact.read ? 'transparent' : 'rgba(251, 191, 36, 0.1)',
+                              borderLeft: contact.read ? 'none' : '3px solid #fbbf24'
+                            }}
+                          >
+                            <td style={{ fontWeight: contact.read ? '500' : '700', wordWrap: 'break-word', maxWidth: '150px', color: '#0a0a0a' }}>
+                              {contact.ign}
+                            </td>
+                            <td style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
+                              <a href={`mailto:${contact.email}`} style={{ color: '#d97706', wordBreak: 'break-all', fontWeight: 500 }}>
+                                {contact.email}
+                              </a>
+                            </td>
+                            <td style={{ wordWrap: 'break-word', maxWidth: '120px' }}>
+                              <span style={{ 
+                                padding: '0.25rem 0.5rem', 
+                                borderRadius: '4px', 
+                                backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                                color: '#d97706',
                                 fontSize: '0.875rem',
-                                borderColor: '#f97316',
-                                color: '#f97316',
-                                whiteSpace: 'nowrap'
-                              }}
-                              onClick={() => {
-                                if (window.confirm('Bạn có chắc muốn xóa liên hệ này?')) {
-                                  deleteContact(contact.id);
-                                }
-                              }}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <BiTrash className="me-1" />
-                              Xóa
-                            </motion.button>
-                          </td>
-                        </motion.tr>
-                      ))
+                                fontWeight: 600
+                              }}>
+                                {categoryLabels[contact.category] || 'Khác'}
+                              </span>
+                            </td>
+                            <td style={{ wordWrap: 'break-word', maxWidth: '150px', color: '#0a0a0a', fontWeight: 500 }}>{contact.subject}</td>
+                            <td style={{ wordWrap: 'break-word' }}>
+                              {contact.image_url ? (
+                                <motion.button
+                                  onClick={() => {
+                                    setSelectedContact(contact);
+                                    setShowContactModal(true);
+                                  }}
+                                  style={{ 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    padding: 0,
+                                    cursor: 'pointer'
+                                  }}
+                                  whileHover={{ scale: 1.1 }}
+                                >
+                                  <BiImage size={24} style={{ color: '#d97706' }} />
+                                </motion.button>
+                              ) : (
+                                <span style={{ color: '#6b7280' }}>-</span>
+                              )}
+                            </td>
+                            <td style={{ whiteSpace: 'nowrap', color: '#1a1a1a', fontWeight: 500 }}>
+                              {new Date(contact.created_at).toLocaleDateString('vi-VN', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </td>
+                            <td style={{ whiteSpace: 'nowrap' }}>
+                              <select
+                                value={contact.status || 'pending'}
+                                onChange={(e) => updateContactStatus(contact.id, e.target.value)}
+                                style={{
+                                  padding: '0.25rem 0.5rem',
+                                  borderRadius: '4px',
+                                  border: `1px solid ${currentStatus?.color || '#fbbf24'}`,
+                                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                  color: currentStatus?.color || '#fbbf24',
+                                  fontSize: '0.875rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {statusOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value} style={{ backgroundColor: '#1a1a1a', color: opt.color }}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                            <td style={{ whiteSpace: 'nowrap' }}>
+                              <motion.button
+                                className="tet-button-outline me-2 mb-2 mb-md-0"
+                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedContact(contact);
+                                  setShowContactModal(true);
+                                  if (!contact.read) {
+                                    markContactAsRead(contact.id);
+                                  }
+                                }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                <BiCheck className="me-1" />
+                                Xem
+                              </motion.button>
+                              <motion.button
+                                className="tet-button-outline"
+                                style={{ 
+                                  padding: '0.25rem 0.75rem', 
+                                  fontSize: '0.875rem',
+                                  borderColor: '#f97316',
+                                  color: '#f97316',
+                                  whiteSpace: 'nowrap'
+                                }}
+                                onClick={() => {
+                                  if (window.confirm('Bạn có chắc muốn xóa liên hệ này?')) {
+                                    deleteContact(contact.id);
+                                  }
+                                }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                <BiTrash className="me-1" />
+                                Xóa
+                              </motion.button>
+                            </td>
+                          </motion.tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -545,7 +660,7 @@ const Admin = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="mb-4" style={{ color: '#fbbf24', wordWrap: 'break-word' }}>Trạng Thái Server</h1>
+              <h1 className="mb-4" style={{ color: '#d97706', fontWeight: 800, wordWrap: 'break-word' }}>Trạng Thái Server</h1>
               <div className="admin-card glass">
                 <div className="mb-4">
                   <label className="form-label">Trạng Thái Server</label>
@@ -560,7 +675,7 @@ const Admin = () => {
                         status: e.target.checked ? 'Online' : 'Offline'
                       })}
                     />
-                    <label className="form-check-label ms-3" style={{ color: '#d1d5db' }}>
+                    <label className="form-check-label ms-3" style={{ color: '#0a0a0a', fontWeight: 600 }}>
                       {serverForm.status === 'Online' ? 'Đang Hoạt Động' : 'Đang Tắt'}
                     </label>
                   </div>
@@ -593,16 +708,7 @@ const Admin = () => {
                     name="version"
                     value={serverForm.version}
                     onChange={handleServerChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="form-label">Thời Gian Hoạt Động</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="uptime"
-                    value={serverForm.uptime}
-                    onChange={handleServerChange}
+                    placeholder="Ví dụ: 1.20.4 hoặc > 1.21.4"
                   />
                 </div>
                 <motion.button
@@ -656,10 +762,15 @@ const Admin = () => {
                     type="text"
                     className="form-control"
                     name="server_version"
-                    value={settingsForm.server_version}
+                    value={serverStatus?.version || settingsForm.server_version || ''}
                     onChange={handleSettingsChange}
-                    placeholder="1.20.4"
+                    placeholder="Tự động lấy từ trạng thái server"
+                    readOnly
+                    style={{ backgroundColor: 'rgba(0,0,0,0.2)', cursor: 'not-allowed' }}
                   />
+                  <small className="form-text" style={{ color: '#9ca3af' }}>
+                    Phiên bản được tự động lấy từ phần Trạng Thái Server
+                  </small>
                 </div>
                 <div className="mb-4">
                   <label className="form-label">Email Liên Hệ</label>
@@ -698,8 +809,6 @@ const Admin = () => {
         </AnimatePresence>
         </div>
       </div>
-
-      {/* Modal for Add/Edit News */}
       {showModal && (
         <motion.div
           className="modal show d-block"
@@ -754,7 +863,7 @@ const Admin = () => {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Nội Dung</label>
-                  <p style={{ color: '#d1d5db', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                  <p style={{ color: '#1a1a1a', fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 500 }}>
                     Bạn có thể dán HTML, ảnh, video, iframe và bất kỳ nội dung nào. Editor hỗ trợ đầy đủ HTML như Drupal.
                   </p>
                   <RichTextEditor
@@ -810,6 +919,116 @@ const Admin = () => {
                 >
                   <BiCheckCircle className="me-2" />
                   Lưu
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Contact Detail Modal */}
+      {showContactModal && selectedContact && (
+        <motion.div
+          className="modal show d-block"
+          style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 2000 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.div
+            className="modal-dialog modal-lg"
+            initial={{ scale: 0.8, y: 50 }}
+            animate={{ scale: 1, y: 0 }}
+          >
+            <div className="modal-content glass-strong" style={{ border: '2px solid #d97706' }}>
+              <div className="modal-header" style={{ borderBottom: '1px solid rgba(217, 119, 6, 0.3)' }}>
+                <h5 className="modal-title" style={{ color: '#d97706', fontWeight: 800 }}>
+                  Chi Tiết Liên Hệ
+                </h5>
+                <motion.button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    setShowContactModal(false);
+                    setSelectedContact(null);
+                  }}
+                  whileHover={{ rotate: 90 }}
+                  style={{ filter: 'invert(1)' }}
+                ></motion.button>
+              </div>
+              <div className="modal-body" style={{ color: '#0a0a0a' }}>
+                <div className="row mb-3">
+                  <div className="col-md-6">
+                    <strong style={{ color: '#d97706', fontSize: '1rem' }}>Tên Game:</strong>
+                    <p style={{ color: '#1a1a1a', fontWeight: 500, marginTop: '0.5rem' }}>{selectedContact.ign}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong style={{ color: '#d97706', fontSize: '1rem' }}>Email:</strong>
+                    <p style={{ marginTop: '0.5rem' }}><a href={`mailto:${selectedContact.email}`} style={{ color: '#d97706', fontWeight: 500 }}>{selectedContact.email}</a></p>
+                  </div>
+                </div>
+                <div className="row mb-3">
+                  <div className="col-md-6">
+                    <strong style={{ color: '#d97706', fontSize: '1rem' }}>Số Điện Thoại:</strong>
+                    <p style={{ color: '#1a1a1a', fontWeight: 500, marginTop: '0.5rem' }}>{selectedContact.phone || '-'}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong style={{ color: '#d97706', fontSize: '1rem' }}>Danh Mục:</strong>
+                    <p style={{ marginTop: '0.5rem' }}>
+                      <span style={{ 
+                        padding: '0.25rem 0.5rem', 
+                        borderRadius: '4px', 
+                        backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                        color: '#d97706',
+                        fontSize: '0.875rem',
+                        fontWeight: 600
+                      }}>
+                        {categoryLabels[selectedContact.category] || 'Khác'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <strong style={{ color: '#d97706', fontSize: '1rem' }}>Chủ Đề:</strong>
+                  <p style={{ color: '#1a1a1a', fontWeight: 500, marginTop: '0.5rem' }}>{selectedContact.subject}</p>
+                </div>
+                <div className="mb-3">
+                  <strong style={{ color: '#d97706', fontSize: '1rem' }}>Nội Dung:</strong>
+                  <p style={{ whiteSpace: 'pre-wrap', color: '#1a1a1a', fontWeight: 500, marginTop: '0.5rem' }}>{selectedContact.message}</p>
+                </div>
+                {selectedContact.image_url && (
+                  <div className="mb-3">
+                    <strong style={{ color: '#d97706' }}>Ảnh Đính Kèm:</strong>
+                    <div className="mt-2">
+                      <img 
+                        src={selectedContact.image_url} 
+                        alt="Contact attachment" 
+                        style={{ 
+                          maxWidth: '100%', 
+                          borderRadius: '8px',
+                          border: '2px solid #d97706'
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="mb-3">
+                  <strong style={{ color: '#d97706', fontSize: '1rem' }}>Ngày Gửi:</strong>
+                  <p style={{ color: '#1a1a1a', fontWeight: 500, marginTop: '0.5rem' }}>{new Date(selectedContact.created_at).toLocaleString('vi-VN')}</p>
+                </div>
+              </div>
+              <div className="modal-footer" style={{ borderTop: '1px solid rgba(217, 119, 6, 0.3)' }}>
+                <motion.button
+                  type="button"
+                  className="tet-button-outline"
+                  onClick={() => {
+                    setShowContactModal(false);
+                    setSelectedContact(null);
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <BiXCircle className="me-2" />
+                  Đóng
                 </motion.button>
               </div>
             </div>

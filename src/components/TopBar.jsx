@@ -65,7 +65,7 @@ const TopBar = () => {
               )}
             </motion.span>
             <motion.a
-              href={siteSettings?.discord_url || 'https://discord.gg/buildnchill'}
+              href={siteSettings?.discord_url || 'https://discord.gg/Kum6Wvz23P'}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}

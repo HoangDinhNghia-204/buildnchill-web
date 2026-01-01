@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BiHomeAlt, BiInfoCircle, BiNews, BiEnvelope, BiShield } from 'react-icons/bi';
+import { BiHomeAlt, BiInfoCircle, BiNews, BiEnvelope, BiShield} from 'react-icons/bi';
 import { useData } from '../context/DataContext';
 
 const Navbar = () => {

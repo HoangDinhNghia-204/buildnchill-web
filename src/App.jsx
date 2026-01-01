@@ -19,7 +19,6 @@ import './styles/carousel.css';
 const AppContent = () => {
   const { isAuthenticated, siteSettings } = useData();
   
-  // Update document title when site title changes
   useEffect(() => {
     if (siteSettings?.site_title) {
       document.title = siteSettings.site_title;

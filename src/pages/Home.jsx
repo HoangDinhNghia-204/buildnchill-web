@@ -9,10 +9,8 @@ const Home = () => {
   const { news, serverStatus, siteSettings } = useData();
   const [currentSlide, setCurrentSlide] = useState(0);
   
-  // Get top 3 latest news
   const latestNews = news.slice(0, 3);
 
-  // Carousel images
   const carouselImages = [
     'https://foodtek.vn/sites/default/files/2025-12/1766978938677.webp',
     'https://foodtek.vn/sites/default/files/2025-12/462570011_607189315167864_5786208777291669050_n.webp',
@@ -60,7 +58,6 @@ const Home = () => {
 
   return (
     <div>
-      {/* Carousel Section */}
       <section className="hero-carousel">
         <div className="carousel-container">
           <AnimatePresence mode="wait">
@@ -97,7 +94,6 @@ const Home = () => {
       </section>
 
       <div className="container my-5">
-        {/* Features Section */}
         <motion.section 
           className="mb-5"
           variants={containerVariants}
@@ -138,7 +134,6 @@ const Home = () => {
           </div>
         </motion.section>
 
-        {/* Latest News Section */}
         <motion.section 
           className="mb-5"
           variants={containerVariants}
@@ -198,7 +193,6 @@ const Home = () => {
           </motion.div>
         </motion.section>
 
-        {/* Server Status Section */}
         <motion.section
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -211,7 +205,7 @@ const Home = () => {
           {serverStatus && (
             <div className="server-status-card glass">
               <div className="row">
-                <div className="col-md-3 col-sm-6 server-status-item">
+                <div className="col-md-4 col-sm-6 server-status-item">
                   <strong style={{ color: '#1a1a1a' }}>Trạng Thái</strong>
                   <div>
                     <motion.span 
@@ -228,19 +222,15 @@ const Home = () => {
                     </motion.span>
                   </div>
                 </div>
-                <div className="col-md-3 col-sm-6 server-status-item">
+                <div className="col-md-4 col-sm-6 server-status-item">
                   <strong style={{ color: '#1a1a1a' }}>Người Chơi</strong>
                   <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a1a1a' }}>
                     {serverStatus.players} / {serverStatus.maxPlayers}
                   </div>
                 </div>
-                <div className="col-md-3 col-sm-6 server-status-item">
+                <div className="col-md-4 col-sm-6 server-status-item">
                   <strong style={{ color: '#1a1a1a' }}>Phiên Bản</strong>
-                  <div style={{ fontSize: '1.2rem', color: '#1a1a1a', fontWeight: 600 }}>{siteSettings?.server_version || serverStatus.version || '1.20.4'}</div>
-                </div>
-                <div className="col-md-3 col-sm-6 server-status-item">
-                  <strong style={{ color: '#1a1a1a' }}>Thời Gian Hoạt Động</strong>
-                  <div style={{ fontSize: '1.2rem', color: '#1a1a1a', fontWeight: 600 }}>{serverStatus.uptime}</div>
+                  <div style={{ fontSize: '1.2rem', color: '#1a1a1a', fontWeight: 600 }}>{serverStatus?.version || siteSettings?.server_version || '1.20.4'}</div>
                 </div>
               </div>
             </div>

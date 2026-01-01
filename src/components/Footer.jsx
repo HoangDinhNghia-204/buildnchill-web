@@ -6,9 +6,8 @@ import { useData } from '../context/DataContext';
 const Footer = () => {
   const { siteSettings, serverStatus } = useData();
   
-  // Chỉ giữ lại Discord như yêu cầu - lấy từ settings
   const socialLinks = [
-    { icon: FaDiscord, href: siteSettings?.discord_url || 'https://discord.gg/buildnchill', label: 'Discord' }
+    { icon: FaDiscord, href: siteSettings?.discord_url || 'https://discord.gg/Kum6Wvz23P', label: 'Discord' }
   ];
 
   return (
@@ -42,7 +41,7 @@ const Footer = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    style={{ backgroundColor: '#5865F2', color: 'white', padding: '10px', borderRadius: '50%', display: 'inline-flex' }} // Style riêng cho Discord nổi bật
+                    style={{ backgroundColor: '#5865F2', color: 'white', padding: '10px', borderRadius: '50%', display: 'inline-flex' }}
                   >
                     <Icon size={20} />
                   </motion.a>
@@ -63,6 +62,9 @@ const Footer = () => {
                 <Link to="/news">Tin Tức</Link>
               </li>
               <li className="mb-2">
+                <Link to="/shop">Cửa Hàng</Link>
+              </li>
+              <li className="mb-2">
                 <Link to="/contact">Liên Hệ</Link>
               </li>
             </ul>
@@ -74,7 +76,7 @@ const Footer = () => {
                 <strong style={{ color: '#d97706' }}>IP:</strong> {siteSettings?.server_ip || 'play.buildnchill.com'}
               </li>
               <li className="mb-2" style={{ color: 'var(--text-secondary)' }}>
-                <strong style={{ color: '#d97706' }}>Phiên Bản:</strong> {siteSettings?.server_version || serverStatus?.version || '1.20.4'}
+                <strong style={{ color: '#d97706' }}>Phiên Bản:</strong> {serverStatus?.version || siteSettings?.server_version || '1.20.4'}
               </li>
               <li className="mb-2" style={{ color: 'var(--text-secondary)' }}>
                 <strong style={{ color: '#d97706' }}>Trạng Thái:</strong> {serverStatus?.status === 'Online' ? <span className="text-success fw-bold">Đang Hoạt Động</span> : <span className="text-danger">Bảo Trì</span>}
@@ -100,17 +102,13 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Đường kẻ ngang màu cam nhạt cho hợp tông */}
         <hr style={{ borderColor: '#d97706', margin: '2rem 0', borderWidth: '1px', opacity: 0.3 }} />
         
         <div className="text-center">
-          {/* Phần Copyright chỉnh đậm màu và in đậm hơn */}
           <p className="mb-2" style={{ color: '#1f2937', fontSize: '1rem', fontWeight: '600' }}>
             &copy; {new Date().getFullYear()} {siteSettings?.site_title || 'BuildnChill'}. All rights reserved. 
             <span style={{ color: '#d97706', marginLeft: '0.5rem' }}>🎊 Chúc Mừng Năm Mới! 🎊</span>
           </p>
-
-          {/* Phần Credit T-Dev29 */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -10,20 +10,16 @@ const News = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
-  // Filter news based on search query
   const filteredNews = news.filter(post =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Get featured post (newest)
   const featuredPost = filteredNews[0];
   
-  // Get older posts (excluding featured)
   const olderPosts = filteredNews.slice(1);
   
-  // Pagination
   const totalPages = Math.ceil(olderPosts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -79,7 +75,6 @@ const News = () => {
         Tin Tức
       </motion.h1>
 
-      {/* Search Bar */}
       <motion.div 
         className="search-bar glass mb-4"
         initial={{ opacity: 0, y: 20 }}
@@ -100,7 +95,6 @@ const News = () => {
         </div>
       </motion.div>
 
-      {/* Featured Post */}
       {featuredPost && (
         <motion.div 
           className="mb-5"
@@ -142,7 +136,6 @@ const News = () => {
         </motion.div>
       )}
 
-      {/* Older Posts Grid */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -191,7 +184,6 @@ const News = () => {
         </div>
       </motion.div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <motion.div 
           className="pagination-controls mt-5"

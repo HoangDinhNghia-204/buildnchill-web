@@ -1,4 +1,4 @@
-/* Carousel - Hiện đại, Full màn hình, không overlay */
+
 .hero-carousel {
   position: relative;
   width: 100%;
@@ -29,7 +29,6 @@
   display: block;
 }
 
-/* Nút điều hướng - Tối giản, hiện đại */
 .carousel-btn {
   position: absolute;
   top: 50%;
@@ -63,13 +62,11 @@
   right: 20px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero-carousel {
     height: 60vh;
   }
   
-  /* Trên mobile: full ảnh, không cắt 2 bên */
   .carousel-image {
     object-fit: contain !important;
     object-position: center;

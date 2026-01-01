@@ -10,7 +10,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Nhập nội dung...' 
     if (quillRef.current) {
       const quill = quillRef.current.getEditor();
       
-      // Enable paste HTML
       quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
         const ops = [];
         const processNode = (node) => {
@@ -20,18 +19,15 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Nhập nội dung...' 
             const tagName = node.tagName.toLowerCase();
             const attrs = {};
             
-            // Preserve images
             if (tagName === 'img') {
               const src = node.getAttribute('src');
               const alt = node.getAttribute('alt') || '';
               ops.push({ insert: { image: src }, attributes: { alt } });
             }
-            // Preserve links
             else if (tagName === 'a') {
               const href = node.getAttribute('href');
               attrs.link = href;
             }
-            // Preserve formatting
             else if (tagName === 'strong' || tagName === 'b') {
               attrs.bold = true;
             }
@@ -60,7 +56,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Nhập nội dung...' 
               attrs.list = tagName === 'ul' ? 'bullet' : 'ordered';
             }
             
-            // Process children
             Array.from(node.childNodes).forEach(child => {
               processNode(child);
             });
@@ -84,7 +79,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Nhập nội dung...' 
       [{ 'align': [] }],
       ['link', 'image', 'video'],
       ['clean'],
-      ['code-block'] // HTML code block
+      ['code-block']
     ],
     clipboard: {
       matchVisual: false,
