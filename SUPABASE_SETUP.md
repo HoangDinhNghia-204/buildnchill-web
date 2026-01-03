@@ -101,8 +101,11 @@ CREATE TABLE contacts (
   ign TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT,
+  category TEXT DEFAULT 'other',
   subject TEXT NOT NULL,
   message TEXT NOT NULL,
+  image_url TEXT,
+  status TEXT DEFAULT 'pending',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   read BOOLEAN DEFAULT FALSE
 );
@@ -121,6 +124,10 @@ CREATE POLICY "Anyone can read contacts" ON contacts
 -- Policy: Mọi người đều có thể update (để đánh dấu đã đọc)
 CREATE POLICY "Anyone can update contacts" ON contacts
   FOR UPDATE USING (true);
+
+-- Policy: Mọi người đều có thể delete (để admin xóa)
+CREATE POLICY "Anyone can delete contacts" ON contacts
+  FOR DELETE USING (true);
 
 ### 4. Table `site_settings` (Cài đặt website)
 
@@ -226,7 +233,26 @@ CREATE POLICY "Anyone can update orders" ON shop_orders
 
 **Lưu ý:** Tables `shop_items` và `shop_orders` là tùy chọn, chỉ cần tạo nếu bạn muốn sử dụng tính năng Shop. Xem thêm `SHOP_SYSTEM_SETUP.md` để biết chi tiết.
 
-## Bước 5: Khởi Động Lại Server
+## Bước 5: Tạo Storage Bucket cho Ảnh Liên Hệ
+
+1. Vào **Storage** trong menu bên trái
+2. Click **"New bucket"**
+3. Tên bucket: `contact-images`
+4. Tích chọn **"Public bucket"** (để có thể truy cập ảnh từ URL)
+5. Click **"Create bucket"**
+6. Sau khi tạo, vào bucket `contact-images`, vào tab **"Policies"**
+7. Tạo policy mới với các settings:
+   - Policy name: `Allow public uploads`
+   - Allowed operation: `INSERT`
+   - Target roles: `anon`, `authenticated`
+   - Policy definition: `true`
+8. Tạo thêm policy:
+   - Policy name: `Allow public reads`
+   - Allowed operation: `SELECT`
+   - Target roles: `anon`, `authenticated`
+   - Policy definition: `true`
+
+## Bước 6: Khởi Động Lại Server
 
 Sau khi tạo file `.env`, khởi động lại dev server:
 

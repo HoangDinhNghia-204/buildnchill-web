@@ -681,8 +681,13 @@ export const DataProvider = ({ children }) => {
 
       if (error) throw error;
       
+      // Update local state
       setContacts(prev => prev.filter(contact => contact.id !== contactId));
       
+      // Reload contacts to ensure consistency with database
+      await loadContacts();
+      
+      alert('Xóa liên hệ thành công!');
       return true;
     } catch (error) {
       console.error('Error deleting contact:', error);

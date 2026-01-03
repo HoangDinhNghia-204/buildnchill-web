@@ -1,27 +1,21 @@
--- Migration script to add new fields to contacts table
--- Run this in Supabase SQL Editor
+-- Migration script để cập nhật table contacts
+-- Chạy script này trong SQL Editor của Supabase nếu bạn đã tạo table contacts trước đó
 
--- Add new columns to contacts table
-ALTER TABLE contacts
+-- Thêm các columns còn thiếu
+ALTER TABLE contacts 
 ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'other',
 ADD COLUMN IF NOT EXISTS image_url TEXT,
 ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending';
 
--- Add check constraint for status
-ALTER TABLE contacts
-ADD CONSTRAINT check_status CHECK (status IN ('pending', 'received', 'resolved'));
-
--- Create storage bucket for contact images (if not exists)
--- Note: You need to manually create the bucket in Supabase Storage UI
--- Name: contact-images
--- Public: true
-
--- Create storage policy for contact-images bucket
--- Run this after creating the bucket:
--- CREATE POLICY "Anyone can upload contact images" ON storage.objects
--- FOR INSERT WITH CHECK (bucket_id = 'contact-images');
---
--- CREATE POLICY "Anyone can view contact images" ON storage.objects
--- FOR SELECT USING (bucket_id = 'contact-images');
-
-
+-- Thêm DELETE policy nếu chưa có
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'contacts' 
+    AND policyname = 'Anyone can delete contacts'
+  ) THEN
+    CREATE POLICY "Anyone can delete contacts" ON contacts
+      FOR DELETE USING (true);
+  END IF;
+END $$;

@@ -630,9 +630,9 @@ const Admin = () => {
                                   color: '#f97316',
                                   whiteSpace: 'nowrap'
                                 }}
-                                onClick={() => {
+                                onClick={async () => {
                                   if (window.confirm('Bạn có chắc muốn xóa liên hệ này?')) {
-                                    deleteContact(contact.id);
+                                    await deleteContact(contact.id);
                                   }
                                 }}
                                 whileHover={{ scale: 1.05 }}
@@ -997,17 +997,44 @@ const Admin = () => {
                 </div>
                 {selectedContact.image_url && (
                   <div className="mb-3">
-                    <strong style={{ color: '#d97706' }}>Ảnh Đính Kèm:</strong>
-                    <div className="mt-2">
+                    <strong style={{ color: '#d97706', fontSize: '1rem' }}>Ảnh Đính Kèm:</strong>
+                    <div className="mt-2" style={{ textAlign: 'center' }}>
                       <img 
                         src={selectedContact.image_url} 
                         alt="Contact attachment" 
                         style={{ 
                           maxWidth: '100%', 
+                          maxHeight: '500px',
+                          width: 'auto',
+                          height: 'auto',
+                          objectFit: 'contain',
                           borderRadius: '8px',
-                          border: '2px solid #d97706'
+                          border: '2px solid #d97706',
+                          backgroundColor: '#f9fafb',
+                          display: 'block',
+                          margin: '0 auto'
+                        }}
+                        onError={(e) => {
+                          console.error('Error loading image:', selectedContact.image_url);
+                          e.target.alt = 'Không thể tải ảnh';
+                          e.target.style.border = '2px dashed #dc2626';
+                          e.target.style.padding = '2rem';
                         }}
                       />
+                      <a 
+                        href={selectedContact.image_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ 
+                          display: 'inline-block',
+                          marginTop: '0.5rem',
+                          color: '#d97706',
+                          textDecoration: 'underline',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        Mở ảnh trong tab mới
+                      </a>
                     </div>
                   </div>
                 )}
