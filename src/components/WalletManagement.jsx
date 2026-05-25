@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BiWallet, BiPlus, BiMinus, BiSearch, BiHistory, BiRefresh } from 'react-icons/bi';
+import '../styles/summer-theme.css';
 
 const WalletManagement = () => {
   const [users, setUsers] = useState([]);
@@ -15,7 +16,6 @@ const WalletManagement = () => {
   useEffect(() => {
     fetchUsers(true);
 
-    // Realtime subscription cho profiles và wallets
     const profileChannel = supabase.channel('admin_profile_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
         fetchUsers(false);
@@ -32,19 +32,17 @@ const WalletManagement = () => {
       fetchUsers(false);
     };
 
-    // Lắng nghe sự thay đổi ví từ context/realtime
     window.addEventListener('wallet_updated', handleUpdate);
     return () => {
       window.removeEventListener('wallet_updated', handleUpdate);
       supabase.removeChannel(profileChannel);
       supabase.removeChannel(walletChannel);
     };
-  }, [selectedUser?.id]); // Thêm selectedUser.id vào dependency để cập nhật khi có thay đổi
+  }, [selectedUser?.id]);
 
   const fetchUsers = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      console.log('Fetching users and wallets...');
       const { data, error } = await supabase
         .from('profiles')
         .select(`
@@ -59,12 +57,8 @@ const WalletManagement = () => {
         `)
         .order('username');
       
-      if (error) {
-        console.error('Supabase error in fetchUsers:', error);
-        throw error;
-      }
+      if (error) throw error;
       
-      // Xử lý dữ liệu để đảm bảo wallets luôn là mảng hoặc lấy balance trực tiếp
       const processedData = data?.map(user => {
         let balance = 0;
         let walletId = null;
@@ -84,10 +78,8 @@ const WalletManagement = () => {
         };
       });
 
-      console.log('Processed data for UI:', processedData);
       setUsers(processedData || []);
       
-      // Cập nhật selectedUser nếu nó đang được chọn
       if (selectedUser) {
         const updatedUser = (processedData || []).find(u => u.id === selectedUser.id);
         if (updatedUser && JSON.stringify(updatedUser) !== JSON.stringify(selectedUser)) {
@@ -138,13 +130,9 @@ const WalletManagement = () => {
 
       if (error) throw error;
 
-      alert('Đã cập nhật số dư thành công!');
       setAdjustAmount('');
       setAdjustReason('');
       fetchUsers();
-      if (selectedUser.wallet_id) {
-        fetchTransactions(selectedUser.wallet_id);
-      }
     } catch (error) {
       alert('Lỗi: ' + error.message);
     }
@@ -156,139 +144,160 @@ const WalletManagement = () => {
 
   return (
     <div className="wallet-management">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="tet-section-title" style={{ margin: 0 }}>Quản Lý Ví</h1>
-        <motion.button
-          className="tet-button-outline"
-          onClick={() => fetchUsers(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          title="Tải lại dữ liệu"
-        >
-          <BiRefresh size={20} />
-        </motion.button>
+      <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+        <h3 className="fw-black text-primary m-0">QUẢN LÝ VÍ TIỀN</h3>
+        <button className="btn btn-light border text-primary rounded-3 shadow-sm" onClick={() => fetchUsers(true)}>
+          <BiRefresh size={22} />
+        </button>
       </div>
+
       <div className="row g-4">
         <div className="col-md-5">
-          <div className="admin-card tet-glass p-4 h-100">
-            <h5 className="mb-4 fw-bold"><BiSearch className="me-2" />Tìm kiếm người chơi</h5>
-            <input 
-              type="text" 
-              className="tet-input mb-3" 
-              placeholder="Nhập tên nhân vật..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div className="user-list overflow-auto" style={{ maxHeight: '400px' }}>
+          <div className="summer-glass p-4 h-100 bg-white shadow-lg border-0">
+            <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
+              <BiSearch size={22} className="text-primary" /> TÌM NGƯỜI CHƠI
+            </h5>
+            <div className="position-relative mb-4">
+              <input 
+                type="text" 
+                className="summer-input w-100 py-2" 
+                placeholder="Nhập tên nhân vật..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="user-list overflow-auto pe-2" style={{ maxHeight: '450px' }}>
               {loading ? (
-                <div className="text-center py-4"><div className="spinner-border text-danger spinner-border-sm"></div></div>
-              ) : filteredUsers.map(user => (
-                <div 
-                  key={user.id} 
-                  className={`p-3 border rounded mb-2 cursor-pointer transition-all ${selectedUser?.id === user.id ? 'bg-danger text-white border-danger' : 'hover-bg-light'}`}
-                  onClick={() => {
-                    setSelectedUser(user);
-                    if (user.wallet_id) fetchTransactions(user.wallet_id);
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="fw-bold">{user.username}</span>
-                    <span className="small">{(user.display_balance || 0).toLocaleString()} VNĐ</span>
-                  </div>
-                </div>
-              ))}
+                <div className="text-center py-4"><div className="spinner-border text-primary border-3"></div></div>
+              ) : filteredUsers.length > 0 ? (
+                filteredUsers.map(user => (
+                  <motion.div 
+                    key={user.id} 
+                    whileHover={{ x: 5 }}
+                    className={`p-3 rounded-4 mb-2 cursor-pointer transition-all border-2 d-flex align-items-center justify-content-between ${
+                      selectedUser?.id === user.id ? 'bg-primary text-white border-primary shadow-md' : 'bg-light bg-opacity-50 border-transparent hover-bg-white'
+                    }`}
+                    onClick={() => {
+                      setSelectedUser(user);
+                      if (user.wallet_id) fetchTransactions(user.wallet_id);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="d-flex align-items-center gap-3">
+                      <img src={`https://vzge.me/bust/${user.username}.png`} alt="Skin" style={{ width: '32px' }} />
+                      <span className="fw-bold">{user.username}</span>
+                    </div>
+                    <span className={`fw-black ${selectedUser?.id === user.id ? 'text-white' : 'text-primary'}`}>
+                      {(user.display_balance || 0).toLocaleString()}đ
+                    </span>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-muted small">Không tìm thấy người chơi.</div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="col-md-7">
-          {selectedUser ? (
-            <div className="d-flex flex-column gap-4">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="admin-card tet-glass p-4">
-                <h5 className="mb-4 fw-bold"><BiWallet className="me-2 text-danger" />Điều chỉnh số dư: {selectedUser.username}</h5>
-                <div className="mb-3">
-                  <label className="small fw-bold mb-1">Số tiền (VNĐ)</label>
-                  <input 
-                    type="number" 
-                    className="tet-input" 
-                    value={adjustAmount}
-                    onChange={(e) => setAdjustAmount(e.target.value)}
-                    placeholder="Ví dụ: 50000"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="small fw-bold mb-1">Lý do điều chỉnh</label>
-                  <textarea 
-                    className="tet-input" 
-                    rows="2"
-                    value={adjustReason}
-                    onChange={(e) => setAdjustReason(e.target.value)}
-                    placeholder="Ví dụ: Nạp thẻ tháng 1, Hoàn tiền lỗi..."
-                  />
-                </div>
-                <div className="row g-2">
-                  <div className="col-6">
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleAdjustBalance('plus')} 
-                      className="tet-button-shop w-100 py-2"
-                    >
-                      <BiPlus className="me-1" /> Cộng Tiền
-                    </motion.button>
+          <AnimatePresence mode="wait">
+            {selectedUser ? (
+              <motion.div 
+                key={selectedUser.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="d-flex flex-column gap-4"
+              >
+                <div className="summer-glass p-4 bg-white shadow-lg border-0">
+                  <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
+                    <BiWallet size={22} className="text-primary" /> ĐIỀU CHỈNH: {selectedUser.username}
+                  </h5>
+                  
+                  <div className="row g-4 mb-4">
+                    <div className="col-md-6">
+                      <label className="summer-label">SỐ TIỀN (VNĐ)</label>
+                      <input 
+                        type="number" 
+                        className="summer-input w-100" 
+                        value={adjustAmount}
+                        onChange={(e) => setAdjustAmount(e.target.value)}
+                        placeholder="VD: 50000"
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="summer-label">LÝ DO ĐIỀU CHỈNH</label>
+                      <input 
+                        className="summer-input w-100" 
+                        value={adjustReason}
+                        onChange={(e) => setAdjustReason(e.target.value)}
+                        placeholder="VD: Hoàn tiền, Thưởng sự kiện..."
+                      />
+                    </div>
                   </div>
-                  <div className="col-6">
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleAdjustBalance('minus')} 
-                      className="btn btn-outline-danger w-100 py-2 fw-bold"
-                      style={{ border: '2px solid' }}
-                    >
-                      <BiMinus className="me-1" /> Trừ Tiền
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="admin-card tet-glass p-4">
-                <h5 className="mb-4 fw-bold"><BiHistory className="me-2 text-danger" />Giao dịch gần đây</h5>
-                <div className="table-responsive">
-                  <table className="table table-sm align-middle">
-                    <thead>
-                      <tr>
-                        <th className="small">Thời gian</th>
-                        <th className="small text-center">+/-</th>
-                        <th className="small text-end">Lý do</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transactions.length > 0 ? (
-                        transactions.map(t => (
-                          <tr key={t.id}>
-                            <td className="small text-muted">{new Date(t.created_at).toLocaleString('vi-VN')}</td>
-                            <td className={`small text-center fw-bold ${t.amount > 0 ? 'text-success' : 'text-danger'}`}>
-                              {t.amount > 0 ? '+' : ''}{t.amount.toLocaleString()}
-                            </td>
-                            <td className="small text-end text-truncate" style={{ maxWidth: '150px' }} title={t.note}>{t.note}</td>
-                          </tr>
-                        ))
-                      ) : (
+                  <div className="row g-3">
+                    <div className="col-6">
+                      <button 
+                        onClick={() => handleAdjustBalance('plus')} 
+                        className="summer-button w-100 py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                      >
+                        <BiPlus size={20} /> CỘNG TIỀN
+                      </button>
+                    </div>
+                    <div className="col-6">
+                      <button 
+                        onClick={() => handleAdjustBalance('minus')} 
+                        className="summer-button-outline w-100 py-3 d-flex align-items-center justify-content-center gap-2 border-danger text-danger bg-white shadow-sm"
+                      >
+                        <BiMinus size={20} /> TRỪ TIỀN
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="summer-glass p-4 bg-white shadow-lg border-0">
+                  <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
+                    <BiHistory size={22} className="text-primary" /> GIAO DỊCH GẦN ĐÂY
+                  </h5>
+                  <div className="table-responsive">
+                    <table className="table summer-table mb-0">
+                      <thead>
                         <tr>
-                          <td colSpan="3" className="text-center py-4 text-muted small">Chưa có giao dịch nào</td>
+                          <th>THỜI GIAN</th>
+                          <th className="text-center">BIẾN ĐỘNG</th>
+                          <th className="text-end">LÝ DO</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {transactions.length > 0 ? (
+                          transactions.map(t => (
+                            <tr key={t.id}>
+                              <td className="small text-muted align-middle">{new Date(t.created_at).toLocaleString('vi-VN')}</td>
+                              <td className={`align-middle text-center fw-black fs-6 ${t.amount > 0 ? 'text-success' : 'text-danger'}`}>
+                                {t.amount > 0 ? '+' : ''}{t.amount.toLocaleString()}đ
+                              </td>
+                              <td className="align-middle text-end text-truncate fw-medium" style={{ maxWidth: '200px' }} title={t.note}>{t.note}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="3" className="text-center py-4 text-muted small fw-bold">Chưa có lịch sử giao dịch. 🌴</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </motion.div>
-            </div>
-          ) : (
-            <div className="admin-card tet-glass p-5 text-center text-muted h-100 d-flex align-items-center justify-content-center">
-              Vui lòng chọn một người chơi để xem chi tiết và điều chỉnh số dư.
-            </div>
-          )}
+            ) : (
+              <div className="summer-glass p-5 text-center text-muted h-100 d-flex flex-column align-items-center justify-content-center bg-white shadow-lg border-0 border-dashed border-2">
+                <BiUser size={60} className="mb-3 opacity-20" />
+                <p className="fw-bold m-0">Vui lòng chọn một người chơi để xem chi tiết và điều chỉnh số dư ví.</p>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

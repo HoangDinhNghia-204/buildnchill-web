@@ -17,13 +17,12 @@ import Recharge from './pages/Recharge';
 import Admin from './pages/Admin';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
-import TetEffect from './components/TetEffect';
+import SummerEffect from './components/SummerEffect';
 import 'react-quill/dist/quill.snow.css';
 import './styles.css';
 import './styles/custom.css'
 import './styles/carousel.css';
-import './styles/shop-tet.css';
-import './styles/tet-theme.css';
+import './styles/summer-theme.css';
 
 const AppContent = () => {
   const { isAuthenticated, siteSettings } = useData();
@@ -41,7 +40,8 @@ const AppContent = () => {
 
   return (
     <div className="App">
-      <TetEffect />
+      <SummerEffect />
+      <div className="ocean-waves"></div>
       <TopBar />
       <Navbar />
       <main>

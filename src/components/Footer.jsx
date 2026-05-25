@@ -12,21 +12,30 @@ const Footer = () => {
 
   return (
     <motion.footer
-      className="footer"
+      className="footer-summer py-5"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
+      style={{
+        background: 'linear-gradient(180deg, #0077be 0%, #005a8d 100%)',
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
     >
-      <div className="container">
+      {/* Wave effect at top of footer */}
+      <div className="footer-wave" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '50px', background: 'rgba(255,255,255,0.1)', transform: 'translateY(-100%)' }}></div>
+
+      <div className="container position-relative" style={{ zIndex: 2 }}>
         <div className="row g-4">
           <div className="col-lg-4 col-md-6 mb-4">
-            <h5>{siteSettings?.site_title || 'BuildnChill'}</h5>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', marginBottom: '1.5rem' }}>
-              Server Minecraft cộng đồng thân thiện của chúng tôi. Xây dựng, khám phá và thư giãn cùng chúng tôi!
-              Tham gia cộng đồng sôi động và trải nghiệm gameplay Minecraft tuyệt vời nhất.
+            <h4 className="fw-black mb-4 text-info" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{siteSettings?.site_title || 'BuildnChill'}</h4>
+            <p style={{ color: 'rgba(255,255,255,0.8)', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+              Giải nhiệt mùa hè cùng server Minecraft cộng đồng thân thiện nhất. 
+              Xây dựng, khám phá và tận hưởng kỳ nghỉ Ocean cùng chúng tôi!
             </p>
-            <div className="social-icons">
+            <div className="social-icons d-flex gap-3">
               {socialLinks.map((social, index) => {
                 const Icon = social.icon;
                 return (
@@ -36,19 +45,18 @@ const Footer = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    whileHover={{ scale: 1.2, rotate: 10 }}
+                    whileHover={{ scale: 1.2, rotate: 10, backgroundColor: '#00e5ff' }}
                     whileTap={{ scale: 0.9 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
                     style={{
-                      background: 'linear-gradient(135deg, #D70018 0%, #FFD700 100%)',
+                      background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      padding: '8px',
-                      borderRadius: '50%',
-                      display: 'inline-flex',
-                      border: '3px solid #FFD700',
-                      boxShadow: '0 0 20px rgba(215, 0, 24, 0.6), 0 0 10px rgba(255, 215, 0, 0.4)',
+                      width: '45px',
+                      height: '45px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid rgba(255,255,255,0.2)',
                       transition: 'all 0.3s ease'
                     }}
                   >
@@ -58,106 +66,71 @@ const Footer = () => {
               })}
             </div>
           </div>
+          
           <div className="col-lg-2 col-md-6 mb-4">
-            <h5>Liên Kết Nhanh</h5>
+            <h5 className="fw-bold mb-4 text-info">Khám Phá</h5>
             <ul className="list-unstyled">
-              <li className="mb-2">
-                <Link to="/">Trang Chủ</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/about">Giới Thiệu</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/news">Tin Tức</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/shop">Cửa Hàng</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/contact">Liên Hệ</Link>
-              </li>
+              {['Trang Chủ', 'Giới Thiệu', 'Tin Tức', 'Cửa Hàng', 'Liên Hệ'].map((text, i) => (
+                <li key={i} className="mb-2">
+                  <Link to={['/', '/about', '/news', '/shop', '/contact'][i]} className="text-white-50 text-decoration-none hover-text-info transition-all">
+                    {text}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
+
           <div className="col-lg-3 col-md-6 mb-4">
-            <h5 style={{ color: '#FFD700', textShadow: '0 0 10px rgba(255, 215, 0, 0.4)' }}>Thông Tin Server</h5>
-            <ul className="list-unstyled">
-              <li className="mb-2">
-                <strong style={{ color: '#FFD700', fontSize: '1rem' }}>IP:</strong>
-                <span style={{
-                  fontFamily: "'Poppins', sans-serif",
-                  fontSize: '0.95rem',
-                  fontWeight: '700',
-                  color: '#FFFDF0',
-                  textShadow: '0 0 5px rgba(255, 215, 0, 0.2)',
-                  marginLeft: '0.5rem'
-                }}>{siteSettings?.server_ip || 'play.buildnchill.com'}</span>
-              </li>
-              <li className="mb-2">
-                <strong style={{ color: '#FFD700' }}>Phiên Bản:</strong>
-                <span style={{ marginLeft: '0.5rem', fontWeight: '700', color: '#FFFDF0' }}>
-                  {serverStatus?.version || siteSettings?.server_version || '1.20.4'}
+            <h5 className="fw-bold mb-4 text-info">Trạng Thái Máy Chủ</h5>
+            <div className="p-3 rounded bg-white bg-opacity-10 border border-white border-opacity-10 shadow-sm">
+              <div className="mb-2">
+                <span className="small text-white-50 d-block">IP SERVER:</span>
+                <span className="fw-black text-info user-select-all">{siteSettings?.server_ip || 'play.buildnchill.vn'}</span>
+              </div>
+              <div className="mb-2">
+                <span className="small text-white-50 d-block">PHIÊN BẢN:</span>
+                <span className="fw-bold text-white">{serverStatus?.version || '1.20.4'}</span>
+              </div>
+              <div>
+                <span className={`badge ${serverStatus?.status === 'Online' ? 'bg-success' : 'bg-danger'} rounded-pill px-3`}>
+                  {serverStatus?.status === 'Online' ? '🟢 Online' : '🔴 Offline'}
                 </span>
-              </li>
-              <li className="mb-2">
-                <strong style={{ color: '#FFD700' }}>Trạng Thái:</strong>
-                <span style={{ marginLeft: '0.5rem', fontWeight: '700', color: serverStatus?.status === 'Online' ? '#10b981' : '#ef4444' }}>
-                  {serverStatus?.status === 'Online' ? '🟢 Đang Hoạt Động' : '🔴 Bảo Trì'}
-                </span>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
+
           <div className="col-lg-3 col-md-6 mb-4">
-            <h5 style={{ color: '#FFD700', textShadow: '0 0 10px rgba(255, 215, 0, 0.4)' }}>Liên Hệ</h5>
+            <h5 className="fw-bold mb-4 text-info">Hỗ Trợ 24/7</h5>
             <ul className="list-unstyled">
-              <li className="mb-2">
-                <strong style={{ color: '#FFD700' }}>Email:</strong><br />
-                <a href={`mailto:${siteSettings?.contact_email || 'contact@buildnchill.com'}`} style={{
-                  color: '#FFFDF0',
-                  textDecoration: 'none',
-                  fontWeight: '700',
-                  fontSize: '0.9rem',
-                  textShadow: '0 0 5px rgba(255, 215, 0, 0.2)'
-                }}>
-                  {siteSettings?.contact_email || 'contact@buildnchill.com'}
+              <li className="mb-3">
+                <div className="small text-white-50">Email:</div>
+                <a href={`mailto:${siteSettings?.contact_email}`} className="text-white text-decoration-none fw-bold">
+                  {siteSettings?.contact_email || 'admin@buildnchill.vn'}
                 </a>
               </li>
-              <li className="mb-2">
-                <strong style={{ color: '#FFD700' }}>Số Điện Thoại:</strong><br />
-                <a href={`tel:${siteSettings?.contact_phone?.replace(/\s/g, '') || '+1234567890'}`} style={{
-                  color: '#FFFDF0',
-                  textDecoration: 'none',
-                  fontWeight: '700',
-                  fontSize: '0.9rem',
-                  textShadow: '0 0 5px rgba(255, 215, 0, 0.2)'
-                }}>
-                  {siteSettings?.contact_phone || '+1 (234) 567-890'}
+              <li>
+                <div className="small text-white-50">Zalo/Hotline:</div>
+                <a href={`tel:${siteSettings?.contact_phone}`} className="text-white text-decoration-none fw-bold">
+                  {siteSettings?.contact_phone || '0123.456.789'}
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <hr style={{ borderColor: '#FFD700', margin: '2rem 0', borderWidth: '1px', opacity: 0.3 }} />
+        <hr className="my-4 border-white opacity-10" />
 
-        <div className="text-center">
-          <p className="mb-2" style={{
-            color: '#FFFDF0',
-            fontSize: '1.1rem',
-            fontWeight: '700',
-            textShadow: '0 0 10px rgba(255, 215, 0, 0.2)',
-            letterSpacing: '1px'
-          }}>
-            &copy; {new Date().getFullYear()} {siteSettings?.site_title || 'BuildnChill'}. All rights reserved.
-            <span style={{ color: '#FFD700', marginLeft: '0.5rem', textShadow: '0 0 15px rgba(255, 215, 0, 0.4)' }}>🧧 Chúc mừng năm mới Bính Ngọ 2026! 🌸</span>
-          </p>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            style={{ fontSize: '0.95rem', color: '#FFFDF0', fontWeight: '600' }}
-          >
-            Website được thiết kế và quản lý bởi <span style={{ color: '#FFD700', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 0 10px rgba(255, 215, 0, 0.3)' }}>T-Dev29</span>
-          </motion.div>
+        <div className="row align-items-center">
+          <div className="col-md-6 text-center text-md-start mb-3 mb-md-0">
+            <p className="mb-0 small text-white-50">
+              &copy; {new Date().getFullYear()} <span className="text-info fw-bold">{siteSettings?.site_title || 'BuildnChill'}</span>. Tận hưởng mùa hè rực rỡ! 🌊🐬
+            </p>
+          </div>
+          <div className="col-md-6 text-center text-md-end">
+            <div className="small text-white-50">
+              Phát triển bởi <span className="text-info fw-black letter-spacing-1">T-Dev29</span>
+            </div>
+          </div>
         </div>
       </div>
     </motion.footer>

@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import { useData } from '../context/DataContext';
 import { generateContactCode, generateOrderCode } from '../utils/helpers';
 import RichTextEditor from '../components/RichTextEditor';
-import TetEffect from '../components/TetEffect';
+import SummerEffect from '../components/SummerEffect';
 import ShopCategoriesManagement from '../components/ShopCategoriesManagement';
 import ShopProductsManagement from '../components/ShopProductsManagement';
 import ShopOrdersManagement from '../components/ShopOrdersManagement';
@@ -14,8 +14,7 @@ import CarouselManagement from '../components/CarouselManagement';
 import WalletManagement from '../components/WalletManagement';
 import RechargeManagement from '../components/RechargeManagement';
 import TetDatePicker from '../components/TetDatePicker';
-import '../styles/tet-theme.css';
-import '../styles/shop-tet.css';
+import '../styles/summer-theme.css';
 import {
   BiBarChart,
   BiNews,
@@ -36,7 +35,9 @@ import {
   BiCalendar,
   BiStar,
   BiWallet,
-  BiCreditCard
+  BiCreditCard,
+  BiRefresh,
+  BiX
 } from 'react-icons/bi';
 
 const Admin = () => {
@@ -49,9 +50,8 @@ const Admin = () => {
     isAuthenticated,
     userProfile,
     logout,
-    refreshMinecraftStatus,
-    addNews,
     updateNews,
+    addNews,
     deleteNews,
     updateServerStatus,
     updateSiteSettings,
@@ -244,7 +244,6 @@ const Admin = () => {
       return;
     }
     
-    // Kiểm tra quyền admin
     if (userProfile && userProfile.role !== 'admin') {
       alert('Bạn không có quyền truy cập trang quản trị!');
       navigate('/shop');
@@ -276,32 +275,6 @@ const Admin = () => {
     }
   }, [topDateRange]);
 
-  const unresolvedContactsCount = contacts.filter(c => c.status !== 'resolved').length;
-  const unreadCount = contacts.filter(c => !c.read).length;
-  const pendingCount = unresolvedContactsCount;
-  const undeliveredOrdersCount = stats.pendingOrders; // stats.pendingOrders đã lọc theo status paid và !delivered ở loadDashboardStats
-
-  const setTopDatePreset = (preset) => {
-    const now = new Date();
-    let start = new Date();
-    const end = now.toISOString().split('T')[0];
-
-    if (preset === 'week') {
-      start.setDate(now.getDate() - 7);
-    } else if (preset === 'month') {
-      start.setMonth(now.getMonth() - 1);
-    } else if (preset === 'year') {
-      start.setFullYear(now.getFullYear() - 1);
-    } else if (preset === 'all') {
-      start = new Date('2024-01-01');
-    }
-
-    setTopDateRange({
-      start: start.toISOString().split('T')[0],
-      end: end
-    });
-  };
-
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -318,50 +291,21 @@ const Admin = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file ảnh!');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        alert('Kích thước ảnh tối đa 10MB!');
-        return;
-      }
-      setImageFile(file);
-    }
+    if (file) setImageFile(file);
   };
 
   const uploadImage = async () => {
     if (!imageFile) return formData.image;
-
     try {
       setUploading(true);
       const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-      const filePath = fileName;
-
-      const { error: uploadError } = await supabase.storage
-        .from('news')
-        .upload(filePath, imageFile, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) {
-        // Nếu lỗi do chưa có bucket, thử dùng bucket khác hoặc báo lỗi
-        console.error('Error uploading image to news bucket:', uploadError);
-        // Fallback sang contact-images nếu cần, hoặc thông báo
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('news')
-        .getPublicUrl(filePath);
-
+      const fileName = `${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('news').upload(fileName, imageFile);
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('news').getPublicUrl(fileName);
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Lỗi khi tải ảnh lên: ' + error.message);
       return formData.image;
     } finally {
       setUploading(false);
@@ -395,22 +339,19 @@ const Admin = () => {
     try {
       const finalImageUrl = await uploadImage();
       const finalFormData = { ...formData, image: finalImageUrl };
-
       if (editingPost) {
-        const updatedPost = { ...editingPost, ...finalFormData };
-        const success = await updateNews(editingPost.id, updatedPost);
-        if (success) { setShowModal(false); setEditingPost(null); setImageFile(null); }
+        await updateNews(editingPost.id, finalFormData);
       } else {
-        const success = await addNews(finalFormData);
-        if (success) { setShowModal(false); setEditingPost(null); setImageFile(null); }
+        await addNews(finalFormData);
       }
+      setShowModal(false);
     } catch (error) {
       console.error('Error saving news:', error);
     }
   };
 
   const handleDelete = async (postId) => {
-    if (window.confirm('Bạn có chắc muốn xóa bài viết này?')) await deleteNews(postId);
+    if (window.confirm('Xóa bài viết này?')) await deleteNews(postId);
   };
 
   const handleServerSave = async () => {
@@ -427,732 +368,479 @@ const Admin = () => {
     navigate('/'); 
   };
 
-  if (!isAuthenticated) return null;
-
   const tabs = [
-    { id: 'dashboard', label: 'Bảng Điều Khiển', icon: BiBarChart },
-    { id: 'users', label: 'Người Dùng', icon: BiUser },
-    { id: 'categories', label: 'Danh Mục', icon: BiCog },
-    { id: 'products', label: 'Sản Phẩm', icon: BiShoppingBag },
-    { id: 'orders', label: 'Đơn Hàng', icon: BiCheckCircle },
-    { id: 'recharges', label: 'Duyệt Nạp', icon: BiCreditCard },
-    { id: 'wallets', label: 'Quản Lý Ví', icon: BiWallet },
-    { id: 'news', label: 'Tin Tức', icon: BiNews },
-    { id: 'carousel', label: 'Carousel', icon: BiImage },
-    { id: 'contacts', label: 'Liên Hệ', icon: BiEnvelope },
-    { id: 'server', label: 'Trạng Thái Server', icon: BiServer },
-    { id: 'settings', label: 'Cài Đặt', icon: BiCog }
+    { id: 'dashboard', label: 'BẢNG ĐIỀU KHIỂN', icon: BiBarChart },
+    { id: 'users', label: 'NGƯỜI DÙNG', icon: BiUser },
+    { id: 'categories', label: 'DANH MỤC SHOP', icon: BiCog },
+    { id: 'products', label: 'SẢN PHẨM SHOP', icon: BiShoppingBag },
+    { id: 'orders', label: 'ĐƠN HÀNG SHOP', icon: BiCheckCircle },
+    { id: 'recharges', label: 'DUYỆT NẠP TIỀN', icon: BiCreditCard },
+    { id: 'wallets', label: 'QUẢN LÝ VÍ', icon: BiWallet },
+    { id: 'news', label: 'TIN TỨC', icon: BiNews },
+    { id: 'carousel', label: 'CAROUSEL', icon: BiImage },
+    { id: 'contacts', label: 'LIÊN HỆ', icon: BiEnvelope },
+    { id: 'server', label: 'TRẠNG THÁI SERVER', icon: BiServer },
+    { id: 'settings', label: 'CÀI ĐẶT TRANG', icon: BiCog }
   ];
 
   return (
-    <div className="shop-tet-container" style={{ minHeight: '100vh' }}>
-      <TetEffect />
-      <div className="admin-top-nav d-lg-none">
-        <div className="admin-top-nav-header">
-          <h4 style={{ color: 'var(--tet-gold)', fontWeight: 800, margin: 0, textShadow: '0 0 15px rgba(255, 215, 0, 0.4)', fontSize: '1.2rem' }}>{siteSettings?.site_title || 'BuildnChill'} Admin</h4>
-        </div>
-        <nav className="admin-top-nav-menu">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            let notificationCount = 0;
-            if (tab.id === 'contacts') notificationCount = unresolvedContactsCount;
-            if (tab.id === 'orders') notificationCount = undeliveredOrdersCount;
-            if (tab.id === 'recharges') notificationCount = stats.pendingRecharges;
-            const hasNotification = notificationCount > 0;
-
-            return (
-              <motion.button
-                key={tab.id}
-                className={`admin-top-nav-item ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{ position: 'relative' }}
-              >
-                <Icon size={20} />
-                <span className="admin-top-nav-label">{tab.label}</span>
-                {hasNotification && <span style={{ position: 'absolute', top: '2px', right: '2px', backgroundColor: 'var(--tet-gold)', color: 'var(--tet-lucky-red)', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 'bold' }}>{notificationCount}</span>}
-              </motion.button>
-            );
-          })}
-        </nav>
-        <div className="admin-top-nav-footer">
-          <motion.button
-            className="tet-button w-100"
-            onClick={handleLogout}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ fontSize: '0.9rem', padding: '10px' }}
-          >
-            <BiLogOutCircle className="me-2" /> ĐĂNG XUẤT
-          </motion.button>
-        </div>
-      </div>
-
-      <div className="d-flex d-lg-flex" style={{ minHeight: '100vh' }}>
-        <motion.div className="admin-sidebar d-none d-lg-block" style={{ width: '250px', background: 'var(--tet-gradient-1)', borderRight: '2px solid var(--tet-gold)' }}>
-          <div className="p-3 mb-4">
-            <h4 style={{ color: 'var(--tet-gold)', fontWeight: 800, margin: 0, textShadow: '0 0 15px rgba(255, 215, 0, 0.4)', fontSize: '1.2rem' }}>{siteSettings?.site_title || 'BuildnChill'} Admin</h4>
-          </div>
-          <nav className="nav flex-column">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              let notificationCount = 0;
-              if (tab.id === 'contacts') notificationCount = unresolvedContactsCount;
-              if (tab.id === 'orders') notificationCount = undeliveredOrdersCount;
-              const hasNotification = notificationCount > 0;
-
-              return (
-                <motion.button key={tab.id} className={`nav-link ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)} style={{ position: 'relative', color: activeTab === tab.id ? 'var(--tet-gold)' : 'white', background: activeTab === tab.id ? 'rgba(255,255,255,0.1)' : 'transparent', border: 'none', textAlign: 'left', padding: '12px 20px' }}>
-                  <Icon size={20} className="me-2" /> {tab.label}
-                  {hasNotification && <span style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'var(--tet-gold)', color: 'var(--tet-lucky-red)', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>{notificationCount}</span>}
-                </motion.button>
-              );
-            })}
-          </nav>
-          <div className="p-3 mt-auto">
-            <motion.button className="tet-button w-100" onClick={handleLogout}>
-              <BiLogOutCircle className="me-2" /> Đăng Xuất
-            </motion.button>
-          </div>
-        </motion.div>
-
-        <div className="admin-content flex-grow-1 p-4">
-          <AnimatePresence mode="wait">
-            {activeTab === 'dashboard' && (
-              <motion.div key="dashboard" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h1 className="tet-title" style={{ margin: 0 }}>Bảng Điều Khiển</h1>
-                  <motion.button className="tet-button-outline" onClick={loadDashboardStats}><BiServer className="me-2" /> Làm mới</motion.button>
-                </div>
-                <div className="row g-3 mb-4">
-                  <div className="col-12 col-sm-6 col-md-4 col-lg">
-                    <div className="admin-card tet-glass p-3 h-100" style={{ borderLeft: '4px solid #ef4444' }}>
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <h3 className="mb-1" style={{ color: '#ef4444' }}>{stats.pendingOrders}</h3>
-                          <p className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700, fontSize: '0.9rem' }}>Đơn Chờ Giao</p>
-                          <small className="text-muted" style={{ fontSize: '0.75rem' }}>Đã thanh toán</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12 col-sm-6 col-md-4 col-lg">
-                    <div className="admin-card tet-glass p-3 h-100" style={{ borderLeft: '4px solid var(--tet-lucky-red)' }}>
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <h3 className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>{stats.monthlyRevenue?.toLocaleString('vi-VN')} VNĐ</h3>
-                          <p className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700, fontSize: '0.9rem' }}>Doanh Thu Tháng</p>
-                          <small className="text-muted" style={{ fontSize: '0.75rem' }}>{stats.monthlyOrders} đơn</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12 col-sm-6 col-md-4 col-lg">
-                    <div className="admin-card tet-glass p-3 h-100" style={{ borderLeft: '4px solid var(--tet-gold)' }}>
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <h3 className="mb-1" style={{ color: 'var(--tet-gold-dark)' }}>{stats.yearlyRevenue?.toLocaleString('vi-VN')} VNĐ</h3>
-                          <p className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700, fontSize: '0.9rem' }}>Doanh Thu Năm</p>
-                          <small className="text-muted" style={{ fontSize: '0.75rem' }}>{stats.yearlyOrders} đơn</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12 col-sm-6 col-md-4 col-lg">
-                    <div className="admin-card tet-glass p-3 h-100" style={{ borderLeft: '4px solid #8b5cf6' }}>
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <h3 className="mb-1" style={{ color: '#8b5cf6' }}>{stats.totalRevenue?.toLocaleString('vi-VN')} VNĐ</h3>
-                          <p className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700, fontSize: '0.9rem' }}>Tổng Doanh Thu</p>
-                          <small className="text-muted" style={{ fontSize: '0.75rem' }}>Tất cả thời gian</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12 col-sm-6 col-md-4 col-lg">
-                    <div className="admin-card tet-glass p-3 h-100" style={{ borderLeft: '4px solid #f59e0b' }}>
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <h3 className="mb-1" style={{ color: 'var(--tet-gold-dark)' }}>{serverStatus?.players || 0}</h3>
-                          <p className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700, fontSize: '0.9rem' }}>Online</p>
-                          <small className="text-muted" style={{ fontSize: '0.75rem' }}>Người chơi</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row g-4 mb-5">
-                  <div className="col-12 col-lg-8">
-                    <div className="row g-4">
-                      <div className="col-12">
-                        <div className="admin-card tet-glass p-4">
-                          <h5 className="mb-4" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700 }}>Doanh Thu 7 Ngày Gần Nhất</h5>
-                          <div style={{ height: '300px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 10px 40px 10px', borderBottom: '1px solid rgba(0,0,0,0.1)', position: 'relative' }}>
-                            {stats.revenueByDay.map((day, index) => {
-                              const maxRevenue = Math.max(...stats.revenueByDay.map(d => d.revenue), 100000);
-                              const height = (day.revenue / maxRevenue) * 220;
-                              return (
-                                <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '12%' }}>
-                                  {day.revenue > 0 && <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: 'var(--tet-lucky-red)', marginBottom: '5px' }}>{(day.revenue / 1000).toFixed(0)}k</span>}
-                                  <motion.div initial={{ height: 0 }} animate={{ height: `${height}px` }} style={{ width: '100%', background: 'var(--tet-gradient-1)', borderRadius: '4px 4px 0 0', position: 'relative' }}>
-                                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '30%', background: 'linear-gradient(to bottom, rgba(255,215,0,0.3), transparent)', borderRadius: '4px 4px 0 0' }}></div>
-                                  </motion.div>
-                                  <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--tet-lucky-red-dark)', marginTop: '8px' }}>{day.date}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="col-12 col-md-6">
-                        <div className="admin-card tet-glass p-4 h-100">
-                          <h5 className="mb-4" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700 }}>Sản phẩm bán chạy</h5>
-                          <div className="list-unstyled">
-                            {stats.topProducts.map((p, i) => (
-                              <div key={i} className="mb-2 d-flex justify-content-between align-items-center p-2 rounded" style={{ background: 'rgba(215, 0, 24, 0.05)', borderLeft: '3px solid var(--tet-lucky-red)' }}>
-                                <span style={{ fontSize: '0.9rem', color: 'var(--tet-lucky-red-dark)', fontWeight: 600 }}>{i + 1}. {p.name}</span>
-                                <span className="badge rounded-pill" style={{ background: 'var(--tet-gradient-2)', color: 'white' }}>{p.count} đơn</span>
-                              </div>
-                            ))}
-                            {stats.topProducts.length === 0 && <div className="text-center py-2 text-muted small">Chưa có dữ liệu</div>}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="col-12 col-md-6">
-                        <div className="admin-card tet-glass p-4 h-100">
-                          <h5 className="mb-4" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700 }}>Tổng Quan Khác</h5>
-                          <div className="d-flex flex-column gap-3">
-                            <div className="d-flex justify-content-between align-items-center p-2 rounded border-bottom">
-                              <span style={{ fontSize: '0.9rem', color: '#1a1a1a', fontWeight: 600 }}>Bài viết tin tức</span>
-                              <span className="badge bg-primary rounded-pill px-3">{news.length}</span>
-                            </div>
-                            <div className="d-flex justify-content-between align-items-center p-2 rounded border-bottom">
-                              <span style={{ fontSize: '0.9rem', color: '#1a1a1a', fontWeight: 600 }}>Liên hệ mới</span>
-                              <span className="badge bg-danger rounded-pill px-3">{unreadCount}</span>
-                            </div>
-                            <div className="d-flex justify-content-between align-items-center p-2 rounded border-bottom">
-                              <span style={{ fontSize: '0.9rem', color: '#1a1a1a', fontWeight: 600 }}>Đơn hàng chưa giao</span>
-                              <span className="badge bg-warning text-dark rounded-pill px-3">{undeliveredOrdersCount}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-12 col-lg-4">
-                    <div className="admin-card tet-glass p-4 h-100" style={{ overflow: 'visible' }}>
-                      <h5 className="mb-4" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700 }}>
-                        <BiStar className="me-2" /> Top Nạp
-                      </h5>
-
-                      <div className="d-flex flex-column gap-2 mb-4">
-                        <TetDatePicker 
-                          label="Từ ngày"
-                          value={topDateRange.start}
-                          onChange={(val) => setTopDateRange({ ...topDateRange, start: val })}
-                        />
-                        <TetDatePicker 
-                          label="Đến ngày"
-                          value={topDateRange.end}
-                          onChange={(val) => setTopDateRange({ ...topDateRange, end: val })}
-                        />
-                      </div>
-
-                      <div className="list-unstyled d-flex flex-column gap-3">
-                        {stats.topDonators.map((user, i) => (
-                          <motion.div 
-                            key={i} 
-                            initial={{ x: 20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className={`rank-item d-flex align-items-center p-2 rounded position-relative ${user.rank === 1 ? 'top-1' : user.rank === 2 ? 'top-2' : user.rank === 3 ? 'top-3' : user.rank === 4 ? 'top-4' : user.rank === 5 ? 'top-5' : ''}`}
-                          >
-                            <div className="rank-badge">{user.rank}</div>
-                            <div className="player-avatar me-3">
-                              <img 
-                                src={`https://mc-heads.net/avatar/${user.name}/40`} 
-                                alt={user.name} 
-                                onError={(e) => { e.target.src = 'https://mc-heads.net/avatar/Steve/40'; }}
-                              />
-                            </div>
-                            <div className="player-info flex-grow-1 overflow-hidden">
-                              <div className="player-name text-truncate">{user.name}</div>
-                              <div className="recharge-amount">{user.total.toLocaleString('vi-VN')} VNĐ</div>
-                            </div>
-                            {user.rank < 4 && <div className="medal-icon">{user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : '🥉'}</div>}
-                          </motion.div>
-                        ))}
-                        {stats.topDonators.length === 0 && <div className="text-center py-2 text-muted small">Chưa có dữ liệu</div>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row g-4">
-                  <div className="col-12 col-xl-6">
-                    <div className="admin-card tet-glass p-4 h-100">
-                      <h5 className="mb-4" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700 }}>Đơn Hàng Gần Đây</h5>
-                      <div className="table-responsive">
-                        <table className="table table-sm align-middle">
-                          <thead>
-                            <tr>
-                              <th>Mã</th>
-                              <th>IGN</th>
-                              <th>Sản phẩm</th>
-                              <th>Trạng thái</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {stats.recentOrders.map((order, i) => (
-                              <tr key={i}>
-                                <td className="fw-bold" style={{ color: 'var(--tet-lucky-red-dark)', fontSize: '0.75rem' }}>{generateOrderCode(order.id)}</td>
-                                <td className="fw-bold" style={{ fontSize: '0.85rem' }}>{order.customer_ign}</td>
-                                <td style={{ fontSize: '0.85rem' }}>{order.product_name}</td>
-                                <td>
-                                  <span className={`badge ${order.delivered || order.status === 'delivered' ? 'bg-success' : order.status === 'paid' ? 'bg-info' : 'bg-warning text-dark'}`} style={{ fontSize: '0.7rem' }}>
-                                    {order.delivered || order.status === 'delivered' ? 'Đã Giao' : order.status === 'paid' ? 'Đã TT' : 'Chờ'}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <button className="tet-button-outline btn-sm mt-2 w-100" onClick={() => setActiveTab('orders')}>Xem tất cả đơn hàng →</button>
-                    </div>
-                  </div>
-                  <div className="col-12 col-xl-6">
-                    <div className="admin-card tet-glass p-4 h-100">
-                      <h5 className="mb-4" style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 700 }}>Tin Nhắn Mới</h5>
-                      <div className="list-group list-group-flush">
-                        {stats.recentContacts.map((contact, i) => (
-                          <div key={i} className="list-group-item border-0 px-0 mb-2" style={{ background: 'transparent' }}>
-                            <div className="d-flex w-100 justify-content-between">
-                              <h6 className="mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>{generateContactCode(contact.id)} - {contact.ign}</h6>
-                              <small className="text-muted">{new Date(contact.created_at).toLocaleDateString('vi-VN')}</small>
-                            </div>
-                            <p className="mb-1 text-truncate" style={{ fontSize: '0.85rem' }}>{contact.subject || contact.message}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <button className="tet-button-outline btn-sm mt-2 w-100" onClick={() => setActiveTab('contacts')}>Xem tất cả tin nhắn →</button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'news' && (
-              <motion.div key="news" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h1 className="tet-section-title">Quản Lý Tin Tức</h1>
-                  <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(255, 215, 0, 0.4)' }}
-                    whileTap={{ scale: 0.95 }}
-                    className="tet-button d-flex align-items-center"
-                    onClick={handleAddNew}
-                  >
-                    <BiPlus className="me-2" size={20} /> Thêm bài viết
-                  </motion.button>
-                </div>
-                <div className="admin-table tet-glass">
-                  <table className="table">
-                    <thead><tr><th style={{ color: 'var(--tet-lucky-red-dark)' }}>Tiêu Đề</th><th style={{ color: 'var(--tet-lucky-red-dark)' }}>Ngày</th><th style={{ color: 'var(--tet-lucky-red-dark)' }}>Thao Tác</th></tr></thead>
-                    <tbody>{news.map((post) => (
-                      <tr key={post.id}>
-                        <td style={{ color: '#0a0a0a' }}>{post.title}</td>
-                        <td style={{ color: '#1a1a1a' }}>{new Date(post.date).toLocaleDateString('vi-VN')}</td>
-                        <td>
-                          <div className="d-flex gap-2">
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="tet-button-save btn-sm"
-                              onClick={() => handleEdit(post)}
-                              title="Sửa bài viết"
-                            >
-                              <BiEdit size={18} /> Sửa
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="tet-button-danger btn-sm"
-                              onClick={() => handleDelete(post.id)}
-                              title="Xóa bài viết"
-                            >
-                              <BiTrash size={18} /> Xóa
-                            </motion.button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}</tbody>
-                  </table>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'carousel' && (
-              <motion.div key="carousel" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <CarouselManagement />
-              </motion.div>
-            )}
-
-            {activeTab === 'users' && (
-              <motion.div key="users" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <h1 className="tet-section-title mb-4">Quản Lý Người Dùng</h1>
-                <UserManagement />
-              </motion.div>
-            )}
-
-            {activeTab === 'categories' && <motion.div key="categories" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}><ShopCategoriesManagement /></motion.div>}
-            {activeTab === 'products' && <motion.div key="products" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}><ShopProductsManagement /></motion.div>}
-            {activeTab === 'orders' && <motion.div key="orders" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}><ShopOrdersManagement /></motion.div>}
-            {activeTab === 'recharges' && <motion.div key="recharges" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}><RechargeManagement /></motion.div>}
-            {activeTab === 'wallets' && <motion.div key="wallets" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}><WalletManagement /></motion.div>}
-
-            {activeTab === 'contacts' && (
-              <motion.div key="contacts" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <div className="d-flex justify-content-between align-items-end mb-4">
-                  <h1 className="tet-section-title m-0">❄️ Tin Nhắn Liên Hệ</h1>
-                  <div className="text-end fw-bold" style={{ color: 'var(--tet-lucky-red-dark)', fontSize: '0.9rem' }}>
-                    Tổng: {contacts.length} | Chưa giải quyết: {unresolvedContactsCount}
-                  </div>
-                </div>
-
-                <div className="admin-table tet-glass" style={{ overflowX: 'auto', border: '2px solid var(--tet-gold)' }}>
-                  <table className="table table-hover align-middle m-0">
-                    <thead style={{ background: 'rgba(215, 0, 24, 0.05)' }}>
-                      <tr>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>MÃ</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>TÊN GAME</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>EMAIL</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>DANH MỤC</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }} className="text-center">ẢNH</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>NGÀY</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>TRẠNG THÁI</th>
-                        <th style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: '800', borderBottom: '2px solid var(--tet-gold)' }}>THAO TÁC</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {contacts.map(c => (
-                        <tr key={c.id} style={{ borderBottom: '1px solid rgba(255, 215, 0, 0.2)' }}>
-                          <td className="fw-bold" style={{ color: 'var(--tet-lucky-red-dark)', fontSize: '0.8rem' }}>{generateContactCode(c.id)}</td>
-                          <td className="fw-bold" style={{ color: '#000' }}>{c.ign}</td>
-                          <td><a href={`mailto:${c.email}`} style={{ color: 'var(--tet-lucky-red-dark)', textDecoration: 'none', borderBottom: '1px solid var(--tet-lucky-red)' }}>{c.email}</a></td>
-                          <td>
-                            <span className="badge" style={{ background: 'var(--tet-gradient-1)', color: '#fff', fontWeight: '600' }}>
-                              {c.category === 'report' ? 'Báo Cáo' :
-                                c.category === 'bug' ? 'Báo Lỗi' :
-                                  c.category === 'help' ? 'Trợ Giúp' :
-                                    c.category === 'suggestion' ? 'Đề Xuất' : 'Khác'}
-                            </span>
-                          </td>
-                          <td className="text-center">
-                            {c.image_url ? <BiImage size={24} style={{ color: 'var(--tet-gold-dark)' }} /> : <span style={{ color: '#ccc' }}>-</span>}
-                          </td>
-                          <td style={{ fontSize: '0.85rem', color: '#333' }}>{new Date(c.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} {new Date(c.created_at).toLocaleDateString('vi-VN')}</td>
-                          <td>
-                            <select
-                              className="form-select form-select-sm fw-bold"
-                              style={{
-                                width: '140px',
-                                borderRadius: '6px',
-                                fontSize: '0.75rem',
-                                backgroundColor: c.status === 'resolved' ? '#dcfce7' : c.status === 'processing' ? '#fef9c3' : '#fee2e2',
-                                color: c.status === 'resolved' ? '#166534' : c.status === 'processing' ? '#854d0e' : '#b91c1c',
-                                border: '1px solid var(--tet-gold)'
-                              }}
-                              value={c.status || 'pending'}
-                              onChange={(e) => updateContactStatus(c.id, e.target.value)}
-                            >
-                              <option value="pending" style={{ background: '#fff', color: '#b91c1c' }}>🔴 Đã Nhận</option>
-                              <option value="processing" style={{ background: '#fff', color: '#854d0e' }}>🟡 Đang Kiểm Tra</option>
-                              <option value="resolved" style={{ background: '#fff', color: '#166534' }}>🟢 Đã Giải Quyết</option>
-                            </select>
-                          </td>
-                          <td>
-                            <div className="d-flex gap-2">
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="tet-button-save btn-sm"
-                                onClick={() => { setSelectedContact(c); setShowContactModal(true); if (!c.read) markContactAsRead(c.id); }}
-                                style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-                              >
-                                <BiShow size={16} /> XEM
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="tet-button-danger btn-sm"
-                                onClick={() => { if (window.confirm('Xóa tin nhắn này?')) deleteContact(c.id); }}
-                                style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-                              >
-                                <BiTrash size={16} /> XÓA
-                              </motion.button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                      {contacts.length === 0 && (
-                        <tr>
-                          <td colSpan="8" className="text-center py-4 text-muted">Không có tin nhắn nào</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'server' && (
-              <motion.div key="server" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h1 className="tet-section-title" style={{ margin: 0 }}>Trạng Thái Server</h1>
-                  <motion.button 
-                    className="tet-button-outline"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      refreshMinecraftStatus();
-                      alert('Đang làm mới trạng thái từ Minecraft server...');
-                    }}
-                  >
-                    <BiServer className="me-2" /> Làm mới tự động (API)
-                  </motion.button>
-                </div>
-                <div className="admin-card tet-glass p-4">
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Trạng Thái</label>
-                      <select className="tet-input w-100" name="status" value={serverForm.status} onChange={handleServerChange}>
-                        <option value="Online">Online</option>
-                        <option value="Offline">Offline</option>
-                        <option value="Maintenance">Bảo Trì</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Phiên Bản</label>
-                      <input type="text" className="tet-input w-100" name="version" value={serverForm.version} onChange={handleServerChange} placeholder="vd: 1.20.4" />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Số Người Chơi Hiện Tại</label>
-                      <input type="number" className="tet-input w-100" name="players" value={serverForm.players} onChange={handleServerChange} />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Số Người Chơi Tối Đa</label>
-                      <input type="number" className="tet-input w-100" name="maxPlayers" value={serverForm.maxPlayers} onChange={handleServerChange} />
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <button className="tet-button-save" onClick={handleServerSave}><BiCheck size={20} /> Lưu Cấu Hình</button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'settings' && (
-              <motion.div key="settings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <h1 className="tet-section-title mb-4">Cài Đặt Hệ Thống</h1>
-                <div className="admin-card tet-glass p-4">
-                  <div className="row">
-                    <div className="col-md-12 mb-3">
-                      <label className="tet-label">Tiêu Đề Trang Web</label>
-                      <input type="text" className="tet-input w-100" name="site_title" value={settingsForm.site_title} onChange={handleSettingsChange} />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Địa Chỉ IP Server</label>
-                      <input type="text" className="tet-input w-100" name="server_ip" value={settingsForm.server_ip} onChange={handleSettingsChange} placeholder="vd: mc.example.com" />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Phiên Bản Server Hiển Thị</label>
-                      <input type="text" className="tet-input w-100" name="server_version" value={settingsForm.server_version} onChange={handleSettingsChange} placeholder="vd: 1.16 - 1.20.4" />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Email Liên Hệ</label>
-                      <input type="email" className="tet-input w-100" name="contact_email" value={settingsForm.contact_email} onChange={handleSettingsChange} />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="tet-label">Số Điện Thoại</label>
-                      <input type="text" className="tet-input w-100" name="contact_phone" value={settingsForm.contact_phone} onChange={handleSettingsChange} />
-                    </div>
-                    <div className="col-md-12 mb-3">
-                      <label className="tet-label">Link Discord</label>
-                      <input type="text" className="tet-input w-100" name="discord_url" value={settingsForm.discord_url} onChange={handleSettingsChange} />
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <button className="tet-button-save" onClick={handleSettingsSave}><BiCheck size={20} /> Lưu Cài Đặt</button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {showModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content tet-glass position-relative">
-              <button
-                className="tet-close-btn"
-                onClick={() => setShowModal(false)}
-                title="Đóng"
-                style={{ top: '10px', right: '10px' }}
-              >
-                ✕
-              </button>
-              <div className="modal-header border-0"><h5 className="tet-section-title m-0">{editingPost ? '🧧 Sửa Bài Viết' : '🧧 Thêm Bài Viết'}</h5></div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label className="tet-label">Tiêu đề bài viết</label>
-                  <input type="text" className="tet-input w-100" name="title" value={formData.title} onChange={handleInputChange} placeholder="Nhập tiêu đề..." />
-                </div>
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label className="tet-label">Ảnh bìa</label>
-                    <div className="d-flex gap-2 align-items-center mb-2">
-                      {formData.image && !imageFile && (
-                        <img src={formData.image} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
-                      )}
-                      {imageFile && (
-                        <img src={URL.createObjectURL(imageFile)} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '2px solid var(--tet-gold)' }} />
-                      )}
-                      <input 
-                        type="file" 
-                        className="tet-input flex-grow-1" 
-                        accept="image/*" 
-                        onChange={handleImageChange}
-                      />
-                    </div>
-                    <small className="text-muted d-block mb-2">Tải ảnh lên (Tối đa 10MB)</small>
-                    <input type="text" className="tet-input w-100" name="image" value={formData.image} onChange={handleInputChange} placeholder="Hoặc dán link ảnh..." />
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <label className="tet-label">Ngày đăng</label>
-                    <input type="date" className="tet-input w-100" name="date" value={formData.date} onChange={handleInputChange} />
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <label className="tet-label">Mô tả ngắn</label>
-                  <textarea className="tet-input w-100" name="description" value={formData.description} onChange={handleInputChange} placeholder="Mô tả tóm tắt bài viết..." rows="2" />
-                </div>
-                <div className="mb-3">
-                  <label className="tet-label">Nội dung chi tiết</label>
-                  <RichTextEditor value={formData.content} onChange={(content) => setFormData({ ...formData, content })} />
-                </div>
-              </div>
-              <div className="modal-footer border-0">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="tet-button-outline"
-                  onClick={() => setShowModal(false)}
-                >
-                  <BiXCircle size={20} /> Hủy bỏ
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 15px rgba(215, 0, 24, 0.4)' }}
-                  whileTap={{ scale: 0.95 }}
-                  className="tet-button-save"
-                  onClick={handleSave}
-                  disabled={uploading}
-                >
-                  <BiCheck size={20} /> {uploading ? 'Đang tải ảnh...' : 'Lưu bài viết'}
-                </motion.button>
-              </div>
+    <div className="admin-summer-container min-vh-100 bg-light" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+      <SummerEffect />
+      
+      <div className="container-fluid p-0">
+        <div className="row g-0">
+          {/* Sidebar */}
+          <div className="col-lg-2 bg-white shadow-sm border-end min-vh-100 d-none d-lg-block position-sticky top-0 h-100 overflow-auto pt-4" style={{ zIndex: 100 }}>
+            <div className="px-4 mb-5 text-center">
+              <h4 className="fw-black text-primary m-0">ADMIN PANEL</h4>
+              <p className="small text-muted fw-bold mt-1">BUILDNCHILL 🏝️</p>
             </div>
-          </div>
-        </div>
-      )}
-
-      {showContactModal && selectedContact && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 10000 }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content tet-glass p-0 overflow-hidden" style={{ border: '2px solid var(--tet-gold)', borderRadius: '15px' }}>
-              <div className="p-4 bg-white position-relative">
+            <div className="d-flex flex-column gap-1 px-2">
+              {tabs.map(tab => (
                 <button
-                  className="tet-close-btn"
-                  onClick={() => setShowContactModal(false)}
-                  title="Đóng"
-                  style={{ top: '15px', right: '15px' }}
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`d-flex align-items-center gap-3 px-4 py-3 rounded-4 transition-all border-0 fw-bold ${
+                    activeTab === tab.id ? 'bg-primary text-white shadow-md' : 'bg-transparent text-dark opacity-75 hover-bg-light'
+                  }`}
                 >
-                  ✕
+                  <tab.icon size={22} />
+                  <span style={{ fontSize: '0.85rem' }}>{tab.label}</span>
                 </button>
-
-                <h4 className="fw-bold mb-4" style={{ color: 'var(--tet-lucky-red-dark)' }}>Chi Tiết Liên Hệ</h4>
-
-                <div className="row mb-3">
-                  <div className="col-md-6 mb-3">
-                    <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Tên Game:</div>
-                    <div style={{ color: '#000' }}>{selectedContact.ign}</div>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Email:</div>
-                    <div><a href={`mailto:${selectedContact.email}`} style={{ color: 'var(--tet-lucky-red-dark)', textDecoration: 'none' }}>{selectedContact.email}</a></div>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Số Điện Thoại:</div>
-                    <div style={{ color: '#000' }}>{selectedContact.phone || 'Không có'}</div>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Danh Mục:</div>
-                    <span className="badge" style={{ background: 'var(--tet-gradient-1)', color: '#fff', padding: '6px 15px', borderRadius: '6px' }}>
-                      {selectedContact.category === 'report' ? 'Báo Cáo' :
-                        selectedContact.category === 'bug' ? 'Báo Lỗi' :
-                          selectedContact.category === 'help' ? 'Trợ Giúp' :
-                            selectedContact.category === 'suggestion' ? 'Đề Xuất' : 'Khác'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Nội Dung:</div>
-                  <div style={{ color: '#000', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                    {selectedContact.message}
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Ảnh Đính Kèm:</div>
-                  <div className="mt-2 p-2 rounded" style={{ border: '2px solid var(--tet-gold)', background: 'rgba(255, 215, 0, 0.05)' }}>
-                    {selectedContact.image_url ? (
-                      <div className="text-center">
-                        <img
-                          src={selectedContact.image_url}
-                          alt="Attached"
-                          className="img-fluid rounded shadow-sm mb-2"
-                          style={{ maxHeight: '400px', border: '1px solid var(--tet-gold)' }}
-                        />
-                        <div>
-                          <a href={selectedContact.image_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--tet-lucky-red-dark)', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                            Mở ảnh trong tab mới
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-muted">Không có ảnh đính kèm</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-5">
-                  <div className="fw-bold mb-1" style={{ color: 'var(--tet-lucky-red-dark)' }}>Ngày Gửi:</div>
-                  <div style={{ color: '#000' }}>
-                    {new Date(selectedContact.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} {new Date(selectedContact.created_at).toLocaleDateString('vi-VN')}
-                  </div>
-                </div>
-              </div>
+              ))}
+              <hr className="my-3 mx-4" />
+              <button
+                onClick={handleLogout}
+                className="d-flex align-items-center gap-3 px-4 py-3 rounded-4 transition-all border-0 text-danger fw-bold bg-transparent hover-bg-danger-subtle"
+              >
+                <BiLogOutCircle size={22} />
+                <span style={{ fontSize: '0.85rem' }}>ĐĂNG XUẤT</span>
+              </button>
             </div>
           </div>
+
+          {/* Main Content */}
+          <div className="col-lg-10 p-4 p-md-5">
+            {/* Header Mobile */}
+            <div className="d-lg-none summer-glass p-3 mb-4 bg-white shadow-sm border-0 d-flex justify-content-between align-items-center">
+              <h5 className="m-0 fw-black text-primary">ADMIN 🏝️</h5>
+              <select 
+                className="summer-input py-1 px-3 small border-primary" 
+                value={activeTab} 
+                onChange={(e) => setActiveTab(e.target.value)}
+              >
+                {tabs.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+              </select>
+            </div>
+
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === 'dashboard' && (
+                <div className="dashboard-content">
+                  <div className="d-flex justify-content-between align-items-center mb-5">
+                    <h2 className="fw-black text-primary m-0">TỔNG QUAN HỆ THỐNG</h2>
+                    <button className="btn btn-light border text-primary rounded-3 shadow-sm" onClick={loadDashboardStats}>
+                      <BiRefresh size={22} />
+                    </button>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className="row g-4 mb-5">
+                    {[
+                      { label: 'ĐƠN HÀNG MỚI', value: stats.pendingOrders, icon: BiShoppingBag, color: 'primary' },
+                      { label: 'DOANH THU THÁNG', value: `${stats.monthlyRevenue.toLocaleString()}đ`, icon: BiCreditCard, color: 'success' },
+                      { label: 'NẠP TIỀN CHỜ DUYỆT', value: stats.pendingRecharges, icon: BiWallet, color: 'warning' },
+                      { label: 'THÔNG TIN LIÊN HỆ', value: stats.recentContacts.length, icon: BiEnvelope, color: 'info' }
+                    ].map((stat, idx) => (
+                      <div key={idx} className="col-sm-6 col-xl-3">
+                        <div className="summer-glass p-4 bg-white border-0 shadow-lg h-100 transition-all hover-translate-y">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className={`p-3 rounded-4 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                              <stat.icon size={28} />
+                            </div>
+                            <div>
+                              <p className="summer-label mb-0">{stat.label}</p>
+                              <h3 className="fw-black text-dark m-0 mt-1">{stat.value}</h3>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="row g-4">
+                    {/* Top Products */}
+                    <div className="col-lg-6">
+                      <div className="summer-glass p-4 bg-white border-0 shadow-lg h-100">
+                        <h5 className="fw-black text-primary mb-4">SẢN PHẨM BÁN CHẠY</h5>
+                        <div className="table-responsive">
+                          <table className="table summer-table mb-0">
+                            <thead>
+                              <tr>
+                                <th>TÊN SẢN PHẨM</th>
+                                <th className="text-center">SỐ LƯỢNG</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {stats.topProducts.map((p, i) => (
+                                <tr key={i}>
+                                  <td className="fw-bold text-dark">{p.name}</td>
+                                  <td className="text-center fw-black text-primary">{p.count}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Top Donators */}
+                    <div className="col-lg-6">
+                      <div className="summer-glass p-4 bg-white border-0 shadow-lg h-100">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                          <h5 className="fw-black text-primary m-0">TOP ĐẠI GIA 💎</h5>
+                        </div>
+                        <div className="table-responsive">
+                          <table className="table summer-table mb-0">
+                            <thead>
+                              <tr>
+                                <th>PLAYER</th>
+                                <th className="text-end">TỔNG NẠP</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {stats.topDonators.map((d, i) => (
+                                <tr key={i}>
+                                  <td>
+                                    <div className="d-flex align-items-center gap-2">
+                                      <span className={`badge rounded-pill bg-opacity-10 text-primary border border-primary border-opacity-20`}>{i+1}</span>
+                                      <img src={`https://vzge.me/bust/${d.name}.png`} alt="Skin" style={{ width: '24px' }} />
+                                      <span className="fw-bold text-dark">{d.name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="text-end fw-black text-success">{d.total.toLocaleString()}đ</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Orders */}
+                    <div className="col-12">
+                      <div className="summer-glass p-4 bg-white border-0 shadow-lg">
+                        <h5 className="fw-black text-primary mb-4">ĐƠN HÀNG GẦN ĐÂY</h5>
+                        <div className="table-responsive">
+                          <table className="table summer-table mb-0">
+                            <thead>
+                              <tr>
+                                <th>MÃ ĐƠN</th>
+                                <th>NGƯỜI CHƠI</th>
+                                <th>SẢN PHẨM</th>
+                                <th>GIÁ</th>
+                                <th>TRẠNG THÁI</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {stats.recentOrders.map(o => (
+                                <tr key={o.id}>
+                                  <td className="fw-black text-primary small">#{generateOrderCode(o.id)}</td>
+                                  <td className="fw-bold text-dark">{o.mc_username}</td>
+                                  <td className="fw-medium">{o.product_name}</td>
+                                  <td className="fw-bold text-success">{o.price?.toLocaleString()}đ</td>
+                                  <td>
+                                    <span className={`badge rounded-pill px-3 py-1 ${o.delivered ? 'bg-success' : o.status === 'paid' ? 'bg-info' : 'bg-warning text-dark'}`}>
+                                      {o.delivered ? 'ĐÃ GIAO' : o.status === 'paid' ? 'ĐÃ THANH TOÁN' : 'CHỜ NẠP'}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'users' && <UserManagement />}
+              {activeTab === 'categories' && <ShopCategoriesManagement />}
+              {activeTab === 'products' && <ShopProductsManagement />}
+              {activeTab === 'orders' && <ShopOrdersManagement />}
+              {activeTab === 'recharges' && <RechargeManagement />}
+              {activeTab === 'wallets' && <WalletManagement />}
+              {activeTab === 'carousel' && <CarouselManagement />}
+
+              {activeTab === 'news' && (
+                <div className="news-management">
+                  <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+                    <h3 className="fw-black text-primary m-0">QUẢN LÝ TIN TỨC</h3>
+                    <button className="summer-button py-2 px-4 shadow-sm" onClick={handleAddNew}>
+                      <BiPlus size={20} className="me-1" /> VIẾT BÀI MỚI
+                    </button>
+                  </div>
+
+                  <div className="row g-4">
+                    {news.map(post => (
+                      <div key={post.id} className="col-md-6 col-xl-4">
+                        <div className="summer-glass p-0 overflow-hidden h-100 shadow-lg border-0 bg-white d-flex flex-column">
+                          <img src={post.image} className="w-100 object-fit-cover" style={{ height: '160px' }} alt={post.title} />
+                          <div className="p-4 flex-grow-1">
+                            <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 mb-2">{post.date}</span>
+                            <h5 className="fw-black text-dark text-truncate-2 mb-2" style={{ height: '48px' }}>{post.title}</h5>
+                            <p className="small text-muted text-truncate-3 mb-4">{post.description}</p>
+                            <div className="d-flex gap-2 mt-auto">
+                              <button className="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold flex-grow-1" onClick={() => handleEdit(post)}>SỬA</button>
+                              <button className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold flex-grow-1" onClick={() => handleDelete(post.id)}>XÓA</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'contacts' && (
+                <div className="contacts-management">
+                  <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+                    <h3 className="fw-black text-primary m-0">THÔNG TIN LIÊN HỆ</h3>
+                  </div>
+                  <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg">
+                    <div className="table-responsive">
+                      <table className="table summer-table mb-0">
+                        <thead>
+                          <tr>
+                            <th className="ps-4">MÃ</th>
+                            <th>NGƯỜI GỬI</th>
+                            <th>TIÊU ĐỀ</th>
+                            <th>NGÀY GỬI</th>
+                            <th className="text-center">TRẠNG THÁI</th>
+                            <th className="text-end pe-4">THAO TÁC</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {contacts.map(contact => (
+                            <tr key={contact.id}>
+                              <td className="ps-4 align-middle fw-black text-primary small">#{generateContactCode(contact.id)}</td>
+                              <td className="align-middle fw-bold text-dark">{contact.name}</td>
+                              <td className="align-middle text-truncate fw-medium" style={{ maxWidth: '200px' }}>{contact.subject}</td>
+                              <td className="align-middle small text-muted">{new Date(contact.created_at).toLocaleDateString('vi-VN')}</td>
+                              <td className="align-middle text-center">
+                                <span className={`badge rounded-pill px-3 py-1 ${
+                                  contact.status === 'resolved' ? 'bg-success' : 'bg-warning text-dark'
+                                }`}>
+                                  {contact.status === 'resolved' ? 'ĐÃ XỬ LÝ' : 'CHỜ PHẢN HỒI'}
+                                </span>
+                              </td>
+                              <td className="align-middle text-end pe-4">
+                                <div className="d-flex justify-content-end gap-2">
+                                  <button className="btn btn-sm btn-info text-white rounded-circle p-2" onClick={() => {
+                                    setSelectedContact(contact);
+                                    setShowContactModal(true);
+                                    if (!contact.read) markContactAsRead(contact.id);
+                                  }}><BiShow size={18} /></button>
+                                  <button className="btn btn-sm btn-danger rounded-circle p-2" onClick={() => deleteContact(contact.id)}><BiTrash size={18} /></button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'server' && (
+                <div className="server-status-management">
+                  <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+                    <h3 className="fw-black text-primary m-0">TRẠNG THÁI MÁY CHỦ</h3>
+                    <button className="summer-button py-2 px-4 shadow-sm" onClick={handleServerSave}>
+                      <BiCheck size={20} className="me-1" /> LƯU THAY ĐỔI
+                    </button>
+                  </div>
+                  <div className="summer-glass p-4 bg-white shadow-lg border-0">
+                    <div className="row g-4">
+                      <div className="col-md-6">
+                        <label className="summer-label">TRẠNG THÁI HIỂN THỊ</label>
+                        <select className="summer-input w-100 py-2" name="status" value={serverForm.status} onChange={handleServerChange}>
+                          <option value="Online">Hoạt động (Online)</option>
+                          <option value="Offline">Bảo trì (Offline)</option>
+                        </select>
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">PHIÊN BẢN HỖ TRỢ</label>
+                        <input className="summer-input w-100 py-2" name="version" value={serverForm.version} onChange={handleServerChange} placeholder="VD: 1.20.4" />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">SỐ NGƯỜI CHƠI HIỆN TẠI</label>
+                        <input className="summer-input w-100 py-2" name="players" value={serverForm.players} onChange={handleServerChange} placeholder="VD: 15" />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">GIỚI HẠN NGƯỜI CHƠI (MAX)</label>
+                        <input className="summer-input w-100 py-2" name="maxPlayers" value={serverForm.maxPlayers} onChange={handleServerChange} placeholder="VD: 500" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'settings' && (
+                <div className="site-settings-management">
+                  <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+                    <h3 className="fw-black text-primary m-0">CÀI ĐẶT WEBSITE</h3>
+                    <button className="summer-button py-2 px-4 shadow-sm" onClick={handleSettingsSave}>
+                      <BiCheck size={20} className="me-1" /> LƯU CẤU HÌNH
+                    </button>
+                  </div>
+                  <div className="summer-glass p-4 bg-white shadow-lg border-0">
+                    <div className="row g-4">
+                      <div className="col-md-12">
+                        <label className="summer-label">TIÊU ĐỀ TRANG WEB</label>
+                        <input className="summer-input w-100 py-2" name="site_title" value={settingsForm.site_title} onChange={handleSettingsChange} />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">ĐỊA CHỈ IP SERVER MC</label>
+                        <input className="summer-input w-100 py-2" name="server_ip" value={settingsForm.server_ip} onChange={handleSettingsChange} />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">PHẦN THƯỞNG TOP ĐẠI GIA</label>
+                        <input className="summer-input w-100 py-2" name="server_version" value={settingsForm.server_version} onChange={handleSettingsChange} placeholder="VD: 50.000 VNĐ" />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">EMAIL LIÊN HỆ</label>
+                        <input className="summer-input w-100 py-2" name="contact_email" value={settingsForm.contact_email} onChange={handleSettingsChange} />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="summer-label">SỐ ĐIỆN THOẠI/ZALO</label>
+                        <input className="summer-input w-100 py-2" name="contact_phone" value={settingsForm.contact_phone} onChange={handleSettingsChange} />
+                      </div>
+                      <div className="col-md-12">
+                        <label className="summer-label">LINK DISCORD SERVER</label>
+                        <input className="summer-input w-100 py-2" name="discord_url" value={settingsForm.discord_url} onChange={handleSettingsChange} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Modals Tin Tức */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }} onClick={() => setShowModal(false)}>
+            <motion.div 
+              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
+              style={{ maxWidth: '800px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 className="m-0 fw-black">{editingPost ? 'SỬA BÀI VIẾT' : 'THÊM TIN TỨC MỚI'}</h4>
+                <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
+              </div>
+              <div className="p-4 overflow-auto">
+                <div className="mb-4">
+                  <label className="summer-label">TIÊU ĐỀ BÀI VIẾT</label>
+                  <input className="summer-input w-100" name="title" value={formData.title} onChange={handleInputChange} />
+                </div>
+                <div className="mb-4">
+                  <label className="summer-label">MÔ TẢ NGẮN</label>
+                  <textarea className="summer-input w-100" rows="2" name="description" value={formData.description} onChange={handleInputChange} />
+                </div>
+                <div className="mb-4">
+                  <label className="summer-label">HÌNH ẢNH MINH HỌA</label>
+                  <div className="d-flex gap-3 align-items-center">
+                    <div className="rounded-4 overflow-hidden bg-light" style={{ width: '120px', height: '80px' }}>
+                      <img src={imageFile ? URL.createObjectURL(imageFile) : (formData.image || 'https://via.placeholder.com/120x80')} className="w-100 h-100 object-fit-cover" />
+                    </div>
+                    <div className="flex-grow-1">
+                      <input type="file" className="form-control form-control-sm mb-2" onChange={handleImageChange} accept="image/*" />
+                      <input className="summer-input py-1 px-3 small w-100" name="image" value={formData.image} onChange={handleInputChange} placeholder="Hoặc dán URL ảnh..." />
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="summer-label">NỘI DUNG CHI TIẾT</label>
+                  <div className="summer-glass border p-1">
+                    <RichTextEditor value={formData.content} onChange={(val) => setFormData({ ...formData, content: val })} />
+                  </div>
+                </div>
+                <div className="d-flex gap-3">
+                  <button className="summer-button flex-grow-1 py-3" onClick={handleSave} disabled={uploading}>
+                    {uploading ? 'ĐANG TẢI ẢNH...' : 'LƯU BÀI VIẾT'}
+                  </button>
+                  <button className="summer-button-outline px-4 py-3" onClick={() => setShowModal(false)}>HỦY</button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showContactModal && selectedContact && (
+          <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }} onClick={() => setShowContactModal(false)}>
+            <motion.div 
+              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
+              style={{ maxWidth: '600px', width: '100%' }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 className="m-0 fw-black">THÔNG TIN LIÊN HỆ</h4>
+                <button className="btn btn-link text-white p-0" onClick={() => setShowContactModal(false)}><BiX size={28} /></button>
+              </div>
+              <div className="p-4">
+                <div className="row g-3 mb-4">
+                  <div className="col-6">
+                    <p className="summer-label mb-1">NGƯỜI GỬI</p>
+                    <p className="fw-bold text-dark m-0">{selectedContact.name}</p>
+                    <p className="small text-muted m-0">{selectedContact.email}</p>
+                  </div>
+                  <div className="col-6 text-end">
+                    <p className="summer-label mb-1">THỜI GIAN</p>
+                    <p className="small fw-bold text-muted">{new Date(selectedContact.created_at).toLocaleString('vi-VN')}</p>
+                  </div>
+                  <div className="col-12">
+                    <p className="summer-label mb-1">TIÊU ĐỀ</p>
+                    <div className="p-3 bg-light rounded-3 fw-bold border-start border-4 border-primary">
+                      {selectedContact.subject}
+                    </div>
+                  </div>
+                  <div className="col-12">
+                    <p className="summer-label mb-1">NỘI DUNG TIN NHẮN</p>
+                    <div className="p-3 bg-light rounded-4 text-dark shadow-sm">
+                      {selectedContact.message}
+                    </div>
+                  </div>
+                </div>
+                <div className="d-flex gap-3">
+                  <button className="summer-button flex-grow-1 py-3" onClick={() => {
+                    updateContactStatus(selectedContact.id, 'resolved');
+                    setShowContactModal(false);
+                  }}>
+                    <BiCheckCircle size={20} className="me-1" /> ĐÁNH DẤU ĐÃ GIẢI QUYẾT
+                  </button>
+                  <button className="summer-button-outline px-4 py-3" onClick={() => setShowContactModal(false)}>ĐÓNG</button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

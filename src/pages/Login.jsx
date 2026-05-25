@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
-import { BiShield, BiUser, BiLock } from 'react-icons/bi';
+import { BiShield, BiUser, BiLock, BiStar } from 'react-icons/bi';
+import SummerEffect from '../components/SummerEffect';
+import '../styles/summer-theme.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,8 +24,9 @@ const Login = () => {
   };
 
   return (
-    <div className="shop-tet-container d-flex align-items-center justify-content-center" style={{ minHeight: '80vh' }}>
-      <div className="container">
+    <div className="shop-summer-container d-flex align-items-center justify-content-center" style={{ minHeight: '85vh' }}>
+      <SummerEffect />
+      <div className="container" style={{ zIndex: 2 }}>
         <div className="row">
           <div className="col-md-5 mx-auto">
             <motion.div
@@ -31,27 +34,27 @@ const Login = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="card tet-glass p-4 shadow-lg" style={{ border: '3px solid var(--tet-gold)' }}>
-                <div className="text-center mb-4">
+              <div className="summer-glass p-5 shadow-lg border-info border-opacity-25">
+                <div className="text-center mb-5">
                   <motion.div
                     animate={{
-                      rotate: [0, 5, -5, 0],
-                      scale: [1, 1.05, 1]
+                      y: [0, -10, 0],
+                      rotate: [0, 5, -5, 0]
                     }}
-                    transition={{ repeat: Infinity, duration: 3 }}
-                    className="mb-3"
+                    transition={{ repeat: Infinity, duration: 4 }}
+                    className="mb-4 d-inline-flex p-3 rounded-circle bg-info bg-opacity-10 text-info"
                   >
-                    <BiShield size={70} style={{ color: 'var(--tet-lucky-red)', filter: 'drop-shadow(0 0 10px rgba(215, 0, 24, 0.3))' }} />
+                    <BiStar size={60} />
                   </motion.div>
-                  <h2 className="tet-title mb-2" style={{ fontSize: '2rem' }}>
-                    Đăng Nhập Quản Trị
+                  <h2 className="summer-title mb-2">
+                    Đăng Nhập
                   </h2>
-                  <p className="tet-subtitle mb-0">Hệ Thống Quản Lý Bính Ngọ 2026</p>
+                  <p className="text-muted fw-bold">Hệ Thống Quản Trị Ocean Summer</p>
                 </div>
 
                 {error && (
                   <motion.div
-                    className="alert tet-message error mb-4"
+                    className="alert alert-danger border-0 rounded-4 mb-4"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
@@ -61,46 +64,40 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div className="mb-4">
-                    <label className="tet-label">
-                      <BiUser /> Tên Đăng Nhập
+                    <label className="summer-label">
+                      <BiUser className="me-2"/> Tên Đăng Nhập
                     </label>
-                    <div className="position-relative">
-                      <input
-                        type="text"
-                        className="tet-input w-100"
-                        placeholder="Nhập tên tài khoản..."
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        style={{ paddingLeft: '1rem' }}
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      className="summer-input"
+                      placeholder="Nhập tên tài khoản..."
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
                   </div>
 
                   <div className="mb-4">
-                    <label className="tet-label">
-                      <BiLock /> Mật Khẩu
+                    <label className="summer-label">
+                      <BiLock className="me-2"/> Mật Khẩu
                     </label>
-                    <div className="position-relative">
-                      <input
-                        type="password"
-                        className="tet-input w-100"
-                        placeholder="Nhập mật khẩu..."
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ paddingLeft: '1rem' }}
-                      />
-                    </div>
+                    <input
+                      type="password"
+                      className="summer-input"
+                      placeholder="Nhập mật khẩu..."
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
                   </div>
 
                   <motion.button
                     type="submit"
-                    className="tet-button-shop w-100"
+                    className="summer-button mt-2"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    Vào Hệ Thống 🧧
+                    VÀO HỆ THỐNG 🌊
                   </motion.button>
                 </form>
               </div>

@@ -442,28 +442,33 @@ export const DataProvider = ({ children }) => {
       
       // Handle image upload if exists
       if (contactData.image) {
-        const file = contactData.image;
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-        const filePath = fileName;
+        try {
+          const file = contactData.image;
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+          const filePath = fileName;
 
-        const { error: uploadError } = await supabase.storage
-          .from('contact-images')
-          .upload(filePath, file);
+          const { error: uploadError } = await supabase.storage
+            .from('contact-images')
+            .upload(filePath, file);
 
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('contact-images')
-          .getPublicUrl(filePath);
-          
-        image_url = publicUrl;
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('contact-images')
+              .getPublicUrl(filePath);
+            image_url = publicUrl;
+          }
+        } catch (err) {
+          console.error('Upload failed, continuing without image:', err);
+        }
       }
 
+      // Gửi cả ign và name để tương thích với database
       const { data, error } = await supabase
         .from('contacts')
         .insert([{
           ign: contactData.ign,
+          name: contactData.ign,
           email: contactData.email,
           phone: contactData.phone,
           category: contactData.category,
@@ -479,7 +484,7 @@ export const DataProvider = ({ children }) => {
 
       if (error) throw error;
 
-      // Discord notification
+      // Discord notification - Bọc riêng để không làm treo UI nếu webhook lỗi
       try {
         const CONTACT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1459038651513311301/7iMnd_skBCTXmvvAhnZbmUawTGk1QO7Ft1nXimeKkmbBJQQvg7znZPwkbtrupSpmL9tS';
         
@@ -500,9 +505,7 @@ export const DataProvider = ({ children }) => {
           footer: { text: `BuildnChill Support System • ${new Date().toLocaleString('vi-VN')}` }
         };
 
-        if (image_url) {
-          embed.image = { url: image_url };
-        }
+        if (image_url) embed.image = { url: image_url };
 
         const response = await fetch(`${CONTACT_WEBHOOK_URL}?wait=true`, {
           method: 'POST',
@@ -516,10 +519,7 @@ export const DataProvider = ({ children }) => {
         if (response.ok) {
           const result = await response.json();
           if (result.id) {
-            await supabase
-              .from('contacts')
-              .update({ discord_message_id: result.id })
-              .eq('id', data.id);
+            await supabase.from('contacts').update({ discord_message_id: result.id }).eq('id', data.id);
           }
         }
       } catch (discordError) {

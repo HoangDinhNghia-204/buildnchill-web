@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useData } from '../context/DataContext';
-import { BiSearch, BiCalendar } from 'react-icons/bi';
+import { BiSearch, BiCalendar, BiChevronLeft, BiChevronRight, BiNews } from 'react-icons/bi';
+import SummerEffect from '../components/SummerEffect';
+import '../styles/summer-theme.css';
 
 const News = () => {
   const { news } = useData();
@@ -18,7 +20,6 @@ const News = () => {
   );
 
   const featuredPost = filteredNews[0];
-
   const olderPosts = filteredNews.slice(1);
 
   const totalPages = Math.ceil(olderPosts.length / itemsPerPage);
@@ -42,96 +43,89 @@ const News = () => {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
   return (
-    <div className="shop-tet-container">
+    <div className="shop-summer-container min-vh-100 py-5">
+      <SummerEffect />
       <Helmet>
-        <title>Tin Tức - BuildnChill</title>
-        <meta name="description" content="Cập nhật những tin tức mới nhất, sự kiện hấp dẫn và các bản cập nhật quan trọng từ máy chủ Minecraft BuildnChill." />
-        <meta property="og:title" content="Tin Tức & Sự Kiện - BuildnChill" />
-        <meta property="og:description" content="Đừng bỏ lỡ các thông tin quan trọng về cộng đồng Minecraft BuildnChill." />
-        <meta property="og:image" content="https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless" />
-        <meta name="keywords" content="tin tuc minecraft, su kien minecraft, buildnchill news" />
+        <title>Tin Tức & Sự Kiện - BuildnChill Ocean</title>
       </Helmet>
-      <div className="container my-5">
-        <motion.h1
-          className="tet-title mb-4"
+      
+      <div className="container position-relative" style={{ zIndex: 10 }}>
+        <motion.div 
+          className="text-center mb-5"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          Tin Tức
-        </motion.h1>
+          <h1 className="summer-title display-3">TIN TỨC SỰ KIỆN 📢</h1>
+          <p className="fw-bold text-primary">Cập nhật những hoạt động mới nhất từ hành trình đại dương</p>
+        </motion.div>
 
         <motion.div
-          className="search-bar tet-glass mb-4"
+          className="search-bar mb-5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="d-flex align-items-center">
-            <BiSearch size={24} style={{ color: 'var(--tet-lucky-red)', marginRight: '1rem' }} />
-            <input
-              type="text"
-              className="tet-input"
-              placeholder="Tìm kiếm tin tức..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
+          <div className="summer-glass p-3 shadow-xl border-0 bg-white bg-opacity-60">
+            <div className="d-flex align-items-center px-3">
+              <BiSearch size={28} className="text-info me-3" />
+              <input
+                type="text"
+                className="summer-input w-100 border-0 shadow-none bg-transparent"
+                placeholder="Tìm kiếm tin tức, sự kiện..."
+                style={{ fontSize: '1.2rem' }}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
           </div>
         </motion.div>
 
         {featuredPost && (
           <motion.div
             className="mb-5"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="card tet-glass">
+            <div className="summer-glass p-0 overflow-hidden shadow-2xl border-0 bg-white">
               <div className="row g-0">
-                <div className="col-md-4">
-                  <motion.img
-                    src={featuredPost.image}
-                    className="img-fluid rounded-start"
-                    alt={featuredPost.title}
-                    style={{ height: '100%', objectFit: 'cover', minHeight: '300px' }}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.3 }}
-                  />
+                <div className="col-lg-7">
+                  <motion.div className="h-100 overflow-hidden">
+                    <img
+                      src={featuredPost.image}
+                      className="img-fluid w-100 h-100 object-fit-cover"
+                      alt={featuredPost.title}
+                      style={{ minHeight: '400px' }}
+                    />
+                  </motion.div>
                 </div>
-                <div className="col-md-8">
-                  <div className="card-body p-4">
-                    <h2 className="card-title news-title-truncate" style={{ color: 'var(--tet-lucky-red-dark)', marginBottom: '1rem', fontWeight: 700 }}>
-                      {featuredPost.title}
-                    </h2>
-                    <p className="text-muted mb-3" style={{ color: 'var(--tet-text-charcoal)' }}>
-                      <BiCalendar className="me-1" />
+                <div className="col-lg-5">
+                  <div className="p-4 p-md-5 d-flex flex-column h-100">
+                    <div className="badge bg-info px-3 py-2 rounded-pill mb-4 shadow-sm align-self-start">
+                      <BiNews className="me-1" /> TIN NỔI BẬT
+                    </div>
+                    <h2 className="fw-black text-primary mb-3 display-6">{featuredPost.title}</h2>
+                    <div className="small fw-bold text-muted mb-4 d-flex align-items-center gap-2">
+                      <BiCalendar className="text-info" />
                       {new Date(featuredPost.date).toLocaleDateString('vi-VN')}
-                    </p>
-                    <p className="card-text news-description-truncate" style={{ color: 'var(--tet-text-charcoal)', fontSize: '1.1rem', fontWeight: 500 }}>
+                    </div>
+                    <p className="fw-bold text-muted leading-relaxed mb-5 flex-grow-1" style={{ fontSize: '1.1rem' }}>
                       {featuredPost.description}
                     </p>
-                    <Link to={`/news/${featuredPost.slug}`} className="tet-button mt-3">
-                      Đọc Thêm
+                    <Link to={`/news/${featuredPost.slug || featuredPost.id}`} className="summer-button py-3 shadow-lg">
+                      ĐỌC CHI TIẾT 📖
                     </Link>
                   </div>
                 </div>
@@ -145,42 +139,41 @@ const News = () => {
           initial="hidden"
           animate="visible"
         >
-          <h3 className="tet-section-title mb-4">
-            Tất Cả Bài Viết
-          </h3>
+          <div className="d-flex align-items-center gap-3 mb-5">
+             <div className="flex-grow-1 border-bottom border-info border-opacity-20"></div>
+             <h3 className="fw-black text-primary m-0">TẤT CẢ BÀI VIẾT</h3>
+             <div className="flex-grow-1 border-bottom border-info border-opacity-20"></div>
+          </div>
+          
           <div className="row g-4">
             {paginatedPosts.map((post) => (
               <motion.div
                 key={post.id}
-                className="col-md-4"
+                className="col-md-6 col-lg-4"
                 variants={itemVariants}
-                whileHover={{ y: -10 }}
+                whileHover={{ y: -12 }}
               >
-                <div className="card tet-glass h-100">
-                  <motion.img
-                    src={post.image}
-                    className="card-img-top"
-                    alt={post.title}
-                    style={{ height: '200px', objectFit: 'cover' }}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title news-title-truncate" style={{ color: 'var(--tet-text-dark)', fontWeight: 700 }}>
+                <div className="summer-glass h-100 p-0 overflow-hidden shadow-xl border-0 bg-white d-flex flex-column">
+                  <div className="overflow-hidden position-relative" style={{ height: '220px' }}>
+                    <img
+                      src={post.image}
+                      className="w-100 h-100 object-fit-cover transition-all duration-500"
+                      alt={post.title}
+                    />
+                    <div className="position-absolute top-0 end-0 m-3 badge bg-white text-info shadow-sm fw-bold">
+                       {new Date(post.date).toLocaleDateString('vi-VN')}
+                    </div>
+                  </div>
+                  <div className="p-4 flex-grow-1 d-flex flex-column">
+                    <h5 className="fw-black text-primary mb-3 text-truncate-2" style={{ height: '3.2rem', lineHeight: '1.6' }}>
                       {post.title}
                     </h5>
-                    <p className="text-muted small mb-2" style={{ color: 'var(--tet-text-charcoal)' }}>
-                      <BiCalendar className="me-1" />
-                      {new Date(post.date).toLocaleDateString('vi-VN')}
-                    </p>
-                    <p className="card-text news-description-truncate" style={{ color: 'var(--tet-text-charcoal)', fontWeight: 500, flex: 1 }}>
+                    <p className="fw-bold text-muted small mb-4 text-truncate-3 opacity-80" style={{ flexGrow: 1 }}>
                       {post.description}
                     </p>
-                    <div className="mt-auto">
-                      <Link to={`/news/${post.slug}`} className="tet-button w-100 text-center">
-                        Đọc Thêm
-                      </Link>
-                    </div>
+                    <Link to={`/news/${post.slug || post.id}`} className="summer-button-outline w-100 py-2 mt-auto">
+                      CHI TIẾT →
+                    </Link>
                   </div>
                 </div>
               </motion.div>
@@ -190,47 +183,43 @@ const News = () => {
 
         {totalPages > 1 && (
           <motion.div
-            className="pagination-controls mt-5"
+            className="d-flex justify-content-center align-items-center gap-3 mt-5 pt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <motion.button
-              className="tet-button-outline me-3"
+            <button
+              className="summer-button-outline py-2 px-4 rounded-pill"
               onClick={handlePrevious}
               disabled={currentPage === 1}
-              whileHover={{ scale: currentPage === 1 ? 1 : 1.05 }}
-              whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
-              style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+              style={{ opacity: currentPage === 1 ? 0.5 : 1 }}
             >
-              Trước
-            </motion.button>
-            <span className="align-self-center mx-3" style={{ color: 'var(--tet-text-charcoal)', fontWeight: 600 }}>
+              <BiChevronLeft size={24} /> Trước
+            </button>
+            <span className="fw-black text-primary">
               Trang {currentPage} / {totalPages}
             </span>
-            <motion.button
-              className="tet-button-outline"
+            <button
+              className="summer-button-outline py-2 px-4 rounded-pill"
               onClick={handleNext}
               disabled={currentPage === totalPages}
-              whileHover={{ scale: currentPage === totalPages ? 1 : 1.05 }}
-              whileTap={{ scale: currentPage === totalPages ? 1 : 0.95 }}
-              style={{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+              style={{ opacity: currentPage === totalPages ? 0.5 : 1 }}
             >
-              Sau
-            </motion.button>
+              Sau <BiChevronRight size={24} />
+            </button>
           </motion.div>
         )}
 
         {filteredNews.length === 0 && (
-          <motion.div
-            className="text-center py-5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <p style={{ color: 'var(--tet-text-charcoal)', fontSize: '1.2rem', fontWeight: 600 }}>Không tìm thấy tin tức nào phù hợp với tìm kiếm của bạn.</p>
-          </motion.div>
+          <div className="text-center py-5">
+            <div className="display-1 opacity-10 mb-4">🏝️</div>
+            <h4 className="fw-bold text-muted">Không tìm thấy tin tức nào phù hợp.</h4>
+            <button onClick={() => setSearchQuery('')} className="btn btn-link text-info fw-bold text-decoration-none">Xem tất cả tin tức</button>
+          </div>
         )}
       </div>
+      
+      <div className="summer-item" style={{ top: '25%', left: '5%', fontSize: '50px', opacity: 0.4 }}>⛵</div>
     </div>
   );
 };

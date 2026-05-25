@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { BiCheckCircle, BiXCircle, BiShow, BiRefresh, BiTrash } from 'react-icons/bi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BiCheckCircle, BiXCircle, BiShow, BiRefresh, BiTrash, BiPackage, BiX } from 'react-icons/bi';
 import { supabase } from '../supabaseClient';
 import { generateOrderCode } from '../utils/helpers';
-
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1458351729023254529/TldcZM4HKMyELK9ZICAO8WXQDcG6vqCtYeSXJZ7NqXRWf1fZP_MRAjfjfkx-qgOrLJgS';
+import '../styles/summer-theme.css';
 
 const ShopOrdersManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -14,13 +13,6 @@ const ShopOrdersManagement = () => {
 
   useEffect(() => {
     loadOrders();
-
-    const handleUpdate = () => {
-      loadOrders();
-    };
-
-    window.addEventListener('orders_updated', handleUpdate);
-    return () => window.removeEventListener('orders_updated', handleUpdate);
   }, [filter]);
 
   const loadOrders = async () => {
@@ -40,7 +32,6 @@ const ShopOrdersManagement = () => {
       setOrders(data || []);
     } catch (error) {
       console.error('Error loading orders:', error);
-      alert('Lỗi khi tải đơn hàng: ' + error.message);
     }
   };
 
@@ -49,441 +40,215 @@ const ShopOrdersManagement = () => {
     setShowModal(true);
   };
 
-  const handleDeleteOrder = async (orderId, notes) => {
-    if (!window.confirm('Bạn có chắc muốn xóa đơn hàng này? Thao tác này sẽ xóa cả tin nhắn trên Discord.')) return;
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa đơn hàng này?')) return;
 
     try {
-      // 1. Xóa tin nhắn trên Discord nếu có
-      const msgMatch = notes?.match(/\[msg_id:(\d+)\]/);
-      const discordMsgId = msgMatch ? msgMatch[1] : null;
-
-      if (discordMsgId) {
-        try {
-          await fetch(`${DISCORD_WEBHOOK_URL}/messages/${discordMsgId}`, {
-            method: 'DELETE'
-          });
-          console.log('Discord message deleted.');
-        } catch (discordErr) {
-          console.error('Error deleting Discord message:', discordErr);
-        }
-      }
-
-      // 2. Cập nhật trạng thái xóa mềm trong database
       const { error } = await supabase
         .from('orders')
         .update({ is_deleted: true })
         .eq('id', orderId);
 
       if (error) throw error;
-
-      alert('Đã xóa đơn hàng thành công!');
       loadOrders();
     } catch (error) {
       console.error('Error deleting order:', error);
-      alert('Lỗi khi xóa đơn hàng: ' + error.message);
     }
   };
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
-      // Fetch fresh order data to ensure we have the latest notes (msg_id)
       const { data: order, error: fetchError } = await supabase
         .from('orders')
         .select('*, products(name, display_price), categories(name)')
         .eq('id', orderId)
         .single();
 
-      if (fetchError || !order) throw new Error('Không tìm thấy đơn hàng trong hệ thống!');
+      if (fetchError || !order) throw new Error('Không tìm thấy đơn hàng!');
 
       const updateData = { status: newStatus };
 
       if (newStatus === 'paid' && order.command) {
         updateData.paid_at = new Date().toISOString();
+        
+        await supabase.from('pending_commands').insert([
+          { command: order.command, mc_username: order.mc_username, status: 'pending' }
+        ]);
 
-        // Trích xuất message ID từ ghi chú
-        const msgMatch = order.notes?.match(/\[msg_id:(\d+)\]/);
-        const discordMsgId = msgMatch ? msgMatch[1] : null;
-
-        // Gửi lệnh vào hàng chờ cho Plugin
-        const { error: cmdError } = await supabase
-          .from('pending_commands')
-          .insert([
-            {
-              command: order.command,
-              mc_username: order.mc_username,
-              status: 'pending',
-              discord_message_id: discordMsgId
-            }
-          ]);
-
-        if (cmdError) {
-          console.error('Error queuing Minecraft command:', cmdError);
-        } else {
-          // Gửi thông báo chat game - Định dạng: &8[&d&l🪸&8]&d&l BnC-Shop&8→ &a Giao thành công đơn hàng ......&a Cảm ơn bạn đã ủng hộ!
-          const notifyMsg = `{"text":"","extra":[{"text":"[","color":"dark_gray"},{"text":"\ud83e\udeb8","color":"light_purple","bold":true},{"text":"]","color":"dark_gray"},{"text":" BnC-Shop","color":"light_purple","bold":true},{"text":" \u2192 ","color":"dark_gray"},{"text":"Giao thành công đơn hàng ","color":"green"},{"text":"${order.product || order.products?.name}","color":"aqua"},{"text":". Cảm ơn bạn đã ủng hộ!","color":"green"}]}`;
-          await supabase
-            .from('pending_commands')
-            .insert([
-              {
-                command: `tellraw ${order.mc_username} ${notifyMsg}`,
-                mc_username: order.mc_username,
-                status: 'pending',
-                discord_message_id: discordMsgId
-              }
-            ]);
-        }
+        const notifyMsg = `{"text":"","extra":[{"text":"[","color":"dark_gray"},{"text":"\ud83e\udeb8","color":"light_purple","bold":true},{"text":"]","color":"dark_gray"},{"text":" BnC-Shop","color":"light_purple","bold":true},{"text":" \u2192 ","color":"dark_gray"},{"text":"Giao thành công đơn hàng ","color":"green"},{"text":"${order.product || order.products?.name}","color":"aqua"},{"text":". Cảm ơn bạn đã ủng hộ!","color":"green"}]}`;
+        await supabase.from('pending_commands').insert([
+          { command: `tellraw ${order.mc_username} ${notifyMsg}`, mc_username: order.mc_username, status: 'pending' }
+        ]);
       }
 
       if (newStatus === 'delivered') {
         updateData.delivered = true;
       }
 
-      const { error } = await supabase
-        .from('orders')
-        .update(updateData)
-        .eq('id', orderId);
-
+      const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
       if (error) throw error;
-
-      // Sync to Discord using fresh order data
-      await updateDiscordStatus(order, newStatus);
 
       loadOrders();
       if (showModal) setShowModal(false);
     } catch (error) {
       console.error('Error updating order:', error);
-      alert('Lỗi khi cập nhật đơn hàng: ' + error.message);
-    }
-  };
-
-  const updateDiscordStatus = async (order, newStatus) => {
-    const match = order.notes?.match(/\[msg_id:(\d+)\]/);
-    if (!match) {
-      console.log('No Discord message ID found in notes, skipping sync.');
-      return;
-    }
-
-    const messageId = match[1];
-    const statusLabel = newStatus === 'paid' ? 'ĐÃ THANH TOÁN' : 'ĐÃ GIAO HÀNG';
-    const statusColor = newStatus === 'paid' ? 3447003 : 3066993; // Paid: Blue, Delivered: Green
-
-    const embed = {
-      title: `🛒 ${statusLabel}`,
-      description: newStatus === 'paid'
-        ? `💰 Đơn hàng của **${order.mc_username}** đã được thanh toán thành công và đang chờ giao!`
-        : `✅ Đơn hàng của **${order.mc_username}** đã được giao thành công!`,
-      color: statusColor,
-      fields: [
-        { name: '👤 Người chơi', value: order.mc_username || 'Không rõ', inline: true },
-        { name: '📦 Sản phẩm', value: order.product || order.products?.name || 'Không rõ', inline: true },
-        { name: '💰 Giá tiền', value: `${Number(order.price || 0).toLocaleString('vi-VN')} VNĐ`, inline: true },
-        { name: '🆔 Mã đơn hàng', value: `\`${order.id || 'N/A'}\`` },
-        { name: '✅ Trạng thái hiện tại', value: `**${statusLabel}**` }
-      ],
-      footer: { text: 'BuildnChill Shop System - Status Updated' },
-      timestamp: new Date().toISOString()
-    };
-
-    try {
-      console.log(`Updating Discord message ${messageId} to status ${newStatus}...`);
-      const response = await fetch(`${DISCORD_WEBHOOK_URL}/messages/${messageId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ embeds: [embed] })
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Discord API error:', errorText);
-      } else {
-        console.log('Discord status updated successfully.');
-      }
-    } catch (error) {
-      console.error('Error updating Discord message:', error);
+      alert('Lỗi: ' + error.message);
     }
   };
 
   const getStatusBadge = (order) => {
-    const status = order.status;
-    const delivered = order.delivered;
-
-    if (delivered) {
-      return <span className="badge bg-success">Đã Giao</span>;
-    }
-
-    const badges = {
-      pending: { label: 'Chờ Thanh Toán', class: 'bg-danger' },
-      paid: { label: 'Đã Thanh Toán', class: 'bg-success' },
-      delivered: { label: 'Đã Giao', class: 'bg-success' }
-    };
-    const badge = badges[status] || badges.pending;
-    return <span className={`badge ${badge.class}`}>{badge.label}</span>;
+    if (order.delivered) return <span className="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-3 py-2">ĐÃ GIAO XONG 📦</span>;
+    if (order.status === 'paid') return <span className="badge rounded-pill bg-info bg-opacity-10 text-info border border-info border-opacity-20 px-3 py-2">ĐÃ THANH TOÁN ✅</span>;
+    return <span className="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 px-3 py-2">CHỜ NẠP ⏳</span>;
   };
 
   return (
-    <div>
-      {showModal && selectedOrder && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999 }} onClick={() => setShowModal(false)}>
-          <motion.div className="tet-glass p-4 position-relative" style={{ maxWidth: '700px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }} initial={{ scale: 0.8 }} animate={{ scale: 1 }} onClick={(e) => e.stopPropagation()}>
-            <button
-              className="tet-close-btn"
-              onClick={() => setShowModal(false)}
-              title="Đóng"
-              style={{ top: '15px', right: '15px' }}
-            >
-              ✕
-            </button>
-            <h3 className="tet-section-title mb-4">🧧 Chi Tiết Đơn Hàng</h3>
-            <div className="mb-3">
-              <strong>Mã Đơn Hàng:</strong> <span style={{ color: 'var(--tet-lucky-red-dark)', fontWeight: 'bold' }}>{generateOrderCode(selectedOrder.id)}</span>
-            </div>
-            <div className="mb-3">
-              <strong>ID Gốc:</strong> {selectedOrder.id}
-            </div>
-            <div className="mb-3">
-              <strong>Người Chơi:</strong> {selectedOrder.mc_username}
-            </div>
-            <div className="mb-3">
-              <strong>Sản Phẩm:</strong> {selectedOrder.product || selectedOrder.products?.name}
-            </div>
-            <div className="mb-3">
-              <strong>Giá:</strong> {selectedOrder.price?.toLocaleString('vi-VN')} VNĐ
-            </div>
-            <div className="mb-3">
-              <strong>Trạng Thái:</strong> {getStatusBadge(selectedOrder)}
-            </div>
-            <div className="mb-3">
-              <strong>Phương Thức Thanh Toán:</strong> {selectedOrder.payment_method === 'qr' ? 'QR Code' : 'Chuyển Khoản'}
-            </div>
-            <div className="mb-3">
-              <strong>Lệnh thực thi:</strong> <code style={{ background: 'rgba(215, 0, 24, 0.05)', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--tet-lucky-red)' }}>{selectedOrder.command}</code>
-            </div>
-            <div className="mb-3">
-              <strong>Ngày Tạo:</strong> {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
-            </div>
-            {selectedOrder.paid_at && (
-              <div className="mb-3">
-                <strong>Ngày Thanh Toán:</strong> {new Date(selectedOrder.paid_at).toLocaleString('vi-VN')}
-              </div>
-            )}
-            {selectedOrder.notes && (
-              <div className="mb-3">
-                <strong>Ghi Chú:</strong> {selectedOrder.notes}
-              </div>
-            )}
-            <div className="d-flex gap-2 mt-4">
-              {selectedOrder.status === 'pending' && (
-                <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 15px rgba(215, 0, 24, 0.4)' }}
-                  whileTap={{ scale: 0.98 }}
-                  className="tet-button-save flex-grow-1"
-                  onClick={() => handleUpdateStatus(selectedOrder.id, 'paid')}
-                >
-                  <BiCheckCircle className="me-2" />
-                  XÁC NHẬN THANH TOÁN & GIAO ĐỒ
-                </motion.button>
-              )}
-              {selectedOrder.status === 'paid' && (
-                <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)' }}
-                  whileTap={{ scale: 0.98 }}
-                  className="tet-button-save flex-grow-1"
-                  onClick={() => handleUpdateStatus(selectedOrder.id, 'delivered')}
-                  style={{ background: '#10b981' }}
-                >
-                  <BiCheckCircle className="me-2" />
-                  XÁC NHẬN ĐÃ GIAO XONG
-                </motion.button>
-              )}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="tet-button-outline"
-                onClick={() => setShowModal(false)}
-                style={{ minWidth: '120px' }}
-              >
-                <BiXCircle className="me-2" />
-                ĐÓNG
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="tet-section-title" style={{ margin: 0 }}>Quản Lý Đơn Hàng</h1>
+    <div className="shop-orders-management">
+      <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+        <h3 className="fw-black text-primary m-0">QUẢN LÝ ĐƠN HÀNG</h3>
         <div className="d-flex gap-2">
-          <select className="tet-select" value={filter} onChange={(e) => setFilter(e.target.value)} style={{ width: 'auto' }}>
-            <option value="all">Tất Cả</option>
-            <option value="pending">Chờ Thanh Toán</option>
-            <option value="paid">Đã Thanh Toán</option>
-            <option value="delivered">Đã Giao</option>
-          </select>
-          <motion.button
-            className="tet-button-outline"
-            onClick={loadOrders}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <select 
+            className="summer-input py-2 px-3 small fw-bold text-primary" 
+            style={{ width: 'auto', minWidth: '160px' }}
+            value={filter} 
+            onChange={(e) => setFilter(e.target.value)}
           >
-            <BiRefresh />
-          </motion.button>
+            <option value="all">TẤT CẢ ĐƠN</option>
+            <option value="pending">CHỜ THANH TOÁN</option>
+            <option value="paid">ĐÃ THANH TOÁN</option>
+            <option value="delivered">ĐÃ GIAO XONG</option>
+          </select>
+          <button className="btn btn-light border text-primary rounded-3 shadow-sm" onClick={loadOrders}>
+            <BiRefresh size={22} />
+          </button>
         </div>
       </div>
 
-      <div className="table-responsive tet-scroll-custom">
-        <table className="table tet-table align-middle">
-          <thead>
-            <tr>
-              <th style={{ width: '100px' }}>Mã ĐH</th>
-              <th>Người Chơi</th>
-              <th>Sản Phẩm</th>
-              <th>Giá</th>
-              <th>Trạng Thái</th>
-              <th style={{ width: '150px' }}>Ngày Tạo</th>
-              <th className="text-end">Thao Tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
-              <tr key={order.id}>
-                <td style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--tet-lucky-red)' }}>{generateOrderCode(order.id)}</td>
-                <td className="fw-bold">{order.mc_username}</td>
-                <td><span className="text-truncate d-inline-block" style={{ maxWidth: '150px' }}>{order.product || order.products?.name}</span></td>
-                <td className="text-danger fw-bold">{order.price?.toLocaleString('vi-VN')} VNĐ</td>
-                <td>{getStatusBadge(order)}</td>
-                <td style={{ fontSize: '0.8rem' }}>{new Date(order.created_at).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                <td>
-                  <div className="d-flex justify-content-end gap-1">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="btn btn-sm btn-success p-2"
-                      onClick={() => handleViewOrder(order)}
-                      title="Chi tiết đơn hàng"
-                    >
-                      <BiShow size={18} />
-                    </motion.button>
-                    {order.status === 'pending' && (
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="btn btn-sm btn-danger p-2"
-                        onClick={() => handleUpdateStatus(order.id, 'paid')}
-                        title="Xác nhận thanh toán & giao đồ"
-                      >
-                        <BiCheckCircle size={18} />
-                      </motion.button>
-                    )}
-                    {order.status === 'paid' && (
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="btn btn-sm btn-info p-2"
-                        onClick={() => handleUpdateStatus(order.id, 'delivered')}
-                        style={{ background: '#10b981', borderColor: '#10b981', color: 'white' }}
-                        title="Xác nhận đã giao"
-                      >
-                        <BiCheckCircle size={18} />
-                      </motion.button>
-                    )}
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="btn btn-sm btn-outline-danger p-2"
-                      onClick={() => handleDeleteOrder(order.id, order.notes)}
-                      title="Xóa đơn hàng"
-                    >
-                      <BiTrash size={18} />
-                    </motion.button>
-                  </div>
-                </td>
+      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg">
+        <div className="table-responsive">
+          <table className="table summer-table mb-0">
+            <thead>
+              <tr>
+                <th className="ps-4">MÃ ĐƠN</th>
+                <th>NGƯỜI CHƠI</th>
+                <th>SẢN PHẨM</th>
+                <th>GIÁ TIỀN</th>
+                <th className="text-center">TRẠNG THÁI</th>
+                <th>THỜI GIAN</th>
+                <th className="text-end pe-4">THAO TÁC</th>
               </tr>
-            ))}
-            {orders.length === 0 && (
-              <tr><td colSpan="7" className="text-center py-5 text-muted">Không có đơn hàng nào.</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.map(order => (
+                <tr key={order.id}>
+                  <td className="ps-4 align-middle">
+                    <span className="fw-black text-primary small">#{generateOrderCode(order.id)}</span>
+                  </td>
+                  <td className="align-middle fw-bold text-dark">{order.mc_username}</td>
+                  <td className="align-middle">
+                    <div className="fw-medium text-truncate" style={{ maxWidth: '200px' }}>
+                      {order.product || order.products?.name}
+                    </div>
+                  </td>
+                  <td className="align-middle fw-black text-primary">{order.price?.toLocaleString()}đ</td>
+                  <td className="align-middle text-center">{getStatusBadge(order)}</td>
+                  <td className="align-middle small text-muted">
+                    {new Date(order.created_at).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })}
+                  </td>
+                  <td className="align-middle text-end pe-4">
+                    <div className="d-flex justify-content-end gap-2">
+                      <button className="btn btn-sm btn-info text-white rounded-circle p-2" onClick={() => handleViewOrder(order)}>
+                        <BiShow size={18} />
+                      </button>
+                      <button className="btn btn-sm btn-danger rounded-circle p-2" onClick={() => handleDeleteOrder(order.id)}>
+                        <BiTrash size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {orders.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="text-center py-5 text-muted fw-bold">Chưa có đơn hàng nào được ghi nhận. 🏖️</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {showModal && selectedOrder && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999 }} onClick={() => setShowModal(false)}>
-          <motion.div className="tet-glass p-4" style={{ maxWidth: '700px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }} initial={{ scale: 0.8 }} animate={{ scale: 1 }} onClick={(e) => e.stopPropagation()}>
-            <h3 className="tet-section-title mb-4">Chi Tiết Đơn Hàng</h3>
-            <div className="mb-3">
-              <strong>ID:</strong> {selectedOrder.id}
-            </div>
-            <div className="mb-3">
-              <strong>Người Chơi:</strong> {selectedOrder.mc_username}
-            </div>
-            <div className="mb-3">
-              <strong>Sản Phẩm:</strong> {selectedOrder.product || selectedOrder.products?.name}
-            </div>
-            <div className="mb-3">
-              <strong>Giá:</strong> {selectedOrder.price?.toLocaleString('vi-VN')} VNĐ
-            </div>
-            <div className="mb-3">
-              <strong>Trạng Thái:</strong> {getStatusBadge(selectedOrder)}
-            </div>
-            <div className="mb-3">
-              <strong>Phương Thức Thanh Toán:</strong> {selectedOrder.payment_method === 'qr' ? 'QR Code' : 'Chuyển Khoản'}
-            </div>
-            <div className="mb-3">
-              <strong>Command:</strong> <code style={{ background: 'rgba(215, 0, 24, 0.05)', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--tet-lucky-red)' }}>{selectedOrder.command}</code>
-            </div>
-            <div className="mb-3">
-              <strong>Ngày Tạo:</strong> {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
-            </div>
-            {selectedOrder.paid_at && (
-              <div className="mb-3">
-                <strong>Ngày Thanh Toán:</strong> {new Date(selectedOrder.paid_at).toLocaleString('vi-VN')}
+      <AnimatePresence>
+        {showModal && selectedOrder && (
+          <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }}>
+            <motion.div 
+              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
+              style={{ maxWidth: '600px', width: '100%' }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            >
+              <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 className="m-0 fw-black">CHI TIẾT ĐƠN HÀNG</h4>
+                <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
               </div>
-            )}
-            {selectedOrder.notes && (
-              <div className="mb-3">
-                <strong>Ghi Chú:</strong> {selectedOrder.notes}
+
+              <div className="p-4">
+                <div className="row g-4 mb-4">
+                  <div className="col-6">
+                    <p className="summer-label mb-1">MÃ ĐƠN HÀNG</p>
+                    <p className="fw-black text-primary fs-5">#{generateOrderCode(selectedOrder.id)}</p>
+                  </div>
+                  <div className="col-6">
+                    <p className="summer-label mb-1">NGƯỜI CHƠI</p>
+                    <div className="d-flex align-items-center gap-2">
+                      <img src={`https://vzge.me/bust/${selectedOrder.mc_username}.png`} alt="Skin" style={{ width: '32px' }} />
+                      <span className="fw-bold text-dark">{selectedOrder.mc_username}</span>
+                    </div>
+                  </div>
+                  <div className="col-12">
+                    <p className="summer-label mb-1">SẢN PHẨM</p>
+                    <div className="p-3 bg-light rounded-3 fw-bold border-start border-4 border-primary">
+                      {selectedOrder.product || selectedOrder.products?.name}
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <p className="summer-label mb-1">GIÁ THANH TOÁN</p>
+                    <p className="fw-black text-success fs-4 m-0">{selectedOrder.price?.toLocaleString()}đ</p>
+                  </div>
+                  <div className="col-6">
+                    <p className="summer-label mb-1">TRẠNG THÁI</p>
+                    <div>{getStatusBadge(selectedOrder)}</div>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <p className="summer-label mb-1">LỆNH THỰC THI (GAME COMMAND)</p>
+                  <div className="p-3 bg-dark text-info rounded-3 font-monospace small position-relative overflow-hidden">
+                    <div className="position-absolute top-0 end-0 p-1 bg-secondary bg-opacity-20 text-white-50 px-2" style={{ fontSize: '10px' }}>SYSTEM</div>
+                    {selectedOrder.command}
+                  </div>
+                </div>
+
+                <div className="d-flex gap-3 pt-2">
+                  {selectedOrder.status === 'pending' && (
+                    <button className="summer-button flex-grow-1 py-3" onClick={() => handleUpdateStatus(selectedOrder.id, 'paid')}>
+                      <BiCheckCircle size={20} className="me-2" /> DUYỆT THANH TOÁN
+                    </button>
+                  )}
+                  {selectedOrder.status === 'paid' && !selectedOrder.delivered && (
+                    <button className="summer-button flex-grow-1 py-3 bg-success border-0" onClick={() => handleUpdateStatus(selectedOrder.id, 'delivered')}>
+                      <BiPackage size={20} className="me-2" /> XÁC NHẬN ĐÃ GIAO
+                    </button>
+                  )}
+                  <button className="summer-button-outline px-4 py-3" onClick={() => setShowModal(false)}>ĐÓNG</button>
+                </div>
               </div>
-            )}
-            <div className="d-flex gap-2 mt-4">
-              {selectedOrder.status === 'pending' && (
-                <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 15px rgba(215, 0, 24, 0.4)' }}
-                  whileTap={{ scale: 0.98 }}
-                  className="tet-button flex-grow-1"
-                  onClick={() => handleUpdateStatus(selectedOrder.id, 'paid')}
-                >
-                  <BiCheckCircle className="me-2" />
-                  XÁC NHẬN THANH TOÁN & GIAO ĐỒ
-                </motion.button>
-              )}
-              {selectedOrder.status === 'paid' && (
-                <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)' }}
-                  whileTap={{ scale: 0.98 }}
-                  className="tet-button flex-grow-1"
-                  onClick={() => handleUpdateStatus(selectedOrder.id, 'delivered')}
-                  style={{ background: '#10b981' }}
-                >
-                  <BiCheckCircle className="me-2" />
-                  XÁC NHẬN ĐÃ GIAO XONG
-                </motion.button>
-              )}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="tet-button-outline"
-                onClick={() => setShowModal(false)}
-                style={{ minWidth: '120px', color: 'var(--tet-lucky-red-dark)', borderColor: 'var(--tet-lucky-red)' }}
-              >
-                <BiXCircle className="me-2" />
-                ĐÓNG
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default ShopOrdersManagement;
-

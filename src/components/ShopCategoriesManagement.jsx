@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BiPlus, BiEdit, BiTrash, BiCheck, BiX } from 'react-icons/bi';
 import { supabase } from '../supabaseClient';
+import '../styles/summer-theme.css';
 
 const ShopCategoriesManagement = () => {
   const [categories, setCategories] = useState([]);
@@ -32,7 +33,6 @@ const ShopCategoriesManagement = () => {
       setCategories(data || []);
     } catch (error) {
       console.error('Error loading categories:', error);
-      alert('Lỗi khi tải danh mục: ' + error.message);
     }
   };
 
@@ -102,7 +102,6 @@ const ShopCategoriesManagement = () => {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Lỗi khi tải ảnh lên: ' + error.message);
       return formData.icon;
     } finally {
       setUploading(false);
@@ -120,7 +119,6 @@ const ShopCategoriesManagement = () => {
       loadCategories();
     } catch (error) {
       console.error('Error deleting category:', error);
-      alert('Lỗi khi xóa danh mục: ' + error.message);
     }
   };
 
@@ -146,150 +144,154 @@ const ShopCategoriesManagement = () => {
       loadCategories();
     } catch (error) {
       console.error('Error saving category:', error);
-      alert('Lỗi khi lưu danh mục: ' + error.message);
     }
   };
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="tet-section-title" style={{ margin: 0 }}>Quản Lý Danh Mục</h1>
-        <motion.button
-          className="tet-button d-flex align-items-center"
+    <div className="shop-categories-management">
+      <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
+        <h3 className="fw-black text-primary m-0">QUẢN LÝ DANH MỤC</h3>
+        <button 
+          className="summer-button py-2 px-4 shadow-sm"
           onClick={handleAddNew}
-          whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(255, 215, 0, 0.4)' }}
-          whileTap={{ scale: 0.95 }}
         >
-          <BiPlus className="me-2" size={20} />
-          Thêm danh mục
-        </motion.button>
+          <BiPlus size={20} className="me-1" /> Thêm Danh Mục
+        </button>
       </div>
 
-      <div className="admin-table">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Icon</th>
-              <th>Tên</th>
-              <th>Mô Tả</th>
-              <th>Thứ Tự</th>
-              <th>Trạng Thái</th>
-              <th>Thao Tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map(category => (
-              <tr key={category.id}>
-                <td>
-                  {category.icon && (category.icon.startsWith('http') || category.icon.startsWith('/')) ? (
-                    <img src={category.icon} alt={category.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
-                  ) : (
-                    category.icon || '📦'
-                  )}
-                </td>
-                <td>{category.name}</td>
-                <td>{category.description || '-'}</td>
-                <td>{category.display_order}</td>
-                <td>
-                  <span className={`badge ${category.active ? 'bg-success' : 'bg-danger'}`}>
-                    {category.active ? 'Hoạt động' : 'Tắt'}
-                  </span>
-                </td>
-                <td>
-                  <div className="d-flex gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="tet-button-save btn-sm"
-                      onClick={() => handleEdit(category)}
-                      title="Sửa danh mục"
-                    >
-                      <BiEdit size={18} /> Sửa
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="tet-button-danger btn-sm"
-                      onClick={() => handleDelete(category.id)}
-                      title="Xóa danh mục"
-                    >
-                      <BiTrash size={18} /> Xóa
-                    </motion.button>
-                  </div>
-                </td>
+      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg mb-4">
+        <div className="table-responsive">
+          <table className="table summer-table mb-0">
+            <thead>
+              <tr>
+                <th className="ps-4">ICON</th>
+                <th>TÊN DANH MỤC</th>
+                <th>MÔ TẢ</th>
+                <th className="text-center">THỨ TỰ</th>
+                <th className="text-center">TRẠNG THÁI</th>
+                <th className="text-end pe-4">THAO TÁC</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categories.map(category => (
+                <tr key={category.id}>
+                  <td className="ps-4 align-middle">
+                    <div className="rounded-3 bg-light p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '40px', height: '40px' }}>
+                      {category.icon && (category.icon.startsWith('http') || category.icon.startsWith('/')) ? (
+                        <img src={category.icon} alt={category.name} className="w-100 h-100 object-fit-cover" />
+                      ) : (
+                        <span className="fs-5">{category.icon || '📦'}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="align-middle fw-bold text-dark">{category.name}</td>
+                  <td className="align-middle text-muted">{category.description || '-'}</td>
+                  <td className="align-middle text-center fw-bold">{category.display_order}</td>
+                  <td className="align-middle text-center">
+                    <span className={`badge rounded-pill ${category.active ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger'}`}>
+                      {category.active ? 'Hoạt động' : 'Đang ẩn'}
+                    </span>
+                  </td>
+                  <td className="align-middle text-end pe-4">
+                    <div className="d-flex justify-content-end gap-2">
+                      <button className="btn btn-sm btn-info text-white rounded-circle p-2" onClick={() => handleEdit(category)}>
+                        <BiEdit size={16} />
+                      </button>
+                      <button className="btn btn-sm btn-danger rounded-circle p-2" onClick={() => handleDelete(category.id)}>
+                        <BiTrash size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {showModal && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999 }} onClick={() => setShowModal(false)}>
-          <motion.div className="tet-glass p-4 position-relative" style={{ maxWidth: '600px', width: '90%' }} initial={{ scale: 0.8 }} animate={{ scale: 1 }} onClick={(e) => e.stopPropagation()}>
-            <button
-              className="tet-close-btn"
-              onClick={() => setShowModal(false)}
-              title="Đóng"
-              style={{ top: '15px', right: '15px' }}
-            >
-              ✕
-            </button>
-            <h3 className="tet-section-title mb-4">🧧 {editingCategory ? 'Sửa' : 'Thêm'} Danh Mục</h3>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="tet-label">Tên Danh Mục *</label>
-                <input type="text" className="tet-input" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-              </div>
-              <div className="mb-3">
-                <label className="tet-label">Mô Tả</label>
-                <textarea className="tet-input" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-              </div>
-              <div className="mb-3">
-                <label className="tet-label">Icon / Hình Ảnh</label>
-                <div className="d-flex gap-2 align-items-center mb-2">
-                  {formData.icon && !imageFile && (
-                    <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.05)', borderRadius: '4px' }}>
-                      {(formData.icon.startsWith('http') || formData.icon.startsWith('/')) ? (
-                        <img src={formData.icon} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', zIndex: 9999, backdropFilter: 'blur(5px)' }} onClick={() => setShowModal(false)}>
+          <motion.div 
+            className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
+            style={{ maxWidth: '600px', width: '100%' }} 
+            initial={{ opacity: 0, scale: 0.9 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
+              <h4 className="m-0 fw-black">{editingCategory ? 'SỬA DANH MỤC' : 'THÊM DANH MỤC MỚI'}</h4>
+              <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
+            </div>
+            
+            <div className="p-4">
+              <form onSubmit={handleSubmit} id="categoryForm">
+                <div className="mb-4">
+                  <label className="summer-label">TÊN DANH MỤC *</label>
+                  <input type="text" className="summer-input w-100" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+                </div>
+                <div className="mb-4">
+                  <label className="summer-label">MÔ TẢ</label>
+                  <textarea className="summer-input w-100" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Mô tả ngắn về danh mục này..." />
+                </div>
+                <div className="mb-4">
+                  <label className="summer-label">ICON / HÌNH ẢNH</label>
+                  <div className="d-flex gap-3 align-items-center mb-3">
+                    <div className="summer-glass p-1 d-flex align-items-center justify-content-center bg-light overflow-hidden" style={{ width: '60px', height: '60px' }}>
+                      {(imageFile || (formData.icon && (formData.icon.startsWith('http') || formData.icon.startsWith('/')))) ? (
+                        <img 
+                          src={imageFile ? URL.createObjectURL(imageFile) : formData.icon} 
+                          alt="Preview" 
+                          className="h-100 w-100 object-fit-cover"
+                        />
                       ) : (
-                        <span style={{ fontSize: '1.5rem' }}>{formData.icon}</span>
+                        <span className="fs-3">{formData.icon || '📦'}</span>
                       )}
                     </div>
-                  )}
-                  {imageFile && (
-                    <img src={URL.createObjectURL(imageFile)} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '2px solid var(--tet-gold)' }} />
-                  )}
-                  <input 
-                    type="file" 
-                    className="tet-input flex-grow-1" 
-                    accept="image/*" 
-                    onChange={handleImageChange}
-                  />
+                    <div className="flex-grow-1">
+                      <input type="file" className="form-control form-control-sm mb-2" accept="image/*" onChange={handleImageChange} />
+                      <input type="text" className="summer-input w-100 py-2 small" value={formData.icon} onChange={(e) => setFormData({ ...formData, icon: e.target.value })} placeholder="Nhập Emoji hoặc URL ảnh..." />
+                    </div>
+                  </div>
                 </div>
-                <small className="text-muted d-block mb-2">Tải ảnh lên (Tối đa 10MB) hoặc nhập Emoji/Link bên dưới</small>
-                <input type="text" className="tet-input" value={formData.icon} onChange={(e) => setFormData({ ...formData, icon: e.target.value })} placeholder="📦 hoặc https://..." />
-              </div>
-              <div className="mb-3">
-                <label className="tet-label">Thứ Tự Hiển Thị</label>
-                <input type="number" className="tet-input" value={formData.display_order} onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })} />
-              </div>
-              <div className="mb-3">
-                <label className="tet-label">
-                  <input type="checkbox" checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} className="me-2" />
-                  Hoạt động
-                </label>
-              </div>
-              <div className="d-flex gap-2">
-                <motion.button type="submit" className="tet-button-save" whileHover={{ scale: 1.05, boxShadow: '0 0 15px rgba(40, 167, 69, 0.4)' }} whileTap={{ scale: 0.95 }} disabled={uploading}>
-                  <BiCheck className="me-2" size={20} />
-                  {uploading ? 'Đang tải ảnh...' : 'Lưu danh mục'}
-                </motion.button>
-                <motion.button type="button" className="tet-button-outline" onClick={() => setShowModal(false)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <BiX className="me-2" size={20} />
-                  Hủy bỏ
-                </motion.button>
-              </div>
-            </form>
+                <div className="row g-4 mb-4">
+                  <div className="col-md-6">
+                    <label className="summer-label">THỨ TỰ HIỂN THỊ</label>
+                    <input type="number" className="summer-input w-100" value={formData.display_order} onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })} />
+                  </div>
+                  <div className="col-md-6 d-flex align-items-end">
+                    <div className="form-check p-0 d-flex align-items-center gap-2 mb-2">
+                      <input 
+                        className="form-check-input m-0" 
+                        type="checkbox" 
+                        id="categoryActive"
+                        style={{ width: '20px', height: '20px' }}
+                        checked={formData.active}
+                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                      />
+                      <label className="fw-bold text-primary mb-0" htmlFor="categoryActive">Đang hoạt động</label>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div className="p-4 bg-light d-flex gap-3 border-top">
+              <button 
+                type="submit" 
+                form="categoryForm" 
+                className="summer-button flex-grow-1 py-3" 
+                disabled={uploading}
+              >
+                {uploading ? 'ĐANG TẢI...' : (editingCategory ? 'CẬP NHẬT DANH MỤC' : 'THÊM DANH MỤC')}
+              </button>
+              <button 
+                type="button" 
+                className="summer-button-outline px-4 py-3" 
+                onClick={() => setShowModal(false)}
+              >
+                HỦY
+              </button>
+            </div>
           </motion.div>
         </div>
       )}
@@ -298,4 +300,3 @@ const ShopCategoriesManagement = () => {
 };
 
 export default ShopCategoriesManagement;
-

@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=Montserrat:wght@700;900&display=swap');
+
+:root {
+  --summer-ocean-blue: #0077be;
+  --summer-deep-blue: #003e66;
+  --summer-sky-blue: #00aaff;
+  --summer-cyan: #008ba3;
+  --summer-sand: #d97706;
+  --summer-text-main: #0f172a; /* Dark Blue Gray - Very clear */
+  --summer-text-secondary: #334155;
+  --summer-glass-bg: rgba(255, 255, 255, 0.96);
+}
+
+body {
+  font-family: 'Lexend', sans-serif;
+  color: var(--summer-text-main);
+  background: #f0f9ff;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.shop-summer-container, .admin-summer-container {
+  background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Typography Upgrade */
+h1, h2, h3, .summer-title {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--summer-deep-blue);
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.summer-title {
+  font-size: 2.8rem;
+  background: linear-gradient(45deg, var(--summer-deep-blue), var(--summer-ocean-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2.5rem;
+}
+
+/* Glassmorphism Refined */
+.summer-glass {
+  background: var(--summer-glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 1);
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 119, 190, 0.12);
+  padding: 2rem;
+  color: var(--summer-text-main) !important;
+}
+
+/* Inputs & Selects - Modern & Clean */
+.summer-input, .summer-select, .form-control, .form-select {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  padding: 14px 20px !important;
+  font-size: 1.05rem !important;
+  font-weight: 500 !important;
+  color: var(--summer-text-main) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+}
+
+.summer-input:focus, .summer-select:focus {
+  border-color: var(--summer-ocean-blue) !important;
+  box-shadow: 0 0 0 4px rgba(0, 119, 190, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.summer-label {
+  font-weight: 700;
+  color: var(--summer-deep-blue);
+  margin-bottom: 10px;
+  font-size: 1rem;
+  display: block;
+}
+
+/* Buttons - Fun & Premium */
+.summer-button {
+  background: linear-gradient(135deg, #0077be 0%, #00aaff 100%);
+  color: white !important;
+  border: none;
+  border-radius: 18px;
+  padding: 16px 32px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 10px 25px rgba(0, 119, 190, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.summer-button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 119, 190, 0.4);
+  filter: brightness(1.1);
+}
+
+.summer-button:active { transform: translateY(0); }
+
+.summer-button-outline {
+  background: white;
+  color: var(--summer-ocean-blue) !important;
+  border: 2px solid var(--summer-ocean-blue);
+  border-radius: 18px;
+  padding: 14px 28px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.summer-button-outline:hover {
+  background: #f0f9ff;
+  transform: translateY(-2px);
+}
+
+/* Tables for Admin - High Visibility */
+.table {
+  color: var(--summer-text-main) !important;
+}
+
+.table thead th {
+  background: #f8fafc;
+  color: var(--summer-deep-blue);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  padding: 1.2rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table tbody td {
+  padding: 1.2rem 1rem;
+  vertical-align: middle;
+  font-weight: 500;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--summer-text-main) !important;
+}
+
+/* Badge Styles */
+.badge {
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb {
+  background: var(--summer-ocean-blue);
+  border-radius: 10px;
+  border: 3px solid #f1f5f9;
+}
+
+/* Animations */
+@keyframes dolphin-jump {
+  0% { transform: translate(-100%, 100%) rotate(-45deg); opacity: 0; }
+  30% { transform: translate(30%, -20%) rotate(0deg); opacity: 1; }
+  60% { transform: translate(130%, 100%) rotate(45deg); opacity: 0; }
+  100% { transform: translate(130%, 100%) rotate(45deg); opacity: 0; }
+}
+
+.summer-item {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.dolphin { font-size: 60px; animation: dolphin-jump 15s linear infinite; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .summer-title { font-size: 2rem; }
+  .summer-glass { padding: 1.2rem; }
+  .summer-button { padding: 12px 24px; font-size: 1rem; }
+}

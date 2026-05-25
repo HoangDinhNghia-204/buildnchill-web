@@ -3,8 +3,10 @@ import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { BiServer, BiUser, BiCalendar, BiTime, BiChevronLeft, BiChevronRight } from 'react-icons/bi';
+import { BiServer, BiUser, BiCalendar, BiTime, BiChevronLeft, BiChevronRight, BiRocket, BiStar, BiTargetLock, BiMap } from 'react-icons/bi';
+import SummerEffect from '../components/SummerEffect';
 import '../styles/carousel.css';
+import '../styles/summer-theme.css';
 
 const Home = () => {
   const { news, serverStatus, siteSettings } = useData();
@@ -17,15 +19,8 @@ const Home = () => {
 
   const carouselImages = [
     'https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless',
-    'https://foodtek.vn/sites/default/files/2025-12/462570011_607189315167864_5786208777291669050_n.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/467459402_525799813831572_2048064753693338637_n.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/467457844_1958845277932349_4464426894527163495_n.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/2025-02-17_21.42.55.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/6-3_01.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/2025-09-20_20.49.28.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/2025-12-19_23.28.20.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/2025-12-19_23.25.58.webp',
-    'https://foodtek.vn/sites/default/files/2025-12/17-915.webp'
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80',
+    'https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
   ];
 
   useEffect(() => {
@@ -36,111 +31,106 @@ const Home = () => {
   }, [carouselImages.length]);
 
   const features = [
-    { icon: BiServer, title: 'Hoạt Động 24/7', description: 'Luôn online, luôn sẵn sàng' },
-    { icon: BiUser, title: 'Cộng Đồng Năng Động', description: 'Tham gia cùng hàng nghìn người chơi' },
-    { icon: BiTime, title: 'Sự Kiện Thường Xuyên', description: 'Cuộc thi hàng tuần và nhiều niềm vui' }
+    { icon: BiRocket, title: 'Tốc Độ Vượt Trội', description: 'Máy chủ cấu hình mạnh, giảm thiểu giật lag tối đa cho trải nghiệm mượt mà.' },
+    { icon: BiStar, title: 'Cộng Đồng Chất Lượng', description: 'Giao lưu cùng những người chơi văn minh, năng động và đầy sáng tạo.' },
+    { icon: BiMap, title: 'Thế Giới Rộng Lớn', description: 'Khám phá những hòn đảo bí ẩn và vùng biển vô tận trong mùa hè này.' }
   ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 }
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
 
   return (
-    <div className="shop-tet-container">
+    <div className="shop-summer-container min-vh-100">
       <Helmet>
-        <title>BuildnChill - Máy Chủ Minecraft Cộng Đồng Việt Nam</title>
-        <meta name="description" content={`Chào mừng bạn đến với ${siteTitle}. Server Minecraft Việt Nam chất lượng với cộng đồng năng động, sự kiện thường xuyên và hỗ trợ 24/7. Tham gia ngay tại ${serverIp}`} />
-        <meta property="og:title" content="BuildnChill - Máy Chủ Minecraft Cộng Đồng Việt Nam" />
-        <meta property="og:description" content={`Tham gia cộng đồng Minecraft lớn mạnh nhất tại ${serverIp}. Nhiều chế độ chơi hấp dẫn đang chờ bạn!`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.buildnchill.id.vn" />
-        <meta property="og:image" content="https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless" />
-        <meta name="keywords" content="minecraft, server minecraft, minecraft viet nam, buildnchill, play minecraft, minecraft 1.20.4" />
+        <title>BuildnChill - Máy Chủ Minecraft Ocean Summer</title>
+        <meta name="description" content={`Chào mừng bạn đến với ${siteTitle}. Trải nghiệm mùa hè rực rỡ cùng server Minecraft Việt Nam chất lượng nhất.`} />
       </Helmet>
+      
+      <SummerEffect />
 
-      <section className="hero-carousel">
-        <div className="carousel-container">
+      {/* Hero Section */}
+      <section className="hero-carousel position-relative overflow-hidden shadow-2xl">
+        <div className="carousel-container h-600px" style={{ height: '700px' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
-              className="carousel-slide"
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.5 }}
+              className="carousel-slide h-100"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
             >
-              <img
-                src={carouselImages[currentSlide]}
-                alt={`Slide ${currentSlide + 1}`}
-                className="carousel-image"
-              />
+              <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.2))', zIndex: 1 }}></div>
+              <img src={carouselImages[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="carousel-image h-100" />
+              
+              <div className="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3" style={{ zIndex: 2 }}>
+                <motion.div 
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                >
+                  <div className="badge bg-info bg-opacity-75 text-white px-4 py-2 rounded-pill mb-4 shadow-lg fw-black tracking-widest">
+                    <BiStar className="me-2" /> NEW SEASON: OCEAN ADVENTURE
+                  </div>
+                  <h1 
+                    className="display-1 fw-black text-white text-uppercase mb-4"
+                    style={{ textShadow: '0 10px 30px rgba(0,0,0,0.5)', letterSpacing: '-2px' }}
+                  >
+                    {siteTitle}
+                  </h1>
+                  <p 
+                    className="h3 fw-bold mb-5 opacity-90"
+                    style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
+                  >
+                    Tham gia hành trình khám phá đại dương tại: <span className="text-info user-select-all bg-white bg-opacity-20 px-3 py-1 rounded-pill">{serverIp}</span>
+                  </p>
+                  <div className="d-flex flex-wrap justify-content-center gap-4">
+                    <Link to="/shop" className="summer-button w-auto px-5 py-3 h5 m-0 shadow-2xl">VÀO CỬA HÀNG NGAY 🛒</Link>
+                    <a href={siteSettings?.discord_url} target="_blank" className="summer-button-outline text-white border-3 w-auto px-5 py-3 h5 m-0" style={{ background: 'rgba(255,255,255,0.1)' }}>THAM GIA DISCORD 💬</a>
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        <button
-          className="carousel-btn carousel-btn-prev"
-          onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}
-        >
-          <BiChevronLeft size={30} />
-        </button>
+        {/* Floating elements for Hero */}
+        <div className="summer-item dolphin" style={{ top: '20%', right: '5%', zIndex: 3 }}>🐬</div>
+        <div className="summer-item" style={{ bottom: '10%', left: '5%', fontSize: '60px', zIndex: 3 }}>⛱️</div>
 
-        <button
-          className="carousel-btn carousel-btn-next"
-          onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}
-        >
-          <BiChevronRight size={30} />
+        <button className="carousel-btn carousel-btn-prev d-none d-md-flex" onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}>
+          <BiChevronLeft size={50} />
+        </button>
+        <button className="carousel-btn carousel-btn-next d-none d-md-flex" onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}>
+          <BiChevronRight size={50} />
         </button>
       </section>
 
-      <div className="container my-5">
-        <motion.section
-          className="mb-5"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <motion.h2
-            className="tet-title text-center mb-5"
-            variants={itemVariants}
-          >
-            Tại Sao Chọn Chúng Tôi?
-          </motion.h2>
+      <div className="container py-5 position-relative" style={{ zIndex: 10 }}>
+        {/* Features Section */}
+        <motion.section className="py-5" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <div className="text-center mb-5">
+            <h2 className="summer-title display-4">🌊 TRẢI NGHIỆM ĐỈNH CAO 🌊</h2>
+            <p className="fw-bold text-primary">Tại sao bạn nên chọn BuildnChill trong mùa hè này?</p>
+          </div>
           <div className="row g-4">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <motion.div
-                  key={index}
-                  className="col-md-4"
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.05, y: -10 }}
-                >
-                  <div className="card tet-glass text-center p-4 h-100">
-                    <motion.div
-                      whileHover={{ rotate: 360, scale: 1.2 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Icon size={60} style={{ color: 'var(--tet-lucky-red)', marginBottom: '1rem' }} />
-                    </motion.div>
-                    <h4 style={{ color: 'var(--tet-lucky-red-dark)', marginBottom: '1rem', fontWeight: 700 }}>{feature.title}</h4>
-                    <p style={{ color: 'var(--tet-text-charcoal)' }}>{feature.description}</p>
+                <motion.div key={index} className="col-md-4" variants={itemVariants} whileHover={{ y: -20 }}>
+                  <div className="summer-glass p-5 text-center h-100 border-0 shadow-xl bg-white bg-opacity-60">
+                    <div className="d-inline-flex p-4 rounded-4 bg-info bg-opacity-10 text-info mb-4 shadow-sm">
+                      <Icon size={60} />
+                    </div>
+                    <h3 className="fw-black mb-3" style={{ color: 'var(--summer-deep-blue)' }}>{feature.title}</h3>
+                    <p className="fw-bold text-muted mb-0 leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
               );
@@ -148,107 +138,83 @@ const Home = () => {
           </div>
         </motion.section>
 
-        <motion.section
-          className="mb-5"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <motion.h2
-            className="tet-section-title mb-4"
-            variants={itemVariants}
-          >
-            Tin Tức Mới Nhất
-          </motion.h2>
+        {/* News Section */}
+        <motion.section className="py-5" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <div className="d-flex justify-content-between align-items-end mb-5 border-bottom border-info border-opacity-20 pb-4">
+            <div>
+              <h2 className="summer-title m-0">TIN TỨC SỰ KIỆN</h2>
+              <p className="fw-bold text-primary m-0">Cập nhật những hoạt động mới nhất từ Server</p>
+            </div>
+            <Link to="/news" className="summer-button-outline w-auto px-4 py-2 small d-none d-md-block">XEM TẤT CẢ →</Link>
+          </div>
           <div className="row g-4">
-            {latestNews.map((post, index) => (
-              <motion.div
-                key={post.id}
-                className="col-md-4"
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-              >
-                <div className="card tet-glass h-100">
-                  <motion.img
-                    src={post.image}
-                    className="card-img-top"
-                    alt={post.title}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title news-title-truncate" style={{ color: '#1a1a1a', fontWeight: 700 }}>{post.title}</h5>
-                    <p className="text-muted small mb-2">
-                      <BiCalendar className="me-1" />
-                      {new Date(post.date).toLocaleDateString('vi-VN')}
-                    </p>
-                    <p className="card-text news-description-truncate" style={{ color: '#4a4a4a', flex: 1 }}>
-                      {post.description}
-                    </p>
-                    <div className="mt-auto">
-                      <Link to={`/news/${post.id}`} className="tet-button w-100 text-center">
-                        Đọc Thêm
-                      </Link>
+            {latestNews.map((post) => (
+              <motion.div key={post.id} className="col-md-4" variants={itemVariants} whileHover={{ y: -10 }}>
+                <div className="summer-glass h-100 shadow-2xl border-0 overflow-hidden bg-white p-0">
+                  <div className="overflow-hidden position-relative" style={{ height: '220px' }}>
+                    <img src={post.image} className="w-100 h-100 object-fit-cover transition-all duration-500 hover-scale" alt={post.title} />
+                    <div className="position-absolute top-0 start-0 m-3 badge bg-info px-3 py-2 shadow-sm">
+                      <BiCalendar className="me-1" /> {new Date(post.date).toLocaleDateString('vi-VN')}
                     </div>
+                  </div>
+                  <div className="p-4">
+                    <h5 className="fw-black mb-3 text-truncate-2" style={{ color: 'var(--summer-deep-blue)', height: '3.2rem', lineHeight: '1.6' }}>{post.title}</h5>
+                    <p className="fw-bold text-muted mb-4 text-truncate-3 opacity-80" style={{ fontSize: '0.9rem' }}>{post.description}</p>
+                    <Link to={`/news/${post.id}`} className="summer-button w-100 py-2">XEM CHI TIẾT 📖</Link>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
-          <motion.div
-            className="text-center mt-4"
-            variants={itemVariants}
-          >
-            <Link to="/news" className="tet-button-outline">
-              Xem Tất Cả Tin Tức
-            </Link>
-          </motion.div>
         </motion.section>
 
-        <motion.section
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="tet-section-title mb-4">
-            Trạng Thái Server
-          </h2>
-          {serverStatus && (
-            <div className="server-status-card tet-glass p-4">
-              <div className="row">
-                <div className="col-md-4 col-sm-6 server-status-item">
-                  <strong style={{ color: '#1a1a1a' }}>Trạng Thái</strong>
-                  <div>
-                    <motion.span
-                      className={`badge ${serverStatus.status === 'Online' ? 'bg-success' : 'bg-danger'}`}
-                      style={{
-                        fontSize: '1rem',
-                        padding: '0.5rem 1rem',
-                        background: serverStatus.status === 'Online' ? 'var(--tet-lucky-red)' : 'var(--tet-lucky-red-dark)',
-                        color: '#ffffff',
-                        fontWeight: 700
-                      }}
-                    >
-                      {serverStatus.status === 'Online' ? 'Đang Hoạt Động' : 'Đang Tắt'}
-                    </motion.span>
+        {/* Server Status Section */}
+        <motion.section initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="py-5">
+          <div className="summer-glass p-5 text-center shadow-2xl border-0 bg-white bg-opacity-80 position-relative overflow-hidden">
+            <div className="position-absolute top-0 end-0 p-5 opacity-05 rotate-12">
+              <BiServer size={150} />
+            </div>
+            <h2 className="summer-title mb-5">TRẠNG THÁI MÁY CHỦ</h2>
+            <div className="row g-4 position-relative">
+              <div className="col-md-4">
+                <div className="p-4 rounded-4 bg-light shadow-inner">
+                  <div className="small text-muted fw-black mb-2 tracking-widest">TRẠNG THÁI</div>
+                  <div className={`h2 fw-black ${serverStatus?.status === 'Online' ? 'text-success' : 'text-danger'}`}>
+                    {serverStatus?.status === 'Online' ? '🟢 ONLINE' : '🔴 OFFLINE'}
                   </div>
                 </div>
-                <div className="col-md-4 col-sm-6 server-status-item">
-                  <strong style={{ color: '#1a1a1a' }}>Người Chơi</strong>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--tet-lucky-red-dark)' }}>
-                    {serverStatus.players} / {serverStatus.maxPlayers}
-                  </div>
+              </div>
+              <div className="col-md-4">
+                <div className="p-4 rounded-4 bg-info bg-opacity-10 shadow-inner">
+                  <div className="small text-muted fw-black mb-2 tracking-widest">NGƯỜI CHƠI</div>
+                  <div className="h1 fw-black text-info">{serverStatus?.players || 0} <span className="h4 opacity-50">/ {serverStatus?.maxPlayers || 0}</span></div>
                 </div>
-                <div className="col-md-4 col-sm-6 server-status-item">
-                  <strong style={{ color: '#1a1a1a' }}>Phiên Bản</strong>
-                  <div style={{ fontSize: '1.2rem', color: '#1a1a1a', fontWeight: 600 }}>{serverStatus?.version || siteSettings?.server_version || '1.20.4'}</div>
+              </div>
+              <div className="col-md-4">
+                <div className="p-4 rounded-4 bg-light shadow-inner">
+                  <div className="small text-muted fw-black mb-2 tracking-widest">PHIÊN BẢN</div>
+                  <div className="h2 fw-black text-primary">{serverStatus?.version || siteSettings?.server_version || '1.20.4'}</div>
                 </div>
               </div>
             </div>
-          )}
+            <div className="mt-5 p-4 rounded-pill bg-white shadow-xl border border-3 border-info border-dashed d-inline-flex align-items-center gap-3">
+               <span className="fw-black text-primary">IP:</span> 
+               <strong className="h4 text-info user-select-all m-0">{serverIp}</strong>
+               <button className="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold" onClick={() => {navigator.clipboard.writeText(serverIp); alert('Đã copy IP!');}}>COPY IP</button>
+            </div>
+          </div>
         </motion.section>
+      </div>
+
+      {/* Decorative footer elements */}
+      <div className="text-center py-5 opacity-50 overflow-hidden w-100">
+        <div className="d-flex justify-content-center gap-5">
+          <span style={{ fontSize: '40px' }}>🐬</span>
+          <span style={{ fontSize: '40px' }}>🐚</span>
+          <span style={{ fontSize: '40px' }}>🏖️</span>
+          <span style={{ fontSize: '40px' }}>🦀</span>
+          <span style={{ fontSize: '40px' }}>🐳</span>
+        </div>
       </div>
     </div>
   );

@@ -5,10 +5,10 @@
 # Supabase Configuration
 supabase:
   # URL Supabase project (lấy từ Supabase Dashboard > Settings > API)
-  url: "https://your-project.supabase.co"
+  url: "https://byaxtcrajucaifflanmd.supabase.co"
 
   # Anon key (lấy từ Supabase Dashboard > Settings > API)
-  anon_key: "your-anon-key"
+  anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5YXh0Y3JhanVjYWlmZmxhbm1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxNjAwNDQsImV4cCI6MjA4MjczNjA0NH0.H7Q33o_KJMH3ZqoAZWyz5Mh67rBZjLLz74iQGrIsh9g"
 
 # Polling Configuration
 poll:
