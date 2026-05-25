@@ -15,8 +15,6 @@ const ShopCategoriesManagement = () => {
     display_order: 0,
     active: true
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -38,7 +36,6 @@ const ShopCategoriesManagement = () => {
 
   const handleAddNew = () => {
     setEditingCategory(null);
-    setImageFile(null);
     setFormData({
       name: '',
       description: '',
@@ -51,7 +48,6 @@ const ShopCategoriesManagement = () => {
 
   const handleEdit = (category) => {
     setEditingCategory(category);
-    setImageFile(null);
     setFormData({
       name: category.name,
       description: category.description || '',
@@ -60,52 +56,6 @@ const ShopCategoriesManagement = () => {
       active: category.active !== false
     });
     setShowModal(true);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file ảnh!');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        alert('Kích thước ảnh tối đa 10MB!');
-        return;
-      }
-      setImageFile(file);
-    }
-  };
-
-  const uploadImage = async () => {
-    if (!imageFile) return formData.icon;
-
-    try {
-      setUploading(true);
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-      const filePath = fileName;
-
-      const { error: uploadError } = await supabase.storage
-        .from('categories')
-        .upload(filePath, imageFile, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('categories')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      return formData.icon;
-    } finally {
-      setUploading(false);
-    }
   };
 
   const handleDelete = async (id) => {
@@ -125,19 +75,16 @@ const ShopCategoriesManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const finalIconUrl = await uploadImage();
-      const finalFormData = { ...formData, icon: finalIconUrl };
-
       if (editingCategory) {
         const { error } = await supabase
           .from('categories')
-          .update(finalFormData)
+          .update(formData)
           .eq('id', editingCategory.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('categories')
-          .insert([finalFormData]);
+          .insert([formData]);
         if (error) throw error;
       }
       setShowModal(false);
@@ -177,11 +124,7 @@ const ShopCategoriesManagement = () => {
                 <tr key={category.id}>
                   <td className="ps-4 align-middle">
                     <div className="rounded-3 bg-light p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '40px', height: '40px' }}>
-                      {category.icon && (category.icon.startsWith('http') || category.icon.startsWith('/')) ? (
-                        <img src={category.icon} alt={category.name} className="w-100 h-100 object-fit-cover" />
-                      ) : (
-                        <span className="fs-5">{category.icon || '📦'}</span>
-                      )}
+                      <span className="fs-5">{category.icon || '📦'}</span>
                     </div>
                   </td>
                   <td className="align-middle fw-bold text-dark">{category.name}</td>
@@ -234,23 +177,12 @@ const ShopCategoriesManagement = () => {
                   <textarea className="summer-input w-100" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Mô tả ngắn về danh mục này..." />
                 </div>
                 <div className="mb-4">
-                  <label className="summer-label">ICON / HÌNH ẢNH</label>
-                  <div className="d-flex gap-3 align-items-center mb-3">
+                  <label className="summer-label">ICON / EMOJI</label>
+                  <div className="d-flex gap-3 align-items-center">
                     <div className="summer-glass p-1 d-flex align-items-center justify-content-center bg-light overflow-hidden" style={{ width: '60px', height: '60px' }}>
-                      {(imageFile || (formData.icon && (formData.icon.startsWith('http') || formData.icon.startsWith('/')))) ? (
-                        <img 
-                          src={imageFile ? URL.createObjectURL(imageFile) : formData.icon} 
-                          alt="Preview" 
-                          className="h-100 w-100 object-fit-cover"
-                        />
-                      ) : (
-                        <span className="fs-3">{formData.icon || '📦'}</span>
-                      )}
+                      <span className="fs-3">{formData.icon || '📦'}</span>
                     </div>
-                    <div className="flex-grow-1">
-                      <input type="file" className="form-control form-control-sm mb-2" accept="image/*" onChange={handleImageChange} />
-                      <input type="text" className="summer-input w-100 py-2 small" value={formData.icon} onChange={(e) => setFormData({ ...formData, icon: e.target.value })} placeholder="Nhập Emoji hoặc URL ảnh..." />
-                    </div>
+                    <input type="text" className="summer-input flex-grow-1" value={formData.icon} onChange={(e) => setFormData({ ...formData, icon: e.target.value })} placeholder="Nhập Emoji (VD: ⚔️, 🛡️, 💎)..." />
                   </div>
                 </div>
                 <div className="row g-4 mb-4">
@@ -279,10 +211,9 @@ const ShopCategoriesManagement = () => {
               <button 
                 type="submit" 
                 form="categoryForm" 
-                className="summer-button flex-grow-1 py-3" 
-                disabled={uploading}
+                className="summer-button flex-grow-1 py-3"
               >
-                {uploading ? 'ĐANG TẢI...' : (editingCategory ? 'CẬP NHẬT DANH MỤC' : 'THÊM DANH MỤC')}
+                {editingCategory ? 'CẬP NHẬT DANH MỤC' : 'THÊM DANH MỤC'}
               </button>
               <button 
                 type="button" 
