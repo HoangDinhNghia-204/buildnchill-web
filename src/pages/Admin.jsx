@@ -629,7 +629,7 @@ const Admin = () => {
                           {contacts.map(contact => (
                             <tr key={contact.id}>
                               <td className="ps-4 align-middle fw-black text-primary small">#{generateContactCode(contact.id)}</td>
-                              <td className="align-middle fw-bold text-dark">{contact.name}</td>
+                              <td className="align-middle fw-bold text-dark">{contact.ign || contact.name}</td>
                               <td className="align-middle text-truncate fw-medium" style={{ maxWidth: '200px' }}>{contact.subject}</td>
                               <td className="align-middle small text-muted">{new Date(contact.created_at).toLocaleDateString('vi-VN')}</td>
                               <td className="align-middle text-center">
@@ -807,7 +807,7 @@ const Admin = () => {
                 <div className="row g-3 mb-4">
                   <div className="col-6">
                     <p className="summer-label mb-1">NGƯỜI GỬI</p>
-                    <p className="fw-bold text-dark m-0">{selectedContact.name}</p>
+                    <p className="fw-bold text-dark m-0">{selectedContact.ign || selectedContact.name}</p>
                     <p className="small text-muted m-0">{selectedContact.email}</p>
                   </div>
                   <div className="col-6 text-end">

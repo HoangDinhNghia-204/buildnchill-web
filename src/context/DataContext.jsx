@@ -463,12 +463,11 @@ export const DataProvider = ({ children }) => {
         }
       }
 
-      // Gửi cả ign và name để tương thích với database
+      // Gửi ign để tương thích với database
       const { data, error } = await supabase
         .from('contacts')
         .insert([{
           ign: contactData.ign,
-          name: contactData.ign,
           email: contactData.email,
           phone: contactData.phone,
           category: contactData.category,
