@@ -19,7 +19,7 @@ export const handler = async (event) => {
 
     // Khởi tạo Supabase Client
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // Dùng Service Role Key để có quyền ghi
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE; // Dùng Service Role Key để có quyền ghi
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const {
