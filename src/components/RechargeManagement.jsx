@@ -8,7 +8,7 @@ const RechargeManagement = () => {
   const [recharges, setRecharges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('pending');
+  const [filter, setFilter] = useState('approved');
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
