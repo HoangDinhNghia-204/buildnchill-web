@@ -483,47 +483,50 @@ export const DataProvider = ({ children }) => {
 
       if (error) throw error;
 
-      // Discord notification - Bọc riêng để không làm treo UI nếu webhook lỗi
-      try {
-        const CONTACT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1459038651513311301/7iMnd_skBCTXmvvAhnZbmUawTGk1QO7Ft1nXimeKkmbBJQQvg7znZPwkbtrupSpmL9tS';
-        
-        const categoryLabel = contactData.category === 'report' ? 'Báo Cáo (Report)' :
-                            contactData.category === 'bug' ? 'Báo Lỗi (Bug)' :
-                            contactData.category === 'help' ? 'Trợ Giúp (Help)' :
-                            contactData.category === 'suggestion' ? 'Đề Xuất (Suggestion)' : 'Khác';
-
-        const embed = {
-          title: `🔴 Đã Nhận | LIÊN HỆ: ${categoryLabel}`,
-          description: `🔔 **Yêu cầu hỗ trợ từ Website**`,
-          color: 15158332,
-          fields: [
-            { name: '👤 Người chơi', value: contactData.ign || 'Không rõ', inline: true },
-            { name: '📂 Danh mục', value: categoryLabel, inline: true },
-            { name: '💬 Tin nhắn', value: contactData.message || 'Không có nội dung' }
-          ],
-          footer: { text: `BuildnChill Support System • ${new Date().toLocaleString('vi-VN')}` }
-        };
-
-        if (image_url) embed.image = { url: image_url };
-
-        const response = await fetch(`${CONTACT_WEBHOOK_URL}?wait=true`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content: `🔔 <@741299302495813662> **CÓ LIÊN HỆ MỚI!**`,
-            embeds: [embed]
-          })
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.id) {
-            await supabase.from('contacts').update({ discord_message_id: result.id }).eq('id', data.id);
+      // Discord notification - Chạy ngầm để không làm chậm UI
+      (async () => {
+        try {
+          const CONTACT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1459038651513311301/7iMnd_skBCTXmvvAhnZbmUawTGk1QO7Ft1nXimeKkmbBJQQvg7znZPwkbtrupSpmL9tS';
+          
+          const categoryLabel = contactData.category === 'report' ? 'Báo Cáo (Report)' :
+                              contactData.category === 'bug' ? 'Báo Lỗi (Bug)' :
+                              contactData.category === 'help' ? 'Trợ Giúp (Help)' :
+                              contactData.category === 'suggestion' ? 'Đề Xuất (Suggestion)' : 'Khác';
+  
+          const embed = {
+            title: `🔴 Đã Nhận | LIÊN HỆ: ${categoryLabel}`,
+            description: `🔔 **Yêu cầu hỗ trợ từ Website**`,
+            color: 15158332,
+            fields: [
+              { name: '👤 Người chơi', value: contactData.ign || 'Không rõ', inline: true },
+              { name: '📂 Danh mục', value: categoryLabel, inline: true },
+              { name: '💬 Tin nhắn', value: contactData.message || 'Không có nội dung' }
+            ],
+            footer: { text: `BuildnChill Support System • ${new Date().toLocaleString('vi-VN')}` }
+          };
+  
+          if (image_url) embed.image = { url: image_url };
+  
+          // Bỏ wait=true để Discord phản hồi nhanh hơn
+          const response = await fetch(CONTACT_WEBHOOK_URL + '?wait=true', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              content: `🔔 <@741299302495813662> **CÓ LIÊN HỆ MỚI!**`,
+              embeds: [embed]
+            })
+          });
+  
+          if (response.ok) {
+            const result = await response.json();
+            if (result.id) {
+              await supabase.from('contacts').update({ discord_message_id: result.id }).eq('id', data.id);
+            }
           }
+        } catch (discordError) {
+          console.error('Discord notification background error:', discordError);
         }
-      } catch (discordError) {
-        console.error('Error sending Discord notification:', discordError);
-      }
+      })();
 
       return true;
     } catch (error) {
