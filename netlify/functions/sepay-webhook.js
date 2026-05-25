@@ -1,17 +1,11 @@
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   const startTime = Date.now();
   console.log('--- SEPAY WEBHOOK START ---');
-  console.log('Method:', event.httpMethod);
   
-  // Trả về nhanh nếu là GET để kiểm tra service
   if (event.httpMethod === 'GET') {
-    return { statusCode: 200, body: 'SePay Webhook Service is Online (CJS Mode)' };
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 200, body: 'SePay Webhook is Live (ESM)' };
   }
 
   try {
@@ -19,13 +13,12 @@ exports.handler = async (event) => {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE;
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Config Missing:', { url: !!supabaseUrl, key: !!supabaseServiceKey });
-      return { statusCode: 500, body: 'Server Configuration Missing' };
+      console.error('Missing Env Vars');
+      return { statusCode: 500, body: 'Config Error' };
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const payload = JSON.parse(event.body || '{}');
-
     console.log('Payload Received:', JSON.stringify(payload));
 
     const {
@@ -36,7 +29,7 @@ exports.handler = async (event) => {
     } = payload;
 
     const amount = parseInt(amount_in || transferAmount || 0);
-    console.log(`Processing: Content="${content}", Amount=${amount}, ID=${transactionId}`);
+    console.log(`Input: Content="${content}", Amount=${amount}, ID=${transactionId}`);
 
     // Gọi RPC xử lý
     const { data, error } = await supabase.rpc('process_sepay_webhook', {
@@ -50,17 +43,17 @@ exports.handler = async (event) => {
       return { statusCode: 200, body: JSON.stringify({ success: false, error: error.message }) };
     }
 
-    console.log('RPC Success Result:', data);
-    console.log(`Execution Time: ${Date.now() - startTime}ms`);
+    console.log('Database Result:', JSON.stringify(data));
+    console.log(`Duration: ${Date.now() - startTime}ms`);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true, data })
+      body: JSON.stringify(data)
     };
 
   } catch (err) {
-    console.error('Webhook Runtime Error:', err);
+    console.error('Webhook Crash:', err);
     return { statusCode: 200, body: JSON.stringify({ success: false, error: err.message }) };
   }
 };
