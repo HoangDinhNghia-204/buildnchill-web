@@ -384,13 +384,13 @@ const Admin = () => {
   ];
 
   return (
-    <div className="admin-summer-container min-vh-100 bg-light" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+    <div className="admin-summer-container min-vh-100" style={{ backgroundColor: 'var(--summer-bg)' }}>
       <SummerEffect />
       
       <div className="container-fluid p-0">
         <div className="row g-0">
           {/* Sidebar */}
-          <div className="col-lg-2 bg-white shadow-sm border-end min-vh-100 d-none d-lg-block position-sticky top-0 h-100 overflow-auto pt-4" style={{ zIndex: 100 }}>
+          <div className="col-lg-2 shadow-sm border-end min-vh-100 d-none d-lg-block position-sticky top-0 h-100 overflow-auto pt-4" style={{ zIndex: 100, backgroundColor: 'rgba(15, 23, 42, 0.9)' }}>
             <div className="px-4 mb-5 text-center">
               <h4 className="fw-black text-primary m-0">ADMIN PANEL</h4>
               <p className="small text-muted fw-bold mt-1">BUILDNCHILL 🏝️</p>
@@ -400,9 +400,7 @@ const Admin = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`d-flex align-items-center gap-3 px-4 py-3 rounded-4 transition-all border-0 fw-bold ${
-                    activeTab === tab.id ? 'bg-primary text-white shadow-md' : 'bg-transparent text-dark opacity-75 hover-bg-light'
-                  }`}
+                  className={`sidebar-item d-flex align-items-center gap-3 px-4 py-3 rounded-4 transition-all border-0 fw-bold text-white ${activeTab === tab.id ? 'active' : ''}`}
                 >
                   <tab.icon size={22} />
                   <span style={{ fontSize: '0.85rem' }}>{tab.label}</span>
@@ -420,9 +418,9 @@ const Admin = () => {
           </div>
 
           {/* Main Content */}
-          <div className="col-lg-10 p-4 p-md-5">
+          <div className="col-lg-10 p-4 p-md-5" style={{ backgroundColor: 'var(--bg-sand)', minHeight: '100vh' }}>
             {/* Header Mobile */}
-            <div className="d-lg-none summer-glass p-3 mb-4 bg-white shadow-sm border-0 d-flex justify-content-between align-items-center">
+            <div className="d-lg-none summer-glass p-3 mb-4 bg-white shadow-sm border-0 d-flex justify-content-between align-items-center" style={{ backgroundColor: 'var(--bg-card)' }}>
               <h5 className="m-0 fw-black text-primary">ADMIN 🏝️</h5>
               <select 
                 className="summer-input py-1 px-3 small border-primary" 
@@ -457,7 +455,7 @@ const Admin = () => {
                       { label: 'THÔNG TIN LIÊN HỆ', value: stats.recentContacts.length, icon: BiEnvelope, color: 'info' }
                     ].map((stat, idx) => (
                       <div key={idx} className="col-sm-6 col-xl-3">
-                        <div className="summer-glass p-4 bg-white border-0 shadow-lg h-100 transition-all hover-translate-y">
+                        <div className="summer-glass p-4 border-0 shadow-lg h-100 transition-all hover-translate-y" style={{ backgroundColor: 'var(--bg-card)' }}>
                           <div className="d-flex align-items-center gap-3">
                             <div className={`p-3 rounded-4 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
                               <stat.icon size={28} />
@@ -475,7 +473,7 @@ const Admin = () => {
                   <div className="row g-4">
                     {/* Top Products */}
                     <div className="col-lg-6">
-                      <div className="summer-glass p-4 bg-white border-0 shadow-lg h-100">
+                      <div className="summer-glass p-4 border-0 shadow-lg h-100" style={{ backgroundColor: 'var(--bg-card)' }}>
                         <h5 className="fw-black text-primary mb-4">SẢN PHẨM BÁN CHẠY</h5>
                         <div className="table-responsive">
                           <table className="table summer-table mb-0">
@@ -500,7 +498,7 @@ const Admin = () => {
 
                     {/* Top Donators */}
                     <div className="col-lg-6">
-                      <div className="summer-glass p-4 bg-white border-0 shadow-lg h-100">
+                      <div className="summer-glass p-4 border-0 shadow-lg h-100" style={{ backgroundColor: 'var(--bg-card)' }}>
                         <div className="d-flex justify-content-between align-items-center mb-4">
                           <h5 className="fw-black text-primary m-0">TOP ĐẠI GIA 💎</h5>
                         </div>
@@ -533,7 +531,7 @@ const Admin = () => {
 
                     {/* Recent Orders */}
                     <div className="col-12">
-                      <div className="summer-glass p-4 bg-white border-0 shadow-lg">
+                      <div className="summer-glass p-4 border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
                         <h5 className="fw-black text-primary mb-4">ĐƠN HÀNG GẦN ĐÂY</h5>
                         <div className="table-responsive">
                           <table className="table summer-table mb-0">
@@ -711,7 +709,7 @@ const Admin = () => {
                         <input className="summer-input w-100 py-2" name="server_ip" value={settingsForm.server_ip} onChange={handleSettingsChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="summer-label">PHẦN THƯỞNG TOP ĐẠI GIA</label>
+                        <label className="summer-label">PHIÊN BẢN</label>
                         <input className="summer-input w-100 py-2" name="server_version" value={settingsForm.server_version} onChange={handleSettingsChange} placeholder="VD: 50.000 VNĐ" />
                       </div>
                       <div className="col-md-6">
@@ -719,7 +717,7 @@ const Admin = () => {
                         <input className="summer-input w-100 py-2" name="contact_email" value={settingsForm.contact_email} onChange={handleSettingsChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="summer-label">SỐ ĐIỆN THOẠI/ZALO</label>
+                        <label className="summer-label">SỐ ĐIỆN THOẠI</label>
                         <input className="summer-input w-100 py-2" name="contact_phone" value={settingsForm.contact_phone} onChange={handleSettingsChange} />
                       </div>
                       <div className="col-md-12">

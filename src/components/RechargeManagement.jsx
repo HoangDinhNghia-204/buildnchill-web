@@ -80,7 +80,7 @@ const RechargeManagement = () => {
         </button>
       </div>
 
-      <div className="summer-glass p-4 mb-4 border-0 shadow-lg bg-white">
+      <div className="summer-glass p-4 mb-4 border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="row g-3 align-items-center">
           <div className="col-12 col-md-5">
             <div className="position-relative">
@@ -105,7 +105,8 @@ const RechargeManagement = () => {
                 <button 
                   key={s.id}
                   onClick={() => setFilter(s.id)}
-                  className={`btn btn-sm rounded-pill px-3 fw-bold transition-all ${filter === s.id ? 'btn-primary text-white shadow-sm' : 'btn-outline-primary bg-white'}`}
+                  className={`btn btn-sm rounded-pill px-3 fw-bold transition-all ${filter === s.id ? 'btn-primary text-white shadow-sm' : 'btn-outline-primary'}`}
+                  style={filter !== s.id ? { backgroundColor: 'var(--bg-card)' } : {}}
                 >
                   {s.label}
                 </button>
@@ -115,7 +116,7 @@ const RechargeManagement = () => {
         </div>
       </div>
 
-      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg">
+      <div className="summer-glass overflow-hidden border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="table-responsive">
           <table className="table summer-table mb-0">
             <thead>
@@ -149,7 +150,7 @@ const RechargeManagement = () => {
                   </td>
                   <td className="align-middle fw-black text-success fs-5">{r.amount.toLocaleString()}đ</td>
                   <td className="align-middle">
-                    <span className="badge bg-light text-primary border border-info border-opacity-20 px-3 py-2 rounded-pill small fw-bold">
+                    <span className="badge text-primary border border-info border-opacity-20 px-3 py-2 rounded-pill small fw-bold" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                       {r.payment_method?.toUpperCase()}
                     </span>
                   </td>

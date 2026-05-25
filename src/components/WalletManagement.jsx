@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BiWallet, BiPlus, BiMinus, BiSearch, BiHistory, BiRefresh } from 'react-icons/bi';
+import { BiWallet, BiPlus, BiMinus, BiSearch, BiHistory, BiRefresh, BiUser } from 'react-icons/bi';
 import '../styles/summer-theme.css';
 
 const WalletManagement = () => {
@@ -153,7 +153,7 @@ const WalletManagement = () => {
 
       <div className="row g-4">
         <div className="col-md-5">
-          <div className="summer-glass p-4 h-100 bg-white shadow-lg border-0">
+          <div className="summer-glass p-4 h-100 border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
             <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
               <BiSearch size={22} className="text-primary" /> TÌM NGƯỜI CHƠI
             </h5>
@@ -176,13 +176,13 @@ const WalletManagement = () => {
                     key={user.id} 
                     whileHover={{ x: 5 }}
                     className={`p-3 rounded-4 mb-2 cursor-pointer transition-all border-2 d-flex align-items-center justify-content-between ${
-                      selectedUser?.id === user.id ? 'bg-primary text-white border-primary shadow-md' : 'bg-light bg-opacity-50 border-transparent hover-bg-white'
+                      selectedUser?.id === user.id ? 'bg-primary text-white border-primary shadow-md' : 'border-transparent'
                     }`}
                     onClick={() => {
                       setSelectedUser(user);
                       if (user.wallet_id) fetchTransactions(user.wallet_id);
                     }}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', backgroundColor: selectedUser?.id === user.id ? undefined : 'var(--bg-sand-light)' }}
                   >
                     <div className="d-flex align-items-center gap-3">
                       <img src={`https://vzge.me/bust/${user.username}.png`} alt="Skin" style={{ width: '32px' }} />
@@ -210,7 +210,7 @@ const WalletManagement = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="d-flex flex-column gap-4"
               >
-                <div className="summer-glass p-4 bg-white shadow-lg border-0">
+                <div className="summer-glass p-4 border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
                   <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
                     <BiWallet size={22} className="text-primary" /> ĐIỀU CHỈNH: {selectedUser.username}
                   </h5>
@@ -249,7 +249,8 @@ const WalletManagement = () => {
                     <div className="col-6">
                       <button 
                         onClick={() => handleAdjustBalance('minus')} 
-                        className="summer-button-outline w-100 py-3 d-flex align-items-center justify-content-center gap-2 border-danger text-danger bg-white shadow-sm"
+                        className="summer-button-outline w-100 py-3 d-flex align-items-center justify-content-center gap-2 border-danger text-danger shadow-sm"
+                        style={{ backgroundColor: 'transparent' }}
                       >
                         <BiMinus size={20} /> TRỪ TIỀN
                       </button>
@@ -257,7 +258,7 @@ const WalletManagement = () => {
                   </div>
                 </div>
 
-                <div className="summer-glass p-4 bg-white shadow-lg border-0">
+                <div className="summer-glass p-4 border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
                   <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
                     <BiHistory size={22} className="text-primary" /> GIAO DỊCH GẦN ĐÂY
                   </h5>
@@ -292,7 +293,7 @@ const WalletManagement = () => {
                 </div>
               </motion.div>
             ) : (
-              <div className="summer-glass p-5 text-center text-muted h-100 d-flex flex-column align-items-center justify-content-center bg-white shadow-lg border-0 border-dashed border-2">
+              <div className="summer-glass p-5 text-center text-muted h-100 d-flex flex-column align-items-center justify-content-center shadow-lg border-0 border-dashed border-2" style={{ backgroundColor: 'var(--bg-card)' }}>
                 <BiUser size={60} className="mb-3 opacity-20" />
                 <p className="fw-bold m-0">Vui lòng chọn một người chơi để xem chi tiết và điều chỉnh số dư ví.</p>
               </div>

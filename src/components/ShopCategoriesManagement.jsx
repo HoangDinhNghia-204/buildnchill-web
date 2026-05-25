@@ -106,7 +106,7 @@ const ShopCategoriesManagement = () => {
         </button>
       </div>
 
-      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg mb-4">
+      <div className="summer-glass overflow-hidden border-0 shadow-lg mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="table-responsive">
           <table className="table summer-table mb-0">
             <thead>
@@ -123,7 +123,7 @@ const ShopCategoriesManagement = () => {
               {categories.map(category => (
                 <tr key={category.id}>
                   <td className="ps-4 align-middle">
-                    <div className="rounded-3 bg-light p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '40px', height: '40px' }}>
+                    <div className="rounded-3 p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '40px', height: '40px', backgroundColor: 'var(--bg-sand-light)' }}>
                       <span className="fs-5">{category.icon || '📦'}</span>
                     </div>
                   </td>
@@ -155,14 +155,14 @@ const ShopCategoriesManagement = () => {
       {showModal && (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', zIndex: 9999, backdropFilter: 'blur(5px)' }} onClick={() => setShowModal(false)}>
           <motion.div 
-            className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
-            style={{ maxWidth: '600px', width: '100%' }} 
+            className="summer-glass p-0 border-0 overflow-hidden shadow-2xl" 
+            style={{ backgroundColor: 'var(--bg-card)', maxWidth: '600px', width: '100%' }} 
             initial={{ opacity: 0, scale: 0.9 }} 
             animate={{ opacity: 1, scale: 1 }} 
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
-              <h4 className="m-0 fw-black">{editingCategory ? 'SỬA DANH MỤC' : 'THÊM DANH MỤC MỚI'}</h4>
+            <div className="p-4 bg-primary d-flex justify-content-between align-items-center" style={{ color: '#fff' }}>
+              <h4 className="m-0 fw-black" style={{ color: '#fff' }}>{editingCategory ? 'SỬA DANH MỤC' : 'THÊM DANH MỤC MỚI'}</h4>
               <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
             </div>
             
@@ -179,7 +179,7 @@ const ShopCategoriesManagement = () => {
                 <div className="mb-4">
                   <label className="summer-label">ICON / EMOJI</label>
                   <div className="d-flex gap-3 align-items-center">
-                    <div className="summer-glass p-1 d-flex align-items-center justify-content-center bg-light overflow-hidden" style={{ width: '60px', height: '60px' }}>
+                    <div className="summer-glass p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '60px', height: '60px', backgroundColor: 'var(--bg-sand-light)' }}>
                       <span className="fs-3">{formData.icon || '📦'}</span>
                     </div>
                     <input type="text" className="summer-input flex-grow-1" value={formData.icon} onChange={(e) => setFormData({ ...formData, icon: e.target.value })} placeholder="Nhập Emoji (VD: ⚔️, 🛡️, 💎)..." />
@@ -191,15 +191,16 @@ const ShopCategoriesManagement = () => {
                     <input type="number" className="summer-input w-100" value={formData.display_order} onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })} />
                   </div>
                   <div className="col-md-6 d-flex align-items-end">
-                    <div className="form-check p-0 d-flex align-items-center gap-2 mb-2">
-                      <input 
-                        className="form-check-input m-0" 
-                        type="checkbox" 
-                        id="categoryActive"
-                        style={{ width: '20px', height: '20px' }}
-                        checked={formData.active}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                      />
+                    <div className="d-flex align-items-center gap-3 mb-2">
+                      <div className="custom-toggle-switch">
+                        <input
+                          type="checkbox"
+                          id="categoryActive"
+                          checked={formData.active}
+                          onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                        />
+                        <label htmlFor="categoryActive" />
+                      </div>
                       <label className="fw-bold text-primary mb-0" htmlFor="categoryActive">Đang hoạt động</label>
                     </div>
                   </div>
@@ -207,7 +208,7 @@ const ShopCategoriesManagement = () => {
               </form>
             </div>
 
-            <div className="p-4 bg-light d-flex gap-3 border-top">
+            <div className="p-4 d-flex gap-3 border-top" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
               <button 
                 type="submit" 
                 form="categoryForm" 

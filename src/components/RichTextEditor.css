@@ -43,7 +43,8 @@
 }
 
 .rich-text-editor-wrapper .ql-toolbar button::before {
-  display: none !important;
+  /* allow Quill toolbar icons/pseudo-elements to display (do not hide) */
+  display: inline-block !important;
 }
 
 .rich-text-editor-wrapper .ql-toolbar button:hover {

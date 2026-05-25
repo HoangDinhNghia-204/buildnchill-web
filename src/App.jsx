@@ -44,7 +44,7 @@ const AppContent = () => {
       <div className="ocean-waves"></div>
       <TopBar />
       <Navbar />
-      <main>
+      <main style={{ minHeight: '80vh' }}>
         <Routes>
           <Route
             path="/"

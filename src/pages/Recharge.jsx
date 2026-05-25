@@ -141,12 +141,12 @@ const Recharge = () => {
         <div className="row g-4 justify-content-center">
           {/* Instructions Column */}
           <div className="col-lg-6">
-            <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 p-md-5 h-100 shadow-2xl border-0">
+            <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 p-md-5 h-100 shadow-2xl border-0" style={{ backgroundColor: 'var(--bg-card)' }}>
               <h4 className="summer-label mb-4 d-flex align-items-center gap-2">
                 <BiQrScan /> QUÉT MÃ VIETQR ĐỂ NẠP TỰ ĐỘNG
               </h4>
               
-              <div className="p-4 bg-white rounded-4 border-2 border-info border-dashed mb-4 text-center">
+              <div className="p-4 rounded-4 border-2 border-info border-dashed mb-4 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
                 <img 
                   src={`https://vzge.me/bust/${userProfile?.username}.png`} 
                   alt="avatar" 
@@ -175,7 +175,7 @@ const Recharge = () => {
                 <AnimatePresence mode='wait'>
                   {rechargeForm.amount && parseInt(rechargeForm.amount) >= 1000 ? (
                     <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
-                      <div className="position-relative d-inline-block p-3 bg-white rounded-4 shadow-xl border border-4 border-info border-opacity-20 mb-3">
+                      <div className="position-relative d-inline-block p-3 rounded-4 shadow-xl border border-4 border-info border-opacity-20 mb-3" style={{ backgroundColor: 'var(--bg-card)' }}>
                         <img
                           src={`https://img.vietqr.io/image/MB-${paymentInfo.bank_account}-compact2.png?amount=${rechargeForm.amount}&addInfo=NAP ${userProfile?.username}&accountName=${paymentInfo.account_name}`}
                           alt="VietQR"
@@ -196,7 +196,7 @@ const Recharge = () => {
                       </div>
                     </motion.div>
                   ) : (
-                    <div className="p-5 bg-light rounded-4 border-2 border-dashed text-muted opacity-50">
+                    <div className="p-5 rounded-4 border-2 border-dashed text-muted opacity-50" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                       <BiQrScan size={80} className="mb-3 d-block mx-auto" />
                       Vui lòng nhập số tiền để tạo mã QR nạp tự động
                     </div>
@@ -208,30 +208,30 @@ const Recharge = () => {
 
           {/* Guide Column */}
           <div className="col-lg-5">
-            <motion.div initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 p-md-5 h-100 shadow-2xl border-0 bg-white">
+            <motion.div initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 p-md-5 h-100 shadow-2xl border-0" style={{ backgroundColor: 'var(--bg-card)' }}>
               <h4 className="summer-label mb-4 d-flex align-items-center gap-2">
                 <BiInfoCircle /> LƯU Ý KHI NẠP
               </h4>
               
               <div className="d-flex flex-column gap-4">
-                <div className="d-flex gap-3">
-                  <div className="p-2 h-fit rounded-circle bg-info bg-opacity-10 text-info"><BiCheckCircle size={24}/></div>
+                <div className="d-flex gap-3 align-items-center">
+                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiCheckCircle size={24}/></div>
                   <div>
                     <h6 className="fw-black text-dark mb-1">Duyệt tự động 24/7</h6>
                     <p className="small text-muted m-0">Tiền sẽ được cộng vào ví của bạn sau 30 giây đến 1 phút kể từ khi giao dịch thành công.</p>
                   </div>
                 </div>
                 
-                <div className="d-flex gap-3">
-                  <div className="p-2 h-fit rounded-circle bg-warning bg-opacity-10 text-warning"><BiInfoCircle size={24}/></div>
+                <div className="d-flex gap-3 align-items-center">
+                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 text-warning" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiInfoCircle size={24}/></div>
                   <div>
                     <h6 className="fw-black text-dark mb-1">Đúng nội dung chuyển khoản</h6>
                     <p className="small text-muted m-0">Hãy đảm bảo nội dung chuyển khoản là <span className="fw-bold text-primary">NAP {userProfile?.username}</span> để hệ thống nhận diện được bạn.</p>
                   </div>
                 </div>
 
-                <div className="d-flex gap-3">
-                  <div className="p-2 h-fit rounded-circle bg-danger bg-opacity-10 text-danger"><BiWallet size={24}/></div>
+                <div className="d-flex gap-3 align-items-center">
+                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiWallet size={24}/></div>
                   <div>
                     <h6 className="fw-black text-dark mb-1">Hỗ trợ nạp lỗi</h6>
                     <p className="small text-muted m-0">Nếu sau 5 phút vẫn chưa thấy tiền, vui lòng liên hệ Admin qua Discord hoặc mục Liên hệ kèm ảnh biên lai.</p>
@@ -240,7 +240,7 @@ const Recharge = () => {
 
                 <hr className="my-2 border-info border-opacity-20" />
 
-                <div className="bg-light p-4 rounded-4">
+                <div className="p-4 rounded-4" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                    <div className="small fw-bold text-muted mb-3 text-uppercase tracking-widest">Thông tin ngân hàng</div>
                    <div className="d-flex flex-column gap-2">
                       <div className="d-flex justify-content-between">
@@ -258,9 +258,9 @@ const Recharge = () => {
                    </div>
                 </div>
 
-                <button onClick={() => navigate('/profile')} className="summer-button-outline w-100 py-3 mt-auto">
+                 <button onClick={() => navigate('/profile')} className="summer-button w-100 py-3 mt-auto">
                    XEM LỊCH SỬ BIẾN ĐỘNG VÍ →
-                </button>
+                 </button>
               </div>
             </motion.div>
           </div>
@@ -271,7 +271,7 @@ const Recharge = () => {
       <AnimatePresence>
         {showSuccess && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 10000 }}>
-            <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="summer-glass p-5 text-center shadow-2xl" style={{ maxWidth: '450px' }}>
+            <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="summer-glass p-5 text-center shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', maxWidth: '450px' }}>
               <div className="bg-success bg-opacity-10 p-4 rounded-circle d-inline-block mb-4 shadow-sm">
                 <BiCheckCircle size={80} className="text-success" />
               </div>

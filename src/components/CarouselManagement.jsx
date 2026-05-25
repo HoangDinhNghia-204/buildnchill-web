@@ -118,7 +118,8 @@ const CarouselManagement = () => {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="summer-glass p-4 mb-5 shadow-xl border-0 bg-white"
+          className="summer-glass p-4 mb-5 shadow-xl border-0"
+          style={{ backgroundColor: 'var(--bg-card)' }}
         >
           <form onSubmit={handleAdd}>
             <div className="row g-4">
@@ -146,7 +147,7 @@ const CarouselManagement = () => {
                 </div>
               </div>
               <div className="col-md-4">
-                <div className="summer-glass p-2 d-flex align-items-center justify-content-center bg-light overflow-hidden border-dashed" style={{ height: '120px' }}>
+                <div className="summer-glass p-2 d-flex align-items-center justify-content-center overflow-hidden border-dashed" style={{ height: '120px', backgroundColor: 'var(--bg-sand-light)' }}>
                   {(imageFile || formData.image_url) ? (
                     <img 
                       src={imageFile ? URL.createObjectURL(imageFile) : formData.image_url} 
@@ -199,7 +200,7 @@ const CarouselManagement = () => {
       <div className="row g-4">
         {carouselImages.map((img) => (
           <div key={img.id} className="col-md-6 col-xl-4">
-            <div className="summer-glass p-0 overflow-hidden h-100 shadow-lg border-0 bg-white d-flex flex-column">
+            <div className="summer-glass p-0 overflow-hidden h-100 shadow-lg border-0 d-flex flex-column" style={{ backgroundColor: 'var(--bg-card)' }}>
               <div className="position-relative" style={{ height: '180px' }}>
                 <img 
                   src={img.image_url} 
@@ -265,7 +266,7 @@ const CarouselManagement = () => {
       </div>
 
       {carouselImages.length === 0 && (
-        <div className="text-center py-5 summer-glass bg-white bg-opacity-50 border-dashed border-2">
+        <div className="text-center py-5 summer-glass border-dashed border-2" style={{ backgroundColor: 'rgba(255, 247, 230, 0.5)' }}>
           <p className="fw-black text-muted m-0">Chưa có ảnh nào trong carousel. Vui lòng thêm ảnh mới. 🏝️</p>
         </div>
       )}

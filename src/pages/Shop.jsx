@@ -48,6 +48,40 @@ const Shop = () => {
     checkUser();
   }, []);
 
+  // Poll order status while payment modal is open. When backend (Sepay webhook)
+  // updates the order `status` to 'paid' (or 'delivered'), show success popup.
+  // Reduced request rate: poll every 8s and stop after ~10 minutes to avoid excess requests.
+  useEffect(() => {
+    let poll = null;
+    let attempts = 0;
+    const INTERVAL_MS = 8000; // 8 seconds
+    const MAX_ATTEMPTS = Math.ceil((10 * 60 * 1000) / INTERVAL_MS); // ~10 minutes
+
+    if (showPayment && currentOrder) {
+      poll = setInterval(async () => {
+        attempts += 1;
+        try {
+          const { data, error } = await supabase.from('orders').select('status').eq('id', currentOrder.id).single();
+          if (!error && data && (data.status === 'paid' || data.status === 'delivered')) {
+            clearInterval(poll);
+            setShowPayment(false);
+            setShowSuccess(true);
+            loadTopDonators();
+          } else if (attempts >= MAX_ATTEMPTS) {
+            clearInterval(poll);
+            console.info('Stopped polling order status after max attempts for order', currentOrder.id);
+          }
+        } catch (e) {
+          console.error('Polling order status failed:', e);
+          if (attempts >= MAX_ATTEMPTS) {
+            clearInterval(poll);
+          }
+        }
+      }, INTERVAL_MS);
+    }
+    return () => { if (poll) clearInterval(poll); };
+  }, [showPayment, currentOrder]);
+
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -121,7 +155,27 @@ const Shop = () => {
     }
 
     const tempId = crypto.randomUUID();
-    setCurrentOrder({ ...product, id: tempId, mc_username: formData.mc_username, payment_method: formData.payment_method });
+
+    // create a pending order record so external payment gateway (Sepay) can match by id/content
+    const pendingOrder = {
+      id: tempId,
+      mc_username: formData.mc_username,
+      product: product.name,
+      product_id: product.id,
+      command: product.command,
+      price: product.price,
+      status: 'pending',
+      payment_method: formData.payment_method
+    };
+
+    try {
+      const { error } = await supabase.from('orders').insert([pendingOrder]);
+      if (error) console.error('Error creating pending order:', error);
+    } catch (e) {
+      console.error('Exception creating pending order:', e);
+    }
+
+    setCurrentOrder({ ...product, id: tempId, product_id: product.id, mc_username: formData.mc_username, payment_method: formData.payment_method });
     setShowPayment(true);
     setSubmitting(false);
   };
@@ -133,7 +187,7 @@ const Shop = () => {
         id: currentOrder.id,
         mc_username: currentOrder.mc_username,
         product: currentOrder.name,
-        product_id: currentOrder.id,
+        product_id: currentOrder.product_id,
         command: currentOrder.command,
         price: currentOrder.price,
         status: 'pending',
@@ -142,7 +196,11 @@ const Shop = () => {
 
       if (error) throw error;
       setShowPayment(false);
-      alert('Đơn hàng đã được ghi nhận! Hệ thống sẽ tự động giao quà khi nhận được thanh toán.');
+      setCurrentOrder(null);
+      setSelectedProduct(null);
+      setFormData({ ...formData, product_id: '' });
+      setShowSuccess(true);
+      loadTopDonators();
     } catch (e) { alert('Lỗi: ' + e.message); }
     finally { setSubmitting(false); }
   };
@@ -183,7 +241,7 @@ const Shop = () => {
               <h4 className="summer-label mb-4"><BiStar className="text-warning me-2"/>TOP ĐẠI GIA 💎</h4>
               <div className="d-flex flex-column gap-3">
                 {topDonators.map((user, i) => (
-                  <div key={i} className="d-flex align-items-center p-2 rounded-4 bg-white shadow-sm border border-info border-opacity-10">
+                  <div key={i} className="d-flex align-items-center p-2 rounded-4 shadow-sm border border-info border-opacity-10" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                     <div className={`badge ${i === 0 ? 'bg-warning' : 'bg-info'} me-2 rounded-circle`} style={{ width: '25px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i+1}</div>
                     <img src={`https://vzge.me/bust/${user.name}.png`} className="me-2 rounded-3 shadow-sm" alt="avatar" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
                     <div className="flex-grow-1 overflow-hidden">
@@ -218,7 +276,8 @@ const Shop = () => {
                 <div key={product.id} className="col-md-6 col-xl-4">
                   <motion.div 
                     whileHover={{ y: -12 }}
-                    className="summer-glass h-100 p-3 bg-white text-center d-flex flex-column border-0 shadow-lg"
+                    className="summer-glass h-100 p-3 text-center d-flex flex-column border-0 shadow-lg"
+                    style={{ backgroundColor: 'var(--bg-card)' }}
                   >
                     <div className="rounded-4 p-3 mb-3" style={{ background: 'linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%)', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px dashed #0ea5e9' }}>
                       <img src={product.image_url || 'https://via.placeholder.com/150'} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} className="drop-shadow" alt={product.name} />
@@ -238,6 +297,7 @@ const Shop = () => {
                 <motion.div 
                   ref={formRef} 
                   className="summer-glass p-4 p-md-5 mt-5 border-0 shadow-2xl"
+                  style={{ backgroundColor: 'var(--bg-card)' }}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
@@ -246,8 +306,8 @@ const Shop = () => {
                     <BiShoppingBag size={40} className="text-info opacity-50" />
                   </div>
                   
-                  <div className="p-3 bg-info bg-opacity-10 rounded-4 mb-4 fw-bold text-primary">
-                    Vật phẩm đã chọn: <span className="text-danger">{selectedProduct.name}</span> - <span className="text-success">{selectedProduct.price.toLocaleString()} VNĐ</span>
+                  <div className="p-3 bg-sand-light rounded-4 mb-4 fw-bold text-primary border border-info border-opacity-20" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
+                    Vật phẩm đã chọn: <span className="text-primary">{selectedProduct.name}</span> - <span className="text-info">{selectedProduct.price.toLocaleString()} VNĐ</span>
                   </div>
 
                   <form onSubmit={handleSubmit} className="row g-4">
@@ -287,22 +347,53 @@ const Shop = () => {
       <AnimatePresence>
         {showPayment && currentOrder && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 10000 }}>
-            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="summer-glass p-4 w-100 text-center" style={{ maxWidth: '450px' }}>
-              <h4 className="summer-title mb-4" style={{ fontSize: '1.5rem' }}>THANH TOÁN TỰ ĐỘNG</h4>
+            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="summer-glass p-4 w-100 text-center" style={{ backgroundColor: 'var(--bg-card)', maxWidth: '520px', pointerEvents: 'auto' }}>
+              <h4 className="summer-title mb-4" style={{ fontSize: '1.5rem' }}>{currentOrder.payment_method === 'qr' ? 'THANH TOÁN TỰ ĐỘNG' : 'CHUYỂN KHOẢN THỦ CÔNG'}</h4>
               <div className="mb-4">
-                <img 
-                  src={`https://img.vietqr.io/image/MB-${paymentInfo.bank_account}-compact2.png?amount=${currentOrder.price}&addInfo=${currentOrder.id.substring(0,8)}&accountName=${paymentInfo.account_name}`} 
-                  className="img-fluid rounded-4 border border-info border-4 p-2 shadow-2xl bg-white" 
-                  alt="QR Code"
-                />
-                <div className="mt-4 p-3 bg-light rounded-4 border-2 border-info border-dashed">
-                  <div className="small fw-bold text-muted mb-1">NỘI DUNG CHUYỂN KHOẢN:</div>
-                  <div className="h3 fw-black text-primary user-select-all mb-0">{currentOrder.id.substring(0, 8)}</div>
-                  <div className="x-small text-danger mt-2">*(Vui lòng giữ nguyên nội dung để được duyệt tự động)*</div>
-                </div>
+                {currentOrder.payment_method === 'qr' ? (
+                  <>
+                    <img 
+                      src={`https://img.vietqr.io/image/MB-${paymentInfo.bank_account}-compact2.png?amount=${currentOrder.price}&addInfo=${currentOrder.id.substring(0,8)}&accountName=${paymentInfo.account_name}`} 
+                      className="img-fluid rounded-4 border border-info border-4 p-2 shadow-2xl bg-white" 
+                      alt="QR Code"
+                    />
+                    <div className="mt-4 p-3 rounded-4 border-2 border-info border-dashed" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
+                      <div className="small fw-bold text-muted mb-1">NỘI DUNG CHUYỂN KHOẢN:</div>
+                      <div className="h3 fw-black text-primary user-select-all mb-0">{currentOrder.id.substring(0, 8)}</div>
+                      <div className="x-small text-danger mt-2">*(Vui lòng giữ nguyên nội dung để được duyệt tự động)*</div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-start">
+                    <div className="p-3 rounded-4 border-2 border-info mb-3" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
+                      <div className="small fw-bold text-muted">NGÂN HÀNG</div>
+                      <div className="h5 fw-black">{paymentInfo.bank_name}</div>
+                      <div className="small fw-bold text-muted mt-2">SỐ TÀI KHOẢN</div>
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="fw-black">{paymentInfo.bank_account}</div>
+                        <button type="button" className="summer-button-outline" onClick={() => navigator.clipboard.writeText(paymentInfo.bank_account)}>COPY</button>
+                      </div>
+                      <div className="small fw-bold text-muted mt-2">CHỦ TÀI KHOẢN</div>
+                      <div className="d-flex align-items-center justify-content-between mb-2">
+                        <div className="fw-black">{paymentInfo.account_name}</div>
+                        <button type="button" className="summer-button-outline" onClick={() => navigator.clipboard.writeText(paymentInfo.account_name)}>COPY</button>
+                      </div>
+                      <div className="small fw-bold text-muted mt-2">SỐ TIỀN</div>
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="fw-black">{currentOrder.price.toLocaleString()} VNĐ</div>
+                        <button type="button" className="summer-button-outline" onClick={() => navigator.clipboard.writeText(String(currentOrder.price))}>COPY</button>
+                      </div>
+                      <div className="small fw-bold text-muted mt-3">NỘI DUNG CHUYỂN KHOẢN (BẮT BUỘC)</div>
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="fw-black">{currentOrder.id.substring(0,8)}</div>
+                        <button type="button" className="summer-button-outline" onClick={() => navigator.clipboard.writeText(currentOrder.id.substring(0,8))}>COPY</button>
+                      </div>
+                      <div className="x-small text-danger mt-2">*Vui lòng nhập chính xác nội dung để được duyệt tự động.</div>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="d-grid gap-2">
-                <button onClick={handlePaymentComplete} className="summer-button py-3">XÁC NHẬN ĐÃ CHUYỂN TIỀN</button>
                 <button onClick={() => setShowPayment(false)} className="btn btn-link text-muted fw-bold text-decoration-none">QUAY LẠI</button>
               </div>
             </motion.div>
@@ -311,7 +402,7 @@ const Shop = () => {
 
         {showSuccess && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 10001 }}>
-            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="summer-glass p-5 text-center" style={{ maxWidth: '400px' }}>
+            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="summer-glass p-5 text-center" style={{ backgroundColor: 'var(--bg-card)', maxWidth: '400px' }}>
               <BiCheckCircle size={100} className="text-success mb-4 shadow-sm" />
               <h2 className="summer-title mb-3">THÀNH CÔNG!</h2>
               <p className="fw-bold text-primary mb-4">Giao dịch hoàn tất. Quà đã được chuyển vào game cho bạn!</p>

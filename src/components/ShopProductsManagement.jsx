@@ -189,7 +189,7 @@ const ShopProductsManagement = () => {
         </button>
       </div>
 
-      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg mb-4">
+      <div className="summer-glass overflow-hidden border-0 shadow-lg mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="table-responsive">
           <table className="table summer-table mb-0">
             <thead>
@@ -207,7 +207,7 @@ const ShopProductsManagement = () => {
               {products.map(product => (
                 <tr key={product.id}>
                   <td className="ps-4 align-middle">
-                    <div className="rounded-3 bg-light p-1 d-flex align-items-center justify-content-center" style={{ width: '45px', height: '45px' }}>
+                    <div className="rounded-3 p-1 d-flex align-items-center justify-content-center" style={{ width: '45px', height: '45px', backgroundColor: 'var(--bg-sand-light)' }}>
                       {product.image_url ? (
                         <img src={product.image_url} alt={product.name} className="w-100 h-100 object-fit-contain" />
                       ) : (
@@ -246,14 +246,14 @@ const ShopProductsManagement = () => {
       {showModal && (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', zIndex: 9999, backdropFilter: 'blur(5px)' }} onClick={() => setShowModal(false)}>
           <motion.div 
-            className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
-            style={{ maxWidth: '800px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} 
+            className="summer-glass p-0 border-0 overflow-hidden shadow-2xl" 
+            style={{ backgroundColor: 'var(--bg-card)', maxWidth: '800px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} 
             initial={{ opacity: 0, scale: 0.9 }} 
             animate={{ opacity: 1, scale: 1 }} 
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
-              <h4 className="m-0 fw-black">{editingProduct ? 'SỬA SẢN PHẨM' : 'THÊM SẢN PHẨM MỚI'}</h4>
+            <div className="p-4 bg-primary d-flex justify-content-between align-items-center" style={{ color: '#fff' }}>
+              <h4 className="m-0 fw-black" style={{ color: '#fff' }}>{editingProduct ? 'SỬA SẢN PHẨM' : 'THÊM SẢN PHẨM MỚI'}</h4>
               <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
             </div>
             
@@ -279,7 +279,7 @@ const ShopProductsManagement = () => {
                     <div className="mb-4">
                       <label className="summer-label">ẢNH SẢN PHẨM</label>
                       <div className="d-flex flex-column gap-3">
-                        <div className="summer-glass p-2 d-flex align-items-center justify-content-center bg-light" style={{ height: '140px' }}>
+                        <div className="summer-glass p-2 d-flex align-items-center justify-content-center" style={{ height: '140px', backgroundColor: 'var(--bg-sand-light)' }}>
                           {(imageFile || formData.image_url) ? (
                             <img 
                               src={imageFile ? URL.createObjectURL(imageFile) : formData.image_url} 
@@ -334,21 +334,24 @@ const ShopProductsManagement = () => {
                   </div>
                 </div>
 
-                <div className="form-check p-0 d-flex align-items-center gap-2 mb-2">
-                  <input 
-                    className="form-check-input m-0" 
-                    type="checkbox" 
-                    id="productActive"
-                    style={{ width: '20px', height: '20px' }}
-                    checked={formData.active}
-                    onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  />
-                  <label className="fw-bold text-primary mb-0" htmlFor="productActive">Sản phẩm đang kinh doanh</label>
+                <div className="mb-3">
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="custom-toggle-switch">
+                      <input
+                        type="checkbox"
+                        id="productActive"
+                        checked={formData.active}
+                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                      />
+                      <label htmlFor="productActive" />
+                    </div>
+                    <label className="fw-bold text-primary mb-0" htmlFor="productActive">Sản phẩm đang kinh doanh</label>
+                  </div>
                 </div>
               </form>
             </div>
 
-            <div className="p-4 bg-light d-flex gap-3 border-top">
+            <div className="p-4 d-flex gap-3 border-top" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
               <button 
                 type="submit" 
                 form="productForm" 

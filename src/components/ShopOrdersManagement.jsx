@@ -124,7 +124,7 @@ const ShopOrdersManagement = () => {
         </div>
       </div>
 
-      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg">
+      <div className="summer-glass overflow-hidden border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="table-responsive">
           <table className="table summer-table mb-0">
             <thead>
@@ -181,14 +181,14 @@ const ShopOrdersManagement = () => {
         {showModal && selectedOrder && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }}>
             <motion.div 
-              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
-              style={{ maxWidth: '600px', width: '100%' }}
+              className="summer-glass p-0 border-0 overflow-hidden shadow-2xl" 
+              style={{ backgroundColor: 'var(--bg-card)', maxWidth: '600px', width: '100%' }}
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
             >
-              <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
-                <h4 className="m-0 fw-black">CHI TIẾT ĐƠN HÀNG</h4>
+              <div className="p-4 bg-primary d-flex justify-content-between align-items-center" style={{ color: '#fff' }}>
+                <h4 className="m-0 fw-black" style={{ color: '#fff' }}>CHỈNH SỬA ĐƠN HÀNG</h4>
                 <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
               </div>
 
@@ -207,7 +207,7 @@ const ShopOrdersManagement = () => {
                   </div>
                   <div className="col-12">
                     <p className="summer-label mb-1">SẢN PHẨM</p>
-                    <div className="p-3 bg-light rounded-3 fw-bold border-start border-4 border-primary">
+                    <div className="p-3 rounded-3 fw-bold border-start border-4 border-primary" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                       {selectedOrder.product || selectedOrder.products?.name}
                     </div>
                   </div>

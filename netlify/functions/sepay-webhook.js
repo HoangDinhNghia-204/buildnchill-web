@@ -46,33 +46,36 @@ export const handler = async (event) => {
 
     console.log('Database Result:', JSON.stringify(data));
 
-    // Gửi thông báo Discord nếu nạp thành công
+    // Gửi thông báo Discord vào kênh BANK nếu nạp thành công
     if (data && data.success) {
       try {
-        const RECHARGE_WEBHOOK_URL = 'https://discord.com/api/webhooks/1459038651513311301/7iMnd_skBCTXmvvAhnZbmUawTGk1QO7Ft1nXimeKkmbBJQQvg7znZPwkbtrupSpmL9tS';
+        // Webhook URL cho kênh BANK
+        const BANK_WEBHOOK_URL = 'https://discord.com/api/webhooks/1467696152559227063/ms7Z7n4a6btul6Wlie0ugrjIN7HZTtdCVOrJFddUXjiFwdi0-TNjfJ_u6f9yFwyqD4ir';
         
         const embed = {
-          title: '💰 NẠP TIỀN TỰ ĐỘNG THÀNH CÔNG',
-          color: 3066993, // Green
+          title: '⚡ THÔNG BÁO NẠP TIỀN TỰ ĐỘNG',
+          description: `Người chơi **${data.username || 'Không rõ'}** vừa nạp tiền thành công qua SePay!`,
+          color: 0x0ea5e9, // Sky Blue
           fields: [
             { name: '👤 Người chơi', value: data.username || 'Không rõ', inline: true },
-            { name: '💵 Số tiền', value: `${amount.toLocaleString('vi-VN')} VNĐ`, inline: true },
-            { name: '📝 Nội dung', value: content, inline: false },
-            { name: '🆔 Mã GD', value: transactionId?.toString() || referenceCode, inline: true }
+            { name: '💰 Số tiền', value: `${amount.toLocaleString('vi-VN')} VNĐ`, inline: true },
+            { name: '📝 Nội dung', value: `\`${content}\``, inline: false },
+            { name: '🆔 Mã giao dịch', value: `\`${transactionId || referenceCode}\``, inline: true }
           ],
-          footer: { text: `BuildnChill Payment System • ${new Date().toLocaleString('vi-VN')}` }
+          footer: { text: `BuildnChill Payment System • ${new Date().toLocaleString('vi-VN')}` },
+          timestamp: new Date().toISOString()
         };
 
-        await fetch(RECHARGE_WEBHOOK_URL, {
+        await fetch(BANK_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            content: `📢 **${data.username}** vừa nạp thành công **${amount.toLocaleString('vi-VN')}đ**!`,
+            content: `📢 **${data.username}** vừa nạp thành công **${amount.toLocaleString('vi-VN')}đ**! 🚀`,
             embeds: [embed]
           })
         });
       } catch (discordError) {
-        console.error('Discord Log Error:', discordError);
+        console.error('Discord Bank Log Error:', discordError);
       }
     }
 

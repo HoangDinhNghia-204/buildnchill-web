@@ -119,9 +119,9 @@ const Profile = () => {
         <div className="row g-4">
           {/* User Info Card */}
           <div className="col-lg-4">
-            <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 text-center sticky-top shadow-2xl border-0" style={{ top: '100px' }}>
+            <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 text-center sticky-top shadow-2xl border-0" style={{ top: '100px', backgroundColor: 'var(--bg-card)' }}>
               <div className="mb-4 position-relative d-inline-block">
-                <div className="rounded-circle p-2 bg-white shadow-lg">
+                <div className="rounded-circle p-2 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
                   <img 
                     src={`https://vzge.me/bust/${profile?.username}.png`} 
                     alt="avatar" 
@@ -145,14 +145,14 @@ const Profile = () => {
                 )}
               </div>
               
-              <div className="bg-white bg-opacity-60 p-4 rounded-4 shadow-inner mb-4 border border-info border-opacity-20">
+              <div className="p-4 rounded-4 shadow-inner mb-4 border border-info border-opacity-20" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                 <div className="small text-muted mb-1 fw-bold text-uppercase tracking-wider">Số dư ví hiện tại</div>
                 <h2 className="text-info fw-black mb-0 display-6">{(wallet?.balance || 0).toLocaleString()} <small className="h5">VNĐ</small></h2>
               </div>
 
               <div className="d-grid gap-3">
                 <button onClick={() => navigate('/recharge')} className="summer-button py-3 shadow-lg"><BiPlusCircle className="me-2" /> NẠP TIỀN VÀO VÍ</button>
-                <button onClick={() => setShowPasswordModal(true)} className="summer-button-outline py-2"><BiLockAlt className="me-2" /> ĐỔI MẬT KHẨU</button>
+                <button onClick={() => setShowPasswordModal(true)} className="summer-button py-2"><BiLockAlt className="me-2" /> ĐỔI MẬT KHẨU</button>
                 <button onClick={handleLogout} className="btn btn-link text-muted fw-bold text-decoration-none py-2 hover-text-danger"><BiLogOut className="me-1" /> Đăng xuất</button>
               </div>
             </motion.div>
@@ -162,10 +162,7 @@ const Profile = () => {
           <div className="col-lg-8">
             <div className="d-flex flex-column gap-4">
               {/* Wallet History */}
-              <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="summer-glass p-4 p-md-5 shadow-2xl border-0 overflow-hidden position-relative">
-                <div className="position-absolute top-0 end-0 p-4 opacity-10">
-                  <BiHistory size={100} className="text-primary" />
-                </div>
+              <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="summer-glass p-4 p-md-5 shadow-2xl border-0 overflow-hidden position-relative" style={{ backgroundColor: 'var(--bg-card)' }}>
                 <h4 className="summer-label mb-4 d-flex align-items-center">
                   <BiHistory size={28} className="me-2" /> LỊCH SỬ BIẾN ĐỘNG VÍ
                 </h4>
@@ -191,7 +188,7 @@ const Profile = () => {
                           <td className={`fw-black text-end ${t.amount > 0 ? 'text-success' : 'text-danger'}`}>
                             {t.amount > 0 ? '+' : ''}{t.amount.toLocaleString()}đ
                           </td>
-                          <td className="small text-end fw-bold text-primary opacity-75">{t.note}</td>
+                          <td className="small text-end fw-bold text-primary">{t.note}</td>
                         </tr>
                       ))}
                       {transactions.length === 0 && <tr><td colSpan="4" className="text-center py-5 text-muted fw-bold">Chưa có giao dịch nào 🏜️</td></tr>}

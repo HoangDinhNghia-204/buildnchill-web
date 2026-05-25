@@ -114,7 +114,7 @@ const UserManagement = () => {
         </button>
       </div>
 
-      <div className="summer-glass p-4 mb-4 border-0 shadow-lg bg-white">
+      <div className="summer-glass p-4 mb-4 border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="position-relative">
           <BiSearch className="position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50" size={22} />
           <input
@@ -127,7 +127,7 @@ const UserManagement = () => {
         </div>
       </div>
 
-      <div className="summer-glass overflow-hidden border-0 bg-white shadow-lg">
+      <div className="summer-glass overflow-hidden border-0 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
         <div className="table-responsive">
           <table className="table summer-table mb-0">
             <thead>
@@ -147,7 +147,7 @@ const UserManagement = () => {
                 filteredUsers.map(user => (
                   <tr key={user.id}>
                     <td className="ps-4 align-middle">
-                      <div className="rounded-3 bg-light p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '45px', height: '45px' }}>
+                      <div className="rounded-3 p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '45px', height: '45px', backgroundColor: 'var(--bg-sand-light)' }}>
                         <img 
                           src={`https://vzge.me/bust/${user.username}.png`} 
                           alt="Skin" 
@@ -193,16 +193,16 @@ const UserManagement = () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl"
-              style={{ maxWidth: '500px', width: '100%' }}
+              className="summer-glass p-0 border-0 overflow-hidden shadow-2xl"
+              style={{ backgroundColor: 'var(--bg-card)', maxWidth: '500px', width: '100%' }}
             >
-              <div className="p-4 bg-primary text-white d-flex justify-content-between align-items-center">
-                <h4 className="m-0 fw-black">SỬA THÔNG TIN THÀNH VIÊN</h4>
+              <div className="p-4 bg-primary d-flex justify-content-between align-items-center" style={{ color: '#fff' }}>
+                <h4 className="m-0 fw-black" style={{ color: '#fff' }}>SỬA THÔNG TIN THÀNH VIÊN</h4>
                 <button className="btn btn-link text-white p-0" onClick={() => setEditingUser(null)}><BiX size={28} /></button>
               </div>
               
-              <div className="p-4 text-center bg-light bg-opacity-50">
-                <div className="d-inline-block rounded-circle bg-white p-3 shadow-sm border border-4 border-white mb-3">
+              <div className="p-4 text-center" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
+                <div className="d-inline-block rounded-circle p-3 shadow-sm border border-4 mb-3" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--bg-card)' }}>
                   <img 
                     src={`https://vzge.me/bust/${editForm.username}.png`} 
                     alt="Skin" 

@@ -17,7 +17,7 @@ const TopBar = () => {
 
   return (
     <motion.div
-      className="top-bar"
+      className="top-bar d-none d-lg-block"
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -51,14 +51,14 @@ const TopBar = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <BiServer className="me-2" />
+              <BiServer className="me-2 text-info" />
               {siteSettings?.server_ip || 'play.buildnchill.com'}
               {copied === 'ip' && (
                 <motion.span
                   className="ms-2"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  style={{ color: 'var(--tet-lucky-red)' }}
+                  style={{ color: '#10b981' }}
                 >
                   ✓ Đã Sao Chép!
                 </motion.span>
