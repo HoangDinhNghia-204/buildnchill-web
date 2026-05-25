@@ -1,14 +1,13 @@
-console.log('--- sepay-webhook.js loaded ---');
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   const startTime = Date.now();
-  console.log('--- Webhook Request Start ---');
+  console.log('--- SEPAY WEBHOOK START ---');
   console.log('Method:', event.httpMethod);
   
   // Trả về nhanh nếu là GET để kiểm tra service
   if (event.httpMethod === 'GET') {
-    return { statusCode: 200, body: 'SePay Webhook Service is Online' };
+    return { statusCode: 200, body: 'SePay Webhook Service is Online (CJS Mode)' };
   }
 
   if (event.httpMethod !== 'POST') {
@@ -27,8 +26,7 @@ export const handler = async (event) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const payload = JSON.parse(event.body || '{}');
 
-    console.log('Payload:', JSON.stringify(payload));
-    console.log('Headers:', JSON.stringify(event.headers));
+    console.log('Payload Received:', JSON.stringify(payload));
 
     const {
       content = '',
@@ -38,9 +36,9 @@ export const handler = async (event) => {
     } = payload;
 
     const amount = parseInt(amount_in || transferAmount || 0);
-    console.log(`Processing: "${content}" | ${amount} VND | ID: ${transactionId}`);
+    console.log(`Processing: Content="${content}", Amount=${amount}, ID=${transactionId}`);
 
-    // Gọi RPC với timeout nội bộ
+    // Gọi RPC xử lý
     const { data, error } = await supabase.rpc('process_sepay_webhook', {
       p_content: content,
       p_amount: amount,
@@ -52,8 +50,8 @@ export const handler = async (event) => {
       return { statusCode: 200, body: JSON.stringify({ success: false, error: error.message }) };
     }
 
-    console.log('Success Result:', data);
-    console.log(`Total Time: ${Date.now() - startTime}ms`);
+    console.log('RPC Success Result:', data);
+    console.log(`Execution Time: ${Date.now() - startTime}ms`);
 
     return {
       statusCode: 200,
@@ -62,7 +60,7 @@ export const handler = async (event) => {
     };
 
   } catch (err) {
-    console.error('Runtime Error:', err);
+    console.error('Webhook Runtime Error:', err);
     return { statusCode: 200, body: JSON.stringify({ success: false, error: err.message }) };
   }
 };
