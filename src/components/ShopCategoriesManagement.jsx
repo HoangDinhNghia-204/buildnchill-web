@@ -98,7 +98,7 @@ const ShopCategoriesManagement = () => {
     <div className="shop-categories-management">
       <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
         <h3 className="fw-black text-primary m-0">QUẢN LÝ DANH MỤC</h3>
-        <button 
+        <button
           className="summer-button py-2 px-4 shadow-sm"
           onClick={handleAddNew}
         >
@@ -154,18 +154,18 @@ const ShopCategoriesManagement = () => {
 
       {showModal && (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', zIndex: 9999, backdropFilter: 'blur(5px)' }} onClick={() => setShowModal(false)}>
-          <motion.div 
-            className="summer-glass p-0 border-0 overflow-hidden shadow-2xl" 
-            style={{ backgroundColor: 'var(--bg-card)', maxWidth: '600px', width: '100%' }} 
-            initial={{ opacity: 0, scale: 0.9 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+          <motion.div
+            className="summer-glass p-0 border-0 overflow-hidden shadow-2xl"
+            style={{ backgroundColor: 'var(--bg-card)', maxWidth: '600px', width: '100%' }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 bg-primary d-flex justify-content-between align-items-center" style={{ color: '#fff' }}>
               <h4 className="m-0 fw-black" style={{ color: '#fff' }}>{editingCategory ? 'SỬA DANH MỤC' : 'THÊM DANH MỤC MỚI'}</h4>
               <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
             </div>
-            
+
             <div className="p-4">
               <form onSubmit={handleSubmit} id="categoryForm">
                 <div className="mb-4">
@@ -209,16 +209,16 @@ const ShopCategoriesManagement = () => {
             </div>
 
             <div className="p-4 d-flex gap-3 border-top" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
-              <button 
-                type="submit" 
-                form="categoryForm" 
+              <button
+                type="submit"
+                form="categoryForm"
                 className="summer-button flex-grow-1 py-3"
               >
                 {editingCategory ? 'CẬP NHẬT DANH MỤC' : 'THÊM DANH MỤC'}
               </button>
-              <button 
-                type="button" 
-                className="summer-button-outline px-4 py-3" 
+              <button
+                type="button"
+                className="summer-button-outline px-4 py-3"
                 onClick={() => setShowModal(false)}
               >
                 HỦY

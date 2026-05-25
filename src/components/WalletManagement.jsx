@@ -56,9 +56,9 @@ const WalletManagement = () => {
           )
         `)
         .order('username');
-      
+
       if (error) throw error;
-      
+
       const processedData = data?.map(user => {
         let balance = 0;
         let walletId = null;
@@ -79,7 +79,7 @@ const WalletManagement = () => {
       });
 
       setUsers(processedData || []);
-      
+
       if (selectedUser) {
         const updatedUser = (processedData || []).find(u => u.id === selectedUser.id);
         if (updatedUser && JSON.stringify(updatedUser) !== JSON.stringify(selectedUser)) {
@@ -138,7 +138,7 @@ const WalletManagement = () => {
     }
   };
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = users.filter(u =>
     u.username?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -158,26 +158,25 @@ const WalletManagement = () => {
               <BiSearch size={22} className="text-primary" /> TÌM NGƯỜI CHƠI
             </h5>
             <div className="position-relative mb-4">
-              <input 
-                type="text" 
-                className="summer-input w-100 py-2" 
+              <input
+                type="text"
+                className="summer-input w-100 py-2"
                 placeholder="Nhập tên nhân vật..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div className="user-list overflow-auto pe-2" style={{ maxHeight: '450px' }}>
               {loading ? (
                 <div className="text-center py-4"><div className="spinner-border text-primary border-3"></div></div>
               ) : filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
-                  <motion.div 
-                    key={user.id} 
+                  <motion.div
+                    key={user.id}
                     whileHover={{ x: 5 }}
-                    className={`p-3 rounded-4 mb-2 cursor-pointer transition-all border-2 d-flex align-items-center justify-content-between ${
-                      selectedUser?.id === user.id ? 'bg-primary text-white border-primary shadow-md' : 'border-transparent'
-                    }`}
+                    className={`p-3 rounded-4 mb-2 cursor-pointer transition-all border-2 d-flex align-items-center justify-content-between ${selectedUser?.id === user.id ? 'bg-primary text-white border-primary shadow-md' : 'border-transparent'
+                      }`}
                     onClick={() => {
                       setSelectedUser(user);
                       if (user.wallet_id) fetchTransactions(user.wallet_id);
@@ -203,7 +202,7 @@ const WalletManagement = () => {
         <div className="col-md-7">
           <AnimatePresence mode="wait">
             {selectedUser ? (
-              <motion.div 
+              <motion.div
                 key={selectedUser.id}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -214,13 +213,13 @@ const WalletManagement = () => {
                   <h5 className="mb-4 fw-black text-dark d-flex align-items-center gap-2">
                     <BiWallet size={22} className="text-primary" /> ĐIỀU CHỈNH: {selectedUser.username}
                   </h5>
-                  
+
                   <div className="row g-4 mb-4">
                     <div className="col-md-6">
                       <label className="summer-label">SỐ TIỀN (VNĐ)</label>
-                      <input 
-                        type="number" 
-                        className="summer-input w-100" 
+                      <input
+                        type="number"
+                        className="summer-input w-100"
                         value={adjustAmount}
                         onChange={(e) => setAdjustAmount(e.target.value)}
                         placeholder="VD: 50000"
@@ -228,8 +227,8 @@ const WalletManagement = () => {
                     </div>
                     <div className="col-md-6">
                       <label className="summer-label">LÝ DO ĐIỀU CHỈNH</label>
-                      <input 
-                        className="summer-input w-100" 
+                      <input
+                        className="summer-input w-100"
                         value={adjustReason}
                         onChange={(e) => setAdjustReason(e.target.value)}
                         placeholder="VD: Hoàn tiền, Thưởng sự kiện..."
@@ -239,16 +238,16 @@ const WalletManagement = () => {
 
                   <div className="row g-3">
                     <div className="col-6">
-                      <button 
-                        onClick={() => handleAdjustBalance('plus')} 
+                      <button
+                        onClick={() => handleAdjustBalance('plus')}
                         className="summer-button w-100 py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm"
                       >
                         <BiPlus size={20} /> CỘNG TIỀN
                       </button>
                     </div>
                     <div className="col-6">
-                      <button 
-                        onClick={() => handleAdjustBalance('minus')} 
+                      <button
+                        onClick={() => handleAdjustBalance('minus')}
                         className="summer-button-outline w-100 py-3 d-flex align-items-center justify-content-center gap-2 border-danger text-danger shadow-sm"
                         style={{ backgroundColor: 'transparent' }}
                       >

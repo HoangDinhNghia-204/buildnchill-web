@@ -181,7 +181,7 @@ const ShopProductsManagement = () => {
     <div className="shop-products-management">
       <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
         <h3 className="fw-black text-primary m-0">QUẢN LÝ SẢN PHẨM</h3>
-        <button 
+        <button
           className="summer-button py-2 px-4 shadow-sm"
           onClick={handleAddNew}
         >
@@ -245,18 +245,18 @@ const ShopProductsManagement = () => {
 
       {showModal && (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', zIndex: 9999, backdropFilter: 'blur(5px)' }} onClick={() => setShowModal(false)}>
-          <motion.div 
-            className="summer-glass p-0 border-0 overflow-hidden shadow-2xl" 
-            style={{ backgroundColor: 'var(--bg-card)', maxWidth: '800px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} 
-            initial={{ opacity: 0, scale: 0.9 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+          <motion.div
+            className="summer-glass p-0 border-0 overflow-hidden shadow-2xl"
+            style={{ backgroundColor: 'var(--bg-card)', maxWidth: '800px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 bg-primary d-flex justify-content-between align-items-center" style={{ color: '#fff' }}>
               <h4 className="m-0 fw-black" style={{ color: '#fff' }}>{editingProduct ? 'SỬA SẢN PHẨM' : 'THÊM SẢN PHẨM MỚI'}</h4>
               <button className="btn btn-link text-white p-0" onClick={() => setShowModal(false)}><BiX size={28} /></button>
             </div>
-            
+
             <div className="p-4 overflow-auto flex-grow-1">
               <form onSubmit={handleSubmit} id="productForm">
                 <div className="row g-4">
@@ -281,9 +281,9 @@ const ShopProductsManagement = () => {
                       <div className="d-flex flex-column gap-3">
                         <div className="summer-glass p-2 d-flex align-items-center justify-content-center" style={{ height: '140px', backgroundColor: 'var(--bg-sand-light)' }}>
                           {(imageFile || formData.image_url) ? (
-                            <img 
-                              src={imageFile ? URL.createObjectURL(imageFile) : formData.image_url} 
-                              alt="Preview" 
+                            <img
+                              src={imageFile ? URL.createObjectURL(imageFile) : formData.image_url}
+                              alt="Preview"
                               className="h-100 w-100 object-fit-contain"
                             />
                           ) : (
@@ -303,9 +303,9 @@ const ShopProductsManagement = () => {
                 <div className="mb-4">
                   <label className="summer-label">MÔ TẢ CHI TIẾT</label>
                   <div className="summer-glass border p-1">
-                    <RichTextEditor 
-                      value={formData.description} 
-                      onChange={(val) => setFormData({ ...formData, description: val })} 
+                    <RichTextEditor
+                      value={formData.description}
+                      onChange={(val) => setFormData({ ...formData, description: val })}
                       placeholder="Mô tả các tính năng, quyền lợi của sản phẩm..."
                     />
                   </div>
@@ -352,17 +352,17 @@ const ShopProductsManagement = () => {
             </div>
 
             <div className="p-4 d-flex gap-3 border-top" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
-              <button 
-                type="submit" 
-                form="productForm" 
-                className="summer-button flex-grow-1 py-3" 
+              <button
+                type="submit"
+                form="productForm"
+                className="summer-button flex-grow-1 py-3"
                 disabled={uploading}
               >
                 {uploading ? 'ĐANG TẢI ẢNH...' : (editingProduct ? 'CẬP NHẬT SẢN PHẨM' : 'THÊM SẢN PHẨM')}
               </button>
-              <button 
-                type="button" 
-                className="summer-button-outline px-4 py-3" 
+              <button
+                type="button"
+                className="summer-button-outline px-4 py-3"
                 onClick={() => setShowModal(false)}
               >
                 HỦY

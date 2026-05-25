@@ -13,18 +13,18 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const latestNews = news.slice(0, 3);
-  
+
   const siteTitle = siteSettings?.site_title || 'BuildnChill';
   const serverIp = siteSettings?.server_ip || 'buildnchill.id.vn';
 
   // Sử dụng ảnh từ database nếu có, ngược lại dùng ảnh mặc định
-  const carouselImages = dbCarouselImages && dbCarouselImages.length > 0 
+  const carouselImages = dbCarouselImages && dbCarouselImages.length > 0
     ? dbCarouselImages.filter(img => img.is_active).map(img => img.image_url)
     : [
-        'https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless',
-        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80',
-        'https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-      ];
+      'https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80',
+      'https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -55,7 +55,7 @@ const Home = () => {
         <title>BuildnChill - Máy Chủ Minecraft Ocean Summer</title>
         <meta name="description" content={`Chào mừng bạn đến với ${siteTitle}. Trải nghiệm mùa hè rực rỡ cùng server Minecraft Việt Nam chất lượng nhất.`} />
       </Helmet>
-      
+
       <SummerEffect />
 
       {/* Hero Section */}
@@ -72,9 +72,9 @@ const Home = () => {
             >
               <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(to bottom, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.3))', zIndex: 1 }}></div>
               <img src={carouselImages[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="carousel-image h-100" />
-              
+
               <div className="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3 mt-4" style={{ zIndex: 2 }}>
-                <motion.div 
+                <motion.div
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.8 }}
@@ -82,13 +82,13 @@ const Home = () => {
                   <div className="badge bg-info bg-opacity-90 text-white px-4 py-2 rounded-pill mb-4 shadow-lg fw-black tracking-widest">
                     <BiStar className="me-2" /> NEW SEASON: OCEAN ADVENTURE
                   </div>
-                  <h1 
+                  <h1
                     className="display-1 fw-black text-white text-uppercase mb-4"
                     style={{ textShadow: '0 10px 30px rgba(0,0,0,0.6)', letterSpacing: '-2px' }}
                   >
                     {siteTitle}
                   </h1>
-                  <p 
+                  <p
                     className="h3 fw-bold mb-5 opacity-100"
                     style={{ textShadow: '0 2px 15px rgba(0,0,0,0.5)' }}
                   >
@@ -202,7 +202,7 @@ const Home = () => {
                 <div className="small text-muted mb-1">Kết nối</div>
                 <strong className="h5 text-info user-select-all m-0">{serverIp}</strong>
               </div>
-              <button className="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold" onClick={() => {navigator.clipboard.writeText(serverIp); alert('Đã copy IP!');}}>COPY IP</button>
+              <button className="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold" onClick={() => { navigator.clipboard.writeText(serverIp); alert('Đã copy IP!'); }}>COPY IP</button>
             </div>
           </div>
         </motion.section>

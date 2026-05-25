@@ -70,7 +70,7 @@ const ShopOrdersManagement = () => {
 
       if (newStatus === 'paid' && order.command) {
         updateData.paid_at = new Date().toISOString();
-        
+
         await supabase.from('pending_commands').insert([
           { command: order.command, mc_username: order.mc_username, status: 'pending' }
         ]);
@@ -107,10 +107,10 @@ const ShopOrdersManagement = () => {
       <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-info border-opacity-10">
         <h3 className="fw-black text-primary m-0">QUẢN LÝ ĐƠN HÀNG</h3>
         <div className="d-flex gap-2">
-          <select 
-            className="summer-input py-2 px-3 small fw-bold text-primary" 
+          <select
+            className="summer-input py-2 px-3 small fw-bold text-primary"
             style={{ width: 'auto', minWidth: '160px' }}
-            value={filter} 
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
             <option value="all">TẤT CẢ ĐƠN</option>
@@ -180,8 +180,8 @@ const ShopOrdersManagement = () => {
       <AnimatePresence>
         {showModal && selectedOrder && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }}>
-            <motion.div 
-              className="summer-glass p-0 border-0 overflow-hidden shadow-2xl" 
+            <motion.div
+              className="summer-glass p-0 border-0 overflow-hidden shadow-2xl"
               style={{ backgroundColor: 'var(--bg-card)', maxWidth: '600px', width: '100%' }}
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}

@@ -38,7 +38,7 @@ const Recharge = () => {
 
   const handleRechargeSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated || !userProfile) {
       alert('Vui lòng đăng nhập để nạp tiền!');
       navigate('/login');
@@ -99,13 +99,13 @@ const Recharge = () => {
           footer: { text: 'BuildnChill System - Summer Recharge' },
           timestamp: new Date().toISOString()
         };
-        
+
         await fetch(RECHARGE_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             content: '🔔 **YÊU CẦU NẠP TIỀN MỚI**',
-            embeds: [embed] 
+            embeds: [embed]
           })
         });
       } catch (discordError) {
@@ -126,7 +126,7 @@ const Recharge = () => {
   return (
     <div className="shop-summer-container min-vh-100">
       <SummerEffect />
-      
+
       {/* Summer Background Items */}
       <div className="summer-item" style={{ top: '10%', left: '5%', fontSize: '50px' }}>🌴</div>
       <div className="summer-item" style={{ bottom: '15%', right: '5%', fontSize: '40px' }}>🍹</div>
@@ -145,11 +145,11 @@ const Recharge = () => {
               <h4 className="summer-label mb-4 d-flex align-items-center gap-2">
                 <BiQrScan /> QUÉT MÃ VIETQR ĐỂ NẠP TỰ ĐỘNG
               </h4>
-              
+
               <div className="p-4 rounded-4 border-2 border-info border-dashed mb-4 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
-                <img 
-                  src={`https://vzge.me/bust/${userProfile?.username}.png`} 
-                  alt="avatar" 
+                <img
+                  src={`https://vzge.me/bust/${userProfile?.username}.png`}
+                  alt="avatar"
                   className="rounded-4 shadow-lg mb-3 border border-3 border-info"
                   style={{ width: '80px', height: '80px', objectFit: 'contain' }}
                 />
@@ -160,12 +160,12 @@ const Recharge = () => {
               <div className="row g-4 mb-4">
                 <div className="col-md-12">
                   <label className="summer-label text-center">NHẬP SỐ TIỀN MUỐN NẠP (VNĐ)</label>
-                  <input 
-                    type="number" 
-                    className="summer-input w-100 py-3 px-4 text-center fs-4 fw-black text-primary" 
-                    placeholder="Ví dụ: 50000" 
-                    value={rechargeForm.amount} 
-                    onChange={e => setRechargeForm({...rechargeForm, amount: e.target.value})} 
+                  <input
+                    type="number"
+                    className="summer-input w-100 py-3 px-4 text-center fs-4 fw-black text-primary"
+                    placeholder="Ví dụ: 50000"
+                    value={rechargeForm.amount}
+                    onChange={e => setRechargeForm({ ...rechargeForm, amount: e.target.value })}
                   />
                   <div className="text-center small text-info mt-2 fw-bold">Tối thiểu: 1,000đ - Tự động cộng sau 30s - 1p</div>
                 </div>
@@ -183,7 +183,7 @@ const Recharge = () => {
                           style={{ maxWidth: '280px' }}
                         />
                         <div className="position-absolute top-50 start-50 translate-middle opacity-10" style={{ zIndex: -1 }}>
-                           <BiQrScan size={150} />
+                          <BiQrScan size={150} />
                         </div>
                       </div>
                       <div className="p-3 bg-primary bg-opacity-10 rounded-4 border-2 border-primary border-dashed mb-4">
@@ -212,18 +212,18 @@ const Recharge = () => {
               <h4 className="summer-label mb-4 d-flex align-items-center gap-2">
                 <BiInfoCircle /> LƯU Ý KHI NẠP
               </h4>
-              
+
               <div className="d-flex flex-column gap-4">
                 <div className="d-flex gap-3 align-items-center">
-                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiCheckCircle size={24}/></div>
+                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiCheckCircle size={24} /></div>
                   <div>
                     <h6 className="fw-black text-dark mb-1">Duyệt tự động 24/7</h6>
                     <p className="small text-muted m-0">Tiền sẽ được cộng vào ví của bạn sau 30 giây đến 1 phút kể từ khi giao dịch thành công.</p>
                   </div>
                 </div>
-                
+
                 <div className="d-flex gap-3 align-items-center">
-                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 text-warning" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiInfoCircle size={24}/></div>
+                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 text-warning" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiInfoCircle size={24} /></div>
                   <div>
                     <h6 className="fw-black text-dark mb-1">Đúng nội dung chuyển khoản</h6>
                     <p className="small text-muted m-0">Hãy đảm bảo nội dung chuyển khoản là <span className="fw-bold text-primary">NAP {userProfile?.username}</span> để hệ thống nhận diện được bạn.</p>
@@ -231,7 +231,7 @@ const Recharge = () => {
                 </div>
 
                 <div className="d-flex gap-3 align-items-center">
-                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiWallet size={24}/></div>
+                  <div className="d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info" style={{ width: '48px', height: '48px', flexShrink: 0 }}><BiWallet size={24} /></div>
                   <div>
                     <h6 className="fw-black text-dark mb-1">Hỗ trợ nạp lỗi</h6>
                     <p className="small text-muted m-0">Nếu sau 5 phút vẫn chưa thấy tiền, vui lòng liên hệ Admin qua Discord hoặc mục Liên hệ kèm ảnh biên lai.</p>
@@ -241,26 +241,26 @@ const Recharge = () => {
                 <hr className="my-2 border-info border-opacity-20" />
 
                 <div className="p-4 rounded-4" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
-                   <div className="small fw-bold text-muted mb-3 text-uppercase tracking-widest">Thông tin ngân hàng</div>
-                   <div className="d-flex flex-column gap-2">
-                      <div className="d-flex justify-content-between">
-                         <span className="text-muted">Ngân hàng:</span>
-                         <span className="fw-black text-dark">MB Bank</span>
-                      </div>
-                      <div className="d-flex justify-content-between">
-                         <span className="text-muted">Số tài khoản:</span>
-                         <span className="fw-black text-primary">0000865746243</span>
-                      </div>
-                      <div className="d-flex justify-content-between">
-                         <span className="text-muted">Chủ tài khoản:</span>
-                         <span className="fw-black text-dark">LE DUC TRONG</span>
-                      </div>
-                   </div>
+                  <div className="small fw-bold text-muted mb-3 text-uppercase tracking-widest">Thông tin ngân hàng</div>
+                  <div className="d-flex flex-column gap-2">
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">Ngân hàng:</span>
+                      <span className="fw-black text-dark">MB Bank</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">Số tài khoản:</span>
+                      <span className="fw-black text-primary">0000865746243</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">Chủ tài khoản:</span>
+                      <span className="fw-black text-dark">LE DUC TRONG</span>
+                    </div>
+                  </div>
                 </div>
 
-                 <button onClick={() => navigate('/profile')} className="summer-button w-100 py-3 mt-auto">
-                   XEM LỊCH SỬ BIẾN ĐỘNG VÍ →
-                 </button>
+                <button onClick={() => navigate('/profile')} className="summer-button w-100 py-3 mt-auto">
+                  XEM LỊCH SỬ BIẾN ĐỘNG VÍ →
+                </button>
               </div>
             </motion.div>
           </div>

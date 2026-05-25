@@ -140,7 +140,7 @@ const Admin = () => {
 
       const topStartDate = topDateRange.start ? new Date(topDateRange.start) : null;
       if (topStartDate) topStartDate.setHours(0, 0, 0, 0);
-      
+
       const topEndDate = topDateRange.end ? new Date(topDateRange.end) : null;
       if (topEndDate) topEndDate.setHours(23, 59, 59, 999);
 
@@ -165,7 +165,7 @@ const Admin = () => {
           productCounts[pName] = (productCounts[pName] || 0) + 1;
 
           const username = order.mc_username || 'Ẩn danh';
-          
+
           let shouldIncludeInTop = true;
           if (topStartDate && orderDate < topStartDate) {
             shouldIncludeInTop = false;
@@ -173,7 +173,7 @@ const Admin = () => {
           if (topEndDate && orderDate > topEndDate) {
             shouldIncludeInTop = false;
           }
-          
+
           if (shouldIncludeInTop) {
             userSpending[username] = (userSpending[username] || 0) + price;
           }
@@ -243,7 +243,7 @@ const Admin = () => {
       navigate('/login');
       return;
     }
-    
+
     if (userProfile && userProfile.role !== 'admin') {
       alert('Bạn không có quyền truy cập trang quản trị!');
       navigate('/shop');
@@ -363,9 +363,9 @@ const Admin = () => {
     }
   };
 
-  const handleLogout = async () => { 
-    await logout(); 
-    navigate('/'); 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   const tabs = [
@@ -386,7 +386,7 @@ const Admin = () => {
   return (
     <div className="admin-summer-container min-vh-100" style={{ backgroundColor: 'var(--summer-bg)' }}>
       <SummerEffect />
-      
+
       <div className="container-fluid p-0">
         <div className="row g-0">
           {/* Sidebar */}
@@ -422,9 +422,9 @@ const Admin = () => {
             {/* Header Mobile */}
             <div className="d-lg-none summer-glass p-3 mb-4 bg-white shadow-sm border-0 d-flex justify-content-between align-items-center" style={{ backgroundColor: 'var(--bg-card)' }}>
               <h5 className="m-0 fw-black text-primary">ADMIN 🏝️</h5>
-              <select 
-                className="summer-input py-1 px-3 small border-primary" 
-                value={activeTab} 
+              <select
+                className="summer-input py-1 px-3 small border-primary"
+                value={activeTab}
                 onChange={(e) => setActiveTab(e.target.value)}
               >
                 {tabs.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
@@ -515,7 +515,7 @@ const Admin = () => {
                                 <tr key={i}>
                                   <td>
                                     <div className="d-flex align-items-center gap-2">
-                                      <span className={`badge rounded-pill bg-opacity-10 text-primary border border-primary border-opacity-20`}>{i+1}</span>
+                                      <span className={`badge rounded-pill bg-opacity-10 text-primary border border-primary border-opacity-20`}>{i + 1}</span>
                                       <img src={`https://vzge.me/bust/${d.name}.png`} alt="Skin" style={{ width: '24px' }} />
                                       <span className="fw-bold text-dark">{d.name}</span>
                                     </div>
@@ -631,9 +631,8 @@ const Admin = () => {
                               <td className="align-middle text-truncate fw-medium" style={{ maxWidth: '200px' }}>{contact.subject}</td>
                               <td className="align-middle small text-muted">{new Date(contact.created_at).toLocaleDateString('vi-VN')}</td>
                               <td className="align-middle text-center">
-                                <span className={`badge rounded-pill px-3 py-1 ${
-                                  contact.status === 'resolved' ? 'bg-success' : 'bg-warning text-dark'
-                                }`}>
+                                <span className={`badge rounded-pill px-3 py-1 ${contact.status === 'resolved' ? 'bg-success' : 'bg-warning text-dark'
+                                  }`}>
                                   {contact.status === 'resolved' ? 'ĐÃ XỬ LÝ' : 'CHỜ PHẢN HỒI'}
                                 </span>
                               </td>
@@ -737,8 +736,8 @@ const Admin = () => {
       <AnimatePresence>
         {showModal && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }} onClick={() => setShowModal(false)}>
-            <motion.div 
-              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
+            <motion.div
+              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl"
               style={{ maxWidth: '800px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -789,8 +788,8 @@ const Admin = () => {
 
         {showContactModal && selectedContact && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }} onClick={() => setShowContactModal(false)}>
-            <motion.div 
-              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl" 
+            <motion.div
+              className="summer-glass p-0 border-0 bg-white overflow-hidden shadow-2xl"
               style={{ maxWidth: '600px', width: '100%' }}
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

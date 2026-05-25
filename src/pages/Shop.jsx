@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { 
-  BiShoppingBag, 
-  BiUser, 
-  BiCheckCircle, 
-  BiQrScan, 
-  BiCreditCard, 
-  BiStar, 
+import {
+  BiShoppingBag,
+  BiUser,
+  BiCheckCircle,
+  BiQrScan,
+  BiCreditCard,
+  BiStar,
   BiWallet,
   BiInfoCircle,
   BiRefresh,
@@ -97,7 +97,7 @@ const Shop = () => {
         .select('mc_username, price')
         .eq('is_deleted', false)
         .or('status.eq.paid,status.eq.delivered');
-      
+
       if (error) throw error;
       const userSpending = {};
       data.forEach(o => userSpending[o.mc_username] = (userSpending[o.mc_username] || 0) + (o.price || 0));
@@ -131,14 +131,14 @@ const Shop = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.mc_username || !formData.product_id) return;
-    
+
     setSubmitting(true);
     const product = products.find(p => p.id === formData.product_id);
 
     if (formData.payment_method === 'wallet') {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { alert('Vui lòng đăng nhập để sử dụng ví!'); setSubmitting(false); return; }
-      
+
       const { data: result, error } = await supabase.rpc('process_wallet_purchase', {
         p_user_id: user.id,
         p_product_id: product.id,
@@ -211,7 +211,7 @@ const Shop = () => {
     <div className="shop-summer-container">
       <Helmet><title>OCEAN SHOP - Cửa Hàng Mùa Hè</title></Helmet>
       <SummerEffect />
-      
+
       {/* Decorative Items */}
       <div className="summer-item dolphin" style={{ top: '15%', right: '-50px', animationDelay: '2s' }}>🐬</div>
       <div className="summer-item" style={{ bottom: '50px', left: '20px', fontSize: '40px' }}>🐚</div>
@@ -219,7 +219,7 @@ const Shop = () => {
 
       <div className="container py-5 position-relative" style={{ zIndex: 10 }}>
         <header className="text-center mb-5">
-          <motion.h1 
+          <motion.h1
             className="summer-title display-3 fw-black mb-3"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -232,17 +232,17 @@ const Shop = () => {
         <div className="row g-4">
           {/* Sidebar Top Nạp */}
           <div className="col-lg-3 d-none d-lg-block">
-            <motion.div 
-              className="summer-glass p-4 sticky-top" 
+            <motion.div
+              className="summer-glass p-4 sticky-top"
               style={{ top: '100px' }}
               initial={{ x: -30, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
             >
-              <h4 className="summer-label mb-4"><BiStar className="text-warning me-2"/>TOP ĐẠI GIA 💎</h4>
+              <h4 className="summer-label mb-4"><BiStar className="text-warning me-2" />TOP ĐẠI GIA 💎</h4>
               <div className="d-flex flex-column gap-3">
                 {topDonators.map((user, i) => (
                   <div key={i} className="d-flex align-items-center p-2 rounded-4 shadow-sm border border-info border-opacity-10" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
-                    <div className={`badge ${i === 0 ? 'bg-warning' : 'bg-info'} me-2 rounded-circle`} style={{ width: '25px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i+1}</div>
+                    <div className={`badge ${i === 0 ? 'bg-warning' : 'bg-info'} me-2 rounded-circle`} style={{ width: '25px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
                     <img src={`https://vzge.me/bust/${user.name}.png`} className="me-2 rounded-3 shadow-sm" alt="avatar" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
                     <div className="flex-grow-1 overflow-hidden">
                       <div className="fw-bold text-primary text-truncate small">{user.name}</div>
@@ -260,7 +260,7 @@ const Shop = () => {
             {/* Category Tabs */}
             <div className="d-flex gap-2 mb-5 overflow-auto pb-2 scroll-hide">
               {categories.map(cat => (
-                <button 
+                <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`btn rounded-pill px-4 py-2 fw-extrabold shadow-sm transition-all ${selectedCategory === cat.id ? 'summer-button' : 'summer-button-outline'}`}
@@ -274,7 +274,7 @@ const Shop = () => {
             <div className="row g-4">
               {filteredProducts.map(product => (
                 <div key={product.id} className="col-md-6 col-xl-4">
-                  <motion.div 
+                  <motion.div
                     whileHover={{ y: -12 }}
                     className="summer-glass h-100 p-3 text-center d-flex flex-column border-0 shadow-lg"
                     style={{ backgroundColor: 'var(--bg-card)' }}
@@ -294,8 +294,8 @@ const Shop = () => {
             {/* Order Form */}
             <AnimatePresence>
               {selectedProduct && (
-                <motion.div 
-                  ref={formRef} 
+                <motion.div
+                  ref={formRef}
                   className="summer-glass p-4 p-md-5 mt-5 border-0 shadow-2xl"
                   style={{ backgroundColor: 'var(--bg-card)' }}
                   initial={{ opacity: 0, y: 50 }}
@@ -305,7 +305,7 @@ const Shop = () => {
                     <h3 className="summer-title m-0" style={{ fontSize: '1.8rem' }}>📦 THÔNG TIN ĐƠN HÀNG</h3>
                     <BiShoppingBag size={40} className="text-info opacity-50" />
                   </div>
-                  
+
                   <div className="p-3 bg-sand-light rounded-4 mb-4 fw-bold text-primary border border-info border-opacity-20" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                     Vật phẩm đã chọn: <span className="text-primary">{selectedProduct.name}</span> - <span className="text-info">{selectedProduct.price.toLocaleString()} VNĐ</span>
                   </div>
@@ -313,18 +313,18 @@ const Shop = () => {
                   <form onSubmit={handleSubmit} className="row g-4">
                     <div className="col-md-6">
                       <label className="summer-label">Tên Nhân Vật Minecraft</label>
-                      <input 
-                        type="text" 
-                        className="summer-input w-100" 
-                        placeholder="Nhập IGN của bạn..." 
-                        value={formData.mc_username} 
-                        onChange={e => setFormData({...formData, mc_username: e.target.value})} 
-                        required 
+                      <input
+                        type="text"
+                        className="summer-input w-100"
+                        placeholder="Nhập IGN của bạn..."
+                        value={formData.mc_username}
+                        onChange={e => setFormData({ ...formData, mc_username: e.target.value })}
+                        required
                       />
                     </div>
                     <div className="col-md-6">
                       <label className="summer-label">Phương Thức Thanh Toán</label>
-                      <select className="summer-select w-100" value={formData.payment_method} onChange={e => setFormData({...formData, payment_method: e.target.value})}>
+                      <select className="summer-select w-100" value={formData.payment_method} onChange={e => setFormData({ ...formData, payment_method: e.target.value })}>
                         <option value="qr">QUÉT MÃ QR (AUTO ✅)</option>
                         <option value="bank">CHUYỂN KHOẢN (AUTO ✅)</option>
                         <option value="wallet">THANH TOÁN BẰNG VÍ 💳</option>
@@ -352,9 +352,9 @@ const Shop = () => {
               <div className="mb-4">
                 {currentOrder.payment_method === 'qr' ? (
                   <>
-                    <img 
-                      src={`https://img.vietqr.io/image/MB-${paymentInfo.bank_account}-compact2.png?amount=${currentOrder.price}&addInfo=${currentOrder.id.substring(0,8)}&accountName=${paymentInfo.account_name}`} 
-                      className="img-fluid rounded-4 border border-info border-4 p-2 shadow-2xl bg-white" 
+                    <img
+                      src={`https://img.vietqr.io/image/MB-${paymentInfo.bank_account}-compact2.png?amount=${currentOrder.price}&addInfo=${currentOrder.id.substring(0, 8)}&accountName=${paymentInfo.account_name}`}
+                      className="img-fluid rounded-4 border border-info border-4 p-2 shadow-2xl bg-white"
                       alt="QR Code"
                     />
                     <div className="mt-4 p-3 rounded-4 border-2 border-info border-dashed" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
@@ -385,8 +385,8 @@ const Shop = () => {
                       </div>
                       <div className="small fw-bold text-muted mt-3">NỘI DUNG CHUYỂN KHOẢN (BẮT BUỘC)</div>
                       <div className="d-flex align-items-center justify-content-between">
-                        <div className="fw-black">{currentOrder.id.substring(0,8)}</div>
-                        <button type="button" className="summer-button-outline" onClick={() => navigator.clipboard.writeText(currentOrder.id.substring(0,8))}>COPY</button>
+                        <div className="fw-black">{currentOrder.id.substring(0, 8)}</div>
+                        <button type="button" className="summer-button-outline" onClick={() => navigator.clipboard.writeText(currentOrder.id.substring(0, 8))}>COPY</button>
                       </div>
                       <div className="x-small text-danger mt-2">*Vui lòng nhập chính xác nội dung để được duyệt tự động.</div>
                     </div>

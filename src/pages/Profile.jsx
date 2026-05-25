@@ -15,7 +15,7 @@ const Profile = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  
+
   const [passwordForm, setPasswordForm] = useState({
     newPassword: '',
     confirmPassword: ''
@@ -105,7 +105,7 @@ const Profile = () => {
   return (
     <div className="shop-summer-container min-vh-100">
       <SummerEffect />
-      
+
       {/* Summer Background Items */}
       <div className="summer-item" style={{ top: '15%', right: '10%', fontSize: '45px' }}>🐚</div>
       <div className="summer-item dolphin" style={{ top: '25%', left: '-40px', animationDelay: '1s' }}>🐬</div>
@@ -122,16 +122,16 @@ const Profile = () => {
             <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="summer-glass p-4 text-center sticky-top shadow-2xl border-0" style={{ top: '100px', backgroundColor: 'var(--bg-card)' }}>
               <div className="mb-4 position-relative d-inline-block">
                 <div className="rounded-circle p-2 shadow-lg" style={{ backgroundColor: 'var(--bg-card)' }}>
-                  <img 
-                    src={`https://vzge.me/bust/${profile?.username}.png`} 
-                    alt="avatar" 
-                    className="rounded-circle shadow-inner border border-4 border-info" 
+                  <img
+                    src={`https://vzge.me/bust/${profile?.username}.png`}
+                    alt="avatar"
+                    className="rounded-circle shadow-inner border border-4 border-info"
                     style={{ width: '120px', height: '120px', objectFit: 'contain' }}
                   />
                 </div>
                 <div className="position-absolute bottom-0 end-0 bg-success border border-white border-3 rounded-circle" style={{ width: '25px', height: '25px', boxShadow: '0 0 15px rgba(25, 135, 84, 0.5)' }}></div>
               </div>
-              
+
               <h3 className="fw-black text-primary mb-1">{profile?.username?.toUpperCase()}</h3>
               <div className="d-flex align-items-center justify-content-center gap-2 mb-4">
                 {profile?.role === 'admin' ? (
@@ -144,7 +144,7 @@ const Profile = () => {
                   </span>
                 )}
               </div>
-              
+
               <div className="p-4 rounded-4 shadow-inner mb-4 border border-info border-opacity-20" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                 <div className="small text-muted mb-1 fw-bold text-uppercase tracking-wider">Số dư ví hiện tại</div>
                 <h2 className="text-info fw-black mb-0 display-6">{(wallet?.balance || 0).toLocaleString()} <small className="h5">VNĐ</small></h2>
@@ -217,10 +217,9 @@ const Profile = () => {
                           <td className="small fw-bold text-muted">{new Date(r.created_at).toLocaleDateString('vi-VN')}</td>
                           <td className="fw-black text-end text-primary">{r.amount.toLocaleString()}đ</td>
                           <td className="text-end">
-                            <span className={`badge rounded-pill px-3 py-2 ${
-                              r.status === 'pending' ? 'bg-warning text-dark' : 
-                              r.status === 'approved' ? 'bg-success text-white' : 'bg-danger text-white'
-                            } shadow-sm`}>
+                            <span className={`badge rounded-pill px-3 py-2 ${r.status === 'pending' ? 'bg-warning text-dark' :
+                                r.status === 'approved' ? 'bg-success text-white' : 'bg-danger text-white'
+                              } shadow-sm`}>
                               {r.status === 'pending' ? '⏳ Đang chờ' : r.status === 'approved' ? '✅ Thành công' : '❌ Đã hủy'}
                             </span>
                           </td>
@@ -249,24 +248,24 @@ const Profile = () => {
               <form onSubmit={handlePasswordSubmit} className="d-flex flex-column gap-4">
                 <div>
                   <label className="summer-label">MẬT KHẨU MỚI</label>
-                  <input 
-                    type="password" 
-                    className="summer-input w-100" 
-                    placeholder="Ít nhất 6 ký tự..." 
-                    value={passwordForm.newPassword} 
-                    onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})} 
-                    required 
+                  <input
+                    type="password"
+                    className="summer-input w-100"
+                    placeholder="Ít nhất 6 ký tự..."
+                    value={passwordForm.newPassword}
+                    onChange={e => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    required
                   />
                 </div>
                 <div>
                   <label className="summer-label">XÁC NHẬN MẬT KHẨU</label>
-                  <input 
-                    type="password" 
-                    className="summer-input w-100" 
-                    placeholder="Nhập lại mật khẩu..." 
-                    value={passwordForm.confirmPassword} 
-                    onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} 
-                    required 
+                  <input
+                    type="password"
+                    className="summer-input w-100"
+                    placeholder="Nhập lại mật khẩu..."
+                    value={passwordForm.confirmPassword}
+                    onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    required
                   />
                 </div>
                 <button type="submit" disabled={updatingPassword} className="summer-button py-3 mt-2">

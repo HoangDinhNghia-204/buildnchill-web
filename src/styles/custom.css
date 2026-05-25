@@ -3,10 +3,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
 
 :root {
-  --bg-primary: #F6E7C8;
-  --bg-secondary: #F8EBCF;
-  --bg-tertiary: #FFF7E6;
-  --tet-red: #0284C7;
+  --bg-primary: #f6e7c8;
+  --bg-secondary: #f8ebcf;
+  --bg-tertiary: #fff7e6;
+  --tet-red: #0284c7;
   --tet-red-dark: #0369a1;
   --tet-red-light: #0ea5e9;
   --tet-gold: #0ea5e9;
@@ -15,9 +15,9 @@
   --tet-orange: #0ea5e9;
   --tet-orange-dark: #0284c7;
   --tet-orange-light: #38bdf8;
-  --text-primary: #1F2937;
-  --text-secondary: #4B5563;
-  --text-muted: #6B7280;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
   --glass-bg: rgba(255, 247, 230, 0.95);
   --glass-border: rgba(14, 165, 233, 0.2);
   --glass-shadow: rgba(0, 0, 0, 0.05);
@@ -35,7 +35,8 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
   line-height: 1.6;
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       circle at 20% 50%,
       rgba(220, 38, 38, 0.05) 0%,
       transparent 50%
@@ -65,13 +66,17 @@ body {
 }
 
 .tet-glow {
-  text-shadow: 0 0 10px var(--tet-red), 0 0 20px var(--tet-red),
+  text-shadow:
+    0 0 10px var(--tet-red),
+    0 0 20px var(--tet-red),
     0 0 30px var(--tet-gold);
 }
 
 .tet-border {
   border: 2px solid var(--tet-red);
-  box-shadow: 0 0 15px var(--tet-red), inset 0 0 10px var(--tet-gold);
+  box-shadow:
+    0 0 15px var(--tet-red),
+    inset 0 0 10px var(--tet-gold);
 }
 
 .tet-button {
@@ -113,7 +118,9 @@ body {
 
 .tet-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.6), 0 0 30px var(--tet-gold);
+  box-shadow:
+    0 8px 25px rgba(220, 38, 38, 0.6),
+    0 0 30px var(--tet-gold);
   border-color: var(--tet-gold-light);
 }
 
@@ -319,7 +326,9 @@ body {
 
 .card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 10px 40px rgba(220, 38, 38, 0.3), 0 0 20px var(--tet-gold);
+  box-shadow:
+    0 10px 40px rgba(220, 38, 38, 0.3),
+    0 0 20px var(--tet-gold);
   border-color: var(--tet-gold) !important;
 }
 
@@ -752,7 +761,8 @@ body {
     padding-top: 15px !important;
   }
 
-  .container, .container-fluid {
+  .container,
+  .container-fluid {
     padding-left: 15px !important;
     padding-right: 15px !important;
   }
@@ -815,11 +825,12 @@ body {
   }
 
   /* Specific table columns minimum width to prevent squeezing */
-  th, td {
+  th,
+  td {
     min-width: 100px;
     white-space: nowrap;
   }
-  
+
   td.text-truncate {
     white-space: normal !important;
     min-width: 200px;
@@ -839,14 +850,16 @@ body {
     margin-left: -10px !important;
     margin-right: -10px !important;
   }
-  
+
   [class*="col-"] {
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
 
   /* Prevent horizontal scroll */
-  body, #root, .App {
+  body,
+  #root,
+  .App {
     overflow-x: hidden !important;
     width: 100% !important;
     max-width: 100vw !important;
@@ -863,7 +876,8 @@ body {
 
 /* Small Phones */
 @media (max-width: 576px) {
-  .hero-title, .summer-title {
+  .hero-title,
+  .summer-title {
     font-size: 1.75rem !important;
     word-wrap: break-word;
   }
@@ -872,7 +886,8 @@ body {
     padding: 1rem !important;
   }
 
-  .tet-button, .tet-button-outline {
+  .tet-button,
+  .tet-button-outline {
     padding: 10px 20px;
     font-size: 0.85rem;
     width: 100%;
@@ -894,15 +909,15 @@ body {
 }
 
 /* Modal Headers fix */
-.bg-primary h4, 
+.bg-primary h4,
 .bg-primary h5,
 .bg-primary .fw-black {
-  color: #FFFFFF !important;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .bg-primary button.text-white {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Animations */

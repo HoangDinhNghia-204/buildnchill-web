@@ -57,7 +57,7 @@ const UserManagement = () => {
         .eq('id', editingUser.id);
 
       if (profileError) throw profileError;
-      
+
       if (editForm.new_password.trim()) {
         if (editForm.new_password.length < 6) {
           alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
@@ -72,7 +72,7 @@ const UserManagement = () => {
         if (passwordError) throw passwordError;
         if (!passwordResult.success) throw new Error(passwordResult.message);
       }
-      
+
       setEditingUser(null);
       fetchUsers();
     } catch (error) {
@@ -100,7 +100,7 @@ const UserManagement = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -148,9 +148,9 @@ const UserManagement = () => {
                   <tr key={user.id}>
                     <td className="ps-4 align-middle">
                       <div className="rounded-3 p-1 d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '45px', height: '45px', backgroundColor: 'var(--bg-sand-light)' }}>
-                        <img 
-                          src={`https://vzge.me/bust/${user.username}.png`} 
-                          alt="Skin" 
+                        <img
+                          src={`https://vzge.me/bust/${user.username}.png`}
+                          alt="Skin"
                           className="w-100 h-100 object-fit-contain"
                         />
                       </div>
@@ -158,10 +158,9 @@ const UserManagement = () => {
                     <td className="align-middle fw-black text-dark fs-5">{user.username}</td>
                     <td className="align-middle text-muted">{user.full_name || '-'}</td>
                     <td className="align-middle text-center">
-                      <span className={`badge rounded-pill px-3 py-2 fw-black ${
-                        user.role === 'admin' ? 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20' : 
-                        'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20'
-                      }`}>
+                      <span className={`badge rounded-pill px-3 py-2 fw-black ${user.role === 'admin' ? 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20' :
+                          'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20'
+                        }`}>
                         {user.role === 'admin' ? 'QUẢN TRỊ' : 'NGƯỜI CHƠI'}
                       </span>
                     </td>
@@ -189,7 +188,7 @@ const UserManagement = () => {
       <AnimatePresence>
         {editingUser && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', zIndex: 10000, backdropFilter: 'blur(8px)' }}>
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -200,12 +199,12 @@ const UserManagement = () => {
                 <h4 className="m-0 fw-black" style={{ color: '#fff' }}>SỬA THÔNG TIN THÀNH VIÊN</h4>
                 <button className="btn btn-link text-white p-0" onClick={() => setEditingUser(null)}><BiX size={28} /></button>
               </div>
-              
+
               <div className="p-4 text-center" style={{ backgroundColor: 'var(--bg-sand-light)' }}>
                 <div className="d-inline-block rounded-circle p-3 shadow-sm border border-4 mb-3" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--bg-card)' }}>
-                  <img 
-                    src={`https://vzge.me/bust/${editForm.username}.png`} 
-                    alt="Skin" 
+                  <img
+                    src={`https://vzge.me/bust/${editForm.username}.png`}
+                    alt="Skin"
                     style={{ width: '80px', height: '80px', objectFit: 'contain' }}
                   />
                 </div>
