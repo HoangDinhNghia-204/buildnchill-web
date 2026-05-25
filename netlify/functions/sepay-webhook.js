@@ -1,40 +1,47 @@
 import { createClient } from '@supabase/supabase-js';
 
 export const handler = async (event) => {
-  // Chỉ chấp nhận phương thức POST
+  // Trả về 200 nhanh cho SePay nếu không phải POST
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 200, body: 'Ready' };
   }
 
   try {
     const payload = JSON.parse(event.body);
     const authHeader = event.headers['authorization'] || '';
-    const sepayToken = process.env.SEPAY_WEBHOOK_TOKEN; // Cần cấu hình trong Netlify Env
+    const sepayToken = process.env.SEPAY_WEBHOOK_TOKEN;
 
-    // Kiểm tra Token bảo mật từ SePay (Hỗ trợ cả định dạng Bearer và Apikey của SePay)
+    // Kiểm tra Token bảo mật
     if (sepayToken && !authHeader.includes(sepayToken)) {
       console.error('Invalid SePay Webhook Token');
       return { statusCode: 401, body: 'Unauthorized' };
     }
 
-    // Khởi tạo Supabase Client
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE; // Dùng Service Role Key để có quyền ghi
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
+    // Lấy thông tin từ payload (SePay gửi transferAmount thay vì amount_in ở một số cấu hình)
     const {
       content,
       amount_in,
+      transferAmount,
       transaction_content,
       id: transactionId
     } = payload;
 
     const finalContent = content || transaction_content || '';
-    const amount = parseInt(amount_in || payload.transfer_amount || 0);
+    const amount = parseInt(amount_in || transferAmount || 0);
 
-    console.log(`Processing SePay Webhook: ${finalContent} - ${amount} VND`);
+    console.log(`Webhook Received: ${finalContent} - ${amount} VND`);
 
-    // Gọi hàm RPC trong Supabase để xử lý logic
+    // Kiểm tra các biến môi trường quan trọng
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase Config on Netlify');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Gọi RPC xử lý
     const { data, error } = await supabase.rpc('process_sepay_webhook', {
       p_content: finalContent,
       p_amount: amount,
@@ -42,18 +49,22 @@ export const handler = async (event) => {
     });
 
     if (error) {
-      console.error('RPC Error:', error);
+      console.error('Database Error:', error.message);
       return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
     }
 
-    console.log('Webhook processed successfully:', data);
+    console.log('Success:', data);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, result: data })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: true, message: 'Processed' })
     };
   } catch (err) {
-    console.error('Webhook processing error:', err);
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    console.error('System Error:', err.message);
+    return { 
+      statusCode: 200, // Vẫn trả về 200 để SePay không gửi lại liên tục nếu là lỗi logic
+      body: JSON.stringify({ error: err.message }) 
+    };
   }
 };
