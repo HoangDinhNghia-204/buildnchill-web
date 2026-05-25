@@ -9,7 +9,7 @@ import '../styles/carousel.css';
 import '../styles/summer-theme.css';
 
 const Home = () => {
-  const { news, serverStatus, siteSettings } = useData();
+  const { news, serverStatus, siteSettings, carouselImages: dbCarouselImages } = useData();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const latestNews = news.slice(0, 3);
@@ -17,11 +17,14 @@ const Home = () => {
   const siteTitle = siteSettings?.site_title || 'BuildnChill';
   const serverIp = siteSettings?.server_ip || 'buildnchill.id.vn';
 
-  const carouselImages = [
-    'https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless',
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80',
-    'https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-  ];
+  // Sử dụng ảnh từ database nếu có, ngược lại dùng ảnh mặc định
+  const carouselImages = dbCarouselImages && dbCarouselImages.length > 0 
+    ? dbCarouselImages.filter(img => img.is_active).map(img => img.image_url)
+    : [
+        'https://media.discordapp.net/attachments/1318780761880658030/1467738661251580092/image.png?ex=698179a6&is=69802826&hm=ac1c46e7d28ebd7744c810b1e59f59e59eb24d55975d76d2627a642c0a2d117f&=&format=webp&quality=lossless',
+        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80',
+        'https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+      ];
 
   useEffect(() => {
     const timer = setInterval(() => {
