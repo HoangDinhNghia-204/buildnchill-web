@@ -19,9 +19,9 @@ const Recharge = () => {
   });
 
   const paymentInfo = {
-    bank_account: '0000865746243',
-    bank_name: 'MBBank',
-    account_name: 'LE DUC TRONG'
+    bank_account: import.meta.env.VITE_BANK_ACCOUNT,
+    bank_name: import.meta.env.VITE_BANK_NAME,
+    account_name: import.meta.env.VITE_BANK_ACCOUNT_NAME
   };
 
   useEffect(() => {

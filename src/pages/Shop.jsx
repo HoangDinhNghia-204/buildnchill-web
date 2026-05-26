@@ -34,9 +34,9 @@ const Shop = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [topDonators, setTopDonators] = useState([]);
   const [paymentInfo] = useState({
-    bank_account: '0000865746243',
-    bank_name: 'MBBank',
-    account_name: 'LE DUC TRONG'
+    bank_account: import.meta.env.VITE_BANK_ACCOUNT,
+    bank_name: import.meta.env.VITE_BANK_NAME,
+    account_name: import.meta.env.VITE_BANK_ACCOUNT_NAME
   });
 
   const DISCORD_WEBHOOK_URL = import.meta.env.VITE_DISCORD_SHOP_WEBHOOK;
