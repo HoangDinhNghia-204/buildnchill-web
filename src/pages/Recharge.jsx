@@ -84,7 +84,7 @@ const Recharge = () => {
 
       // Discord notification on submit
       try {
-        const RECHARGE_WEBHOOK_URL = 'https://discord.com/api/webhooks/1467696152559227063/ms7Z7n4a6btul6Wlie0ugrjIN7HZTtdCVOrJFddUXjiFwdi0-TNjfJ_u6f9yFwyqD4ir';
+        const RECHARGE_WEBHOOK_URL = import.meta.env.VITE_DISCORD_BANK_WEBHOOK;
         const embed = {
           title: '💰 YÊU CẦU NẠP TIỀN MỚI',
           description: `👤 Người chơi **${userProfile.username}** vừa gửi một yêu cầu nạp tiền!`,

@@ -50,7 +50,7 @@ export const handler = async (event) => {
     if (data && data.success) {
       try {
         // Webhook URL cho kênh BANK
-        const BANK_WEBHOOK_URL = 'https://discord.com/api/webhooks/1467696152559227063/ms7Z7n4a6btul6Wlie0ugrjIN7HZTtdCVOrJFddUXjiFwdi0-TNjfJ_u6f9yFwyqD4ir';
+        const BANK_WEBHOOK_URL = process.env.VITE_DISCORD_BANK_WEBHOOK;
         
         const embed = {
           title: '⚡ THÔNG BÁO NẠP TIỀN TỰ ĐỘNG',

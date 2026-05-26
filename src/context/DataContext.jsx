@@ -320,7 +320,7 @@ export const DataProvider = ({ children }) => {
       // Discord notification update
       const contact = contacts.find(c => c.id === id);
       if (contact && contact.discord_message_id) {
-        const CONTACT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1459038651513311301/7iMnd_skBCTXmvvAhnZbmUawTGk1QO7Ft1nXimeKkmbBJQQvg7znZPwkbtrupSpmL9tS';
+        const CONTACT_WEBHOOK_URL = import.meta.env.VITE_DISCORD_CONTACT_WEBHOOK;
         
         const statusLabel = status === 'resolved' ? 'Đã Giải Quyết' : 
                            status === 'processing' ? 'Đang Kiểm Tra' : 'Đã Nhận';

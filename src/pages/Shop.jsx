@@ -39,7 +39,7 @@ const Shop = () => {
     account_name: 'LE DUC TRONG'
   });
 
-  const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1458351729023254529/TldcZM4HKMyELK9ZICAO8WXQDcG6vqCtYeSXJZ7NqXRWf1fZP_MRAjfjfkx-qgOrLJgS';
+  const DISCORD_WEBHOOK_URL = import.meta.env.VITE_DISCORD_SHOP_WEBHOOK;
 
   useEffect(() => {
     loadCategories();
