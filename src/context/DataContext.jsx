@@ -137,7 +137,7 @@ export const DataProvider = ({ children }) => {
       const settingsPromise = supabase.from('site_settings').select('*').eq('id', 1).maybeSingle();
       const statusPromise = supabase.from('server_status').select('*').eq('id', 1).maybeSingle();
       const contactsPromise = supabase.from('contacts').select('*').eq('is_deleted', false).order('created_at', { ascending: false });
-      const carouselPromise = supabase.from('carousel_images').select('*').order('display_order', { ascending: true });
+      const carouselPromise = supabase.from('carousel_images').select('*').eq('is_active', true).order('display_order', { ascending: true });
 
       const [newsRes, settingsRes, statusRes, contactsRes, carouselRes] = await Promise.all([
         newsPromise, 

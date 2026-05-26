@@ -110,7 +110,7 @@ const Shop = () => {
   };
 
   const loadCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').eq('active', true).order('display_order');
+    const { data } = await supabase.from('categories').select('*').eq('active', true).eq('is_deleted', false).order('display_order');
     if (data) {
       setCategories(data);
       if (data.length > 0 && !selectedCategory) setSelectedCategory(data[0].id);
@@ -118,7 +118,7 @@ const Shop = () => {
   };
 
   const loadProducts = async () => {
-    const { data } = await supabase.from('products').select('*').eq('active', true).order('display_order');
+    const { data } = await supabase.from('products').select('*').eq('active', true).eq('is_deleted', false).order('display_order');
     if (data) setProducts(data);
   };
 
