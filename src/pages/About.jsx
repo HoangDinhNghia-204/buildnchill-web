@@ -29,7 +29,7 @@ const About = () => {
   return (
     <div className="shop-summer-container min-vh-100 py-5">
       <Helmet>
-        <title>Giới Thiệu - BuildnChill Ocean</title>
+        <title>Giới Thiệu - BuildnChill Summer</title>
         <meta name="description" content="Khám phá hành trình phiêu lưu tại BuildnChill, máy chủ Minecraft mùa hè năng động nhất." />
       </Helmet>
       <SummerEffect />
@@ -116,7 +116,7 @@ const About = () => {
                       <h3 className="fw-black text-primary mb-3">BẮT ĐẦU CUỘC PHIÊU LƯU NGAY!</h3>
                       <p className="fw-bold text-muted m-0">
                         Đừng để mùa hè trôi qua một cách tẻ nhạt. Hãy kết nối với chúng tôi ngay hôm nay và cùng viết nên những 
-                        câu chuyện huyền thoại trên biển cả. BuildnChill Ocean đang chờ đón sự xuất hiện của bạn!
+                        câu chuyện huyền thoại trên biển cả. BuildnChill đang chờ đón sự xuất hiện của bạn!
                       </p>
                    </div>
                    <div className="col-md-4 text-center">

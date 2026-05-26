@@ -40,6 +40,7 @@ const ShopProductsManagement = () => {
       setProducts(data || []);
     } catch (error) {
       console.error('Error loading products:', error);
+      alert('Lỗi tải danh sách sản phẩm: ' + error.message);
     }
   };
 
@@ -49,12 +50,12 @@ const ShopProductsManagement = () => {
         .from('categories')
         .select('*')
         .eq('is_deleted', false)
-        .eq('active', true)
         .order('display_order');
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
       console.error('Error loading categories:', error);
+      alert('Lỗi tải danh sách danh mục: ' + error.message);
     }
   };
 
@@ -68,7 +69,7 @@ const ShopProductsManagement = () => {
       command: '',
       price: 0,
       display_price: '',
-      category_id: categories[0]?.id || '',
+      category_id: categories.length > 0 ? categories[0].id : '',
       display_order: products.length,
       active: true
     });
@@ -100,9 +101,11 @@ const ShopProductsManagement = () => {
         .update({ is_deleted: true })
         .eq('id', id);
       if (error) throw error;
+      alert('Đã xóa sản phẩm thành công!');
       loadProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
+      alert('Lỗi xóa sản phẩm: ' + error.message);
     }
   };
 
@@ -137,7 +140,11 @@ const ShopProductsManagement = () => {
           upsert: true
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase Product Storage Error:', uploadError);
+        alert('Lỗi tải ảnh sản phẩm: ' + uploadError.message);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('products')
@@ -146,7 +153,7 @@ const ShopProductsManagement = () => {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      return formData.image_url;
+      throw error; // Ném lỗi ra để handleSubmit bắt được và dừng lại
     } finally {
       setUploading(false);
     }
@@ -167,13 +174,15 @@ const ShopProductsManagement = () => {
       } else {
         const { error } = await supabase
           .from('products')
-          .insert([finalFormData]);
+          .insert([{ ...finalFormData, is_deleted: false }]);
         if (error) throw error;
       }
+      alert(editingProduct ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!');
       setShowModal(false);
       loadProducts();
     } catch (error) {
       console.error('Error saving product:', error);
+      alert('Lỗi lưu sản phẩm: ' + error.message);
     }
   };
 

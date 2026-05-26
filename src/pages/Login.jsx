@@ -49,7 +49,7 @@ const Login = () => {
                   <h2 className="summer-title mb-2">
                     Đăng Nhập
                   </h2>
-                  <p className="text-muted fw-bold">Hệ Thống Quản Trị Ocean Summer</p>
+                  <p className="text-muted fw-bold">Hệ Thống Quản Trị BuildnChill</p>
                 </div>
 
                 {error && (

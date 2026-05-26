@@ -52,7 +52,7 @@ const Home = () => {
   return (
     <div className="shop-summer-container min-vh-100">
       <Helmet>
-        <title>BuildnChill - Máy Chủ Minecraft Ocean Summer</title>
+        <title>BuildnChill - Máy Chủ Minecraft</title>
         <meta name="description" content={`Chào mừng bạn đến với ${siteTitle}. Trải nghiệm mùa hè rực rỡ cùng server Minecraft Việt Nam chất lượng nhất.`} />
       </Helmet>
 

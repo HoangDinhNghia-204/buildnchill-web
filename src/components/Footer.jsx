@@ -33,7 +33,7 @@ const Footer = () => {
             <h4 className="fw-black mb-4 text-info" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{siteSettings?.site_title || 'BuildnChill'}</h4>
             <p style={{ color: 'rgba(255,255,255,0.8)', lineHeight: '1.8', marginBottom: '1.5rem' }}>
               Giải nhiệt mùa hè cùng server Minecraft cộng đồng thân thiện nhất. 
-              Xây dựng, khám phá và tận hưởng kỳ nghỉ Ocean cùng chúng tôi!
+              Xây dựng, khám phá và tận hưởng kỳ nghỉ cùng chúng tôi!
             </p>
             <div className="social-icons d-flex gap-3">
               {socialLinks.map((social, index) => {

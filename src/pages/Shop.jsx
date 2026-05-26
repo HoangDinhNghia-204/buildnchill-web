@@ -209,7 +209,7 @@ const Shop = () => {
 
   return (
     <div className="shop-summer-container">
-      <Helmet><title>OCEAN SHOP - Cửa Hàng Mùa Hè</title></Helmet>
+      <Helmet><title>BUILDNCHILL SHOP - Cửa Hàng Mùa Hè</title></Helmet>
       <SummerEffect />
 
       {/* Decorative Items */}
@@ -224,7 +224,7 @@ const Shop = () => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
-            OCEAN SHOP 🌊
+            BUILDNCHILL SHOP 🌊
           </motion.h1>
           <p className="lead fw-bold text-primary">Nơi cung cấp vật phẩm xịn nhất Server BuildnChill</p>
         </header>

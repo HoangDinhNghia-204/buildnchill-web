@@ -31,6 +31,7 @@ const ShopCategoriesManagement = () => {
       setCategories(data || []);
     } catch (error) {
       console.error('Error loading categories:', error);
+      alert('Lỗi tải danh sách danh mục: ' + error.message);
     }
   };
 
@@ -66,9 +67,11 @@ const ShopCategoriesManagement = () => {
         .update({ is_deleted: true })
         .eq('id', id);
       if (error) throw error;
+      alert('Đã xóa danh mục thành công!');
       loadCategories();
     } catch (error) {
       console.error('Error deleting category:', error);
+      alert('Lỗi xóa danh mục: ' + error.message);
     }
   };
 
@@ -84,13 +87,15 @@ const ShopCategoriesManagement = () => {
       } else {
         const { error } = await supabase
           .from('categories')
-          .insert([formData]);
+          .insert([{ ...formData, is_deleted: false }]);
         if (error) throw error;
       }
+      alert(editingCategory ? 'Cập nhật danh mục thành công!' : 'Thêm danh mục thành công!');
       setShowModal(false);
       loadCategories();
     } catch (error) {
       console.error('Error saving category:', error);
+      alert('Lỗi lưu danh mục: ' + error.message);
     }
   };
 

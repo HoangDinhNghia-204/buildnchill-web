@@ -60,7 +60,10 @@ const Recharge = () => {
           .from('recharges')
           .upload(fileName, rechargeForm.proof_image);
 
-        if (uploadError) throw new Error('Lỗi khi tải ảnh lên: ' + uploadError.message);
+        if (uploadError) {
+          console.error('Supabase Storage Error:', uploadError);
+          throw new Error('Lỗi khi tải ảnh lên: ' + (uploadError.message || 'Không xác định'));
+        }
 
         const { data: urlData } = supabase.storage
           .from('recharges')

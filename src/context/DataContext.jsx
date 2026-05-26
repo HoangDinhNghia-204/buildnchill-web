@@ -486,7 +486,7 @@ export const DataProvider = ({ children }) => {
       // Discord notification - Chạy ngầm để không làm chậm UI
       (async () => {
         try {
-          const CONTACT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1459038651513311301/7iMnd_skBCTXmvvAhnZbmUawTGk1QO7Ft1nXimeKkmbBJQQvg7znZPwkbtrupSpmL9tS';
+          const CONTACT_WEBHOOK_URL = import.meta.env.VITE_DISCORD_CONTACT_WEBHOOK;
           
           const categoryLabel = contactData.category === 'report' ? 'Báo Cáo (Report)' :
                               contactData.category === 'bug' ? 'Báo Lỗi (Bug)' :

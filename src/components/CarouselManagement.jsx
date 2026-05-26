@@ -44,7 +44,11 @@ const CarouselManagement = () => {
           upsert: true
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase Carousel Storage Error:', uploadError);
+        alert('Lỗi tải ảnh Carousel: ' + uploadError.message);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('carousel_images')
@@ -53,7 +57,7 @@ const CarouselManagement = () => {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      return formData.image_url;
+      throw error;
     } finally {
       setUploading(false);
     }
